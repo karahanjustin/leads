@@ -32,9 +32,9 @@
     padding: 2rem;
     max-width: 1100px;
   }
-  .header-row { display: flex; justify-content: space-between; align-items: center; margin: 0 0 1.5rem; }
+  .header-row { display: flex; justify-content: space-between; align-items: center; margin: 0 0 1.5rem; flex-wrap: wrap; gap: 8px; }
   h1 { font-size: 22px; font-weight: 500; margin: 0; }
-  .header-actions { display: flex; gap: 8px; }
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   input, select, button {
     background: var(--color-background-secondary);
     color: var(--color-text-primary);
@@ -60,35 +60,30 @@
     cursor: pointer;
   }
   .callback-banner.active { display: block; }
-  .modal-backdrop {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-    display: none; align-items: center; justify-content: center; z-index: 100;
-  }
-  .modal-backdrop.active { display: flex; }
-  .modal {
-    background: var(--color-background-primary);
-    border: 0.5px solid var(--color-border-tertiary);
-    border-radius: var(--border-radius-lg);
-    padding: 1.5rem;
-    width: 90%;
-    max-width: 600px;
-  }
-  .modal h2 { margin: 0 0 0.5rem; font-size: 16px; font-weight: 500; }
-  .modal p { margin: 0 0 1rem; font-size: 13px; color: var(--color-text-secondary); }
-  .modal textarea {
-    width: 100%; min-height: 200px; resize: vertical;
-    background: var(--color-background-secondary);
-    color: var(--color-text-primary);
-    border: 0.5px solid var(--color-border-tertiary);
-    border-radius: var(--border-radius-md);
-    padding: 10px; font-size: 13px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
-  }
-  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
   .lead-row.overdue { border-color: var(--color-border-danger); }
   .callback-input {
     font-size: 11px; padding: 2px 6px; height: 24px;
     color-scheme: dark;
   }
+  .inline-edit {
+    background: transparent;
+    border: 0.5px solid transparent;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: inherit;
+    min-width: 30px;
+    max-width: 100%;
+  }
+  .inline-edit:hover { border-color: var(--color-border-tertiary); }
+  .inline-edit:focus { border-color: var(--color-text-info); outline: none; color: var(--color-text-primary); }
+  .inline-edit.empty { color: #666; font-style: italic; }
+  .meta-row { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+  .meta-row a { color: var(--color-text-info); text-decoration: none; }
+  .meta-row a:hover { text-decoration: underline; }
+  .meta-field { display: inline-flex; align-items: center; gap: 4px; }
+  .meta-sep { color: #555; }
 </style>
 </head>
 <body>
@@ -96,9 +91,10 @@
 <div class="header-row">
   <h1>Call Tracker</h1>
   <div class="header-actions">
-    <button class="small-btn" onclick="openBulkAdd()">Bulk add</button>
-    <button class="small-btn" onclick="exportData()">Export</button>
-    <button class="small-btn" onclick="document.getElementById('import-file').click()">Import</button>
+    <button class="small-btn" onclick="document.getElementById('csv-file').click()">Import CSV</button>
+    <input type="file" id="csv-file" accept=".csv,text/csv" style="display:none" onchange="importCSV(event)" />
+    <button class="small-btn" onclick="exportData()">Export JSON</button>
+    <button class="small-btn" onclick="document.getElementById('import-file').click()">Import JSON</button>
     <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)" />
   </div>
 </div>
@@ -122,18 +118,27 @@
   </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; margin-bottom: 1rem; align-items: end;">
+<div style="display: grid; grid-template-columns: 1.2fr 1fr 1.2fr 1fr 0.9fr auto; gap: 8px; margin-bottom: 1rem; align-items: end;">
   <div>
     <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Business name</div>
-    <input type="text" id="input-name" placeholder="e.g. Austin Plumbing Co." style="width: 100%;" />
+    <input type="text" id="input-name" placeholder="e.g. Austin Plumbing" style="width: 100%;" />
   </div>
   <div>
     <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Phone</div>
-    <input type="text" id="input-phone" placeholder="+1 512 555 0100" style="width: 100%;" />
+    <input type="text" id="input-phone" placeholder="optional" style="width: 100%;" />
   </div>
   <div>
-    <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Website quality</div>
+    <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Website</div>
+    <input type="text" id="input-website" placeholder="optional" style="width: 100%;" />
+  </div>
+  <div>
+    <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Email</div>
+    <input type="text" id="input-email" placeholder="optional" style="width: 100%;" />
+  </div>
+  <div>
+    <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Site quality</div>
     <select id="input-site" style="width: 100%;">
+      <option value="unknown">??? Unknown</option>
       <option value="none">No website</option>
       <option value="bad">Bad / outdated</option>
       <option value="ok">Decent</option>
@@ -146,30 +151,18 @@
 
 <div id="lead-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
 
-<div id="bulk-modal" class="modal-backdrop" onclick="if(event.target===this)closeBulkAdd()">
-  <div class="modal">
-    <h2>Bulk add leads</h2>
-    <p>One lead per line. Use comma, tab, or pipe between fields:<br/><code>Name, Phone, site quality (none/bad/ok)</code></p>
-    <textarea id="bulk-input" placeholder="Austin Plumbing Co., +1 512 555 0100, bad
-Joe's Garage | 555-0200 | none
-Acme Roofing	555-0300	ok"></textarea>
-    <div class="modal-actions">
-      <button class="small-btn" onclick="closeBulkAdd()">Cancel</button>
-      <button class="small-btn" onclick="processBulkAdd()">Add leads</button>
-    </div>
-  </div>
-</div>
-
 <div id="empty-state" style="text-align: center; padding: 2rem; color: var(--color-text-secondary); font-size: 14px;">
   Add your first lead above — aim for 20 before you start calling
 </div>
 
 <div class="footer">
-  Data is stored locally in your browser and never leaves this device.
+  Data is stored locally in your browser and never leaves this device.<br/>
+  CSV format: header row recognized — <code>name, phone, website, email, quality, notes</code> (any subset). Missing fields show as <code>???</code> and can be edited later.
 </div>
 
 <script>
 const STORAGE_KEY = 'call-tracker-leads-v1';
+const MISSING = '???';
 let leads = [];
 let callbackFilter = false;
 
@@ -181,36 +174,48 @@ const statusConfig = {
   closed:     { label: 'Closed',         bg: 'var(--color-background-info)',      color: 'var(--color-text-info)' },
 };
 
+function siteLabel(s) {
+  if (s === 'none') return 'No website';
+  if (s === 'bad') return 'Bad site';
+  if (s === 'ok') return 'Decent site';
+  return MISSING + ' Quality';
+}
+
 function loadLeads() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     leads = raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    leads = [];
-  }
+    leads = leads.map(l => ({
+      website: '', email: '', callback: '',
+      ...l,
+    }));
+  } catch (e) { leads = []; }
   render();
 }
 
-function persist() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(leads));
+function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(leads)); }
+
+function newId(offset = 0) {
+  return Date.now() + Math.floor(Math.random() * 100000) + offset;
 }
 
 function addLead() {
   const name = document.getElementById('input-name').value.trim();
-  const phone = document.getElementById('input-phone').value.trim();
-  const site = document.getElementById('input-site').value;
   if (!name) return;
-  const lead = {
-    id: Date.now() + Math.floor(Math.random() * 1000),
-    name, phone, site,
+  leads.push({
+    id: newId(),
+    name,
+    phone: document.getElementById('input-phone').value.trim(),
+    website: document.getElementById('input-website').value.trim(),
+    email: document.getElementById('input-email').value.trim(),
+    site: document.getElementById('input-site').value,
     status: 'pending',
     note: '',
     callback: '',
-  };
-  leads.push(lead);
+  });
   persist();
-  document.getElementById('input-name').value = '';
-  document.getElementById('input-phone').value = '';
+  ['input-name','input-phone','input-website','input-email'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('input-site').value = 'unknown';
   render();
 }
 
@@ -229,62 +234,14 @@ function setStatus(id, status) {
   render();
 }
 
-function setCallback(id, val) {
-  leads = leads.map(l => l.id === id ? { ...l, callback: val } : l);
+function setField(id, field, val) {
+  leads = leads.map(l => l.id === id ? { ...l, [field]: val } : l);
   persist();
-  render();
+  if (field === 'site') render();
 }
 
-function openBulkAdd() {
-  document.getElementById('bulk-modal').classList.add('active');
-  document.getElementById('bulk-input').focus();
-}
-function closeBulkAdd() {
-  document.getElementById('bulk-modal').classList.remove('active');
-  document.getElementById('bulk-input').value = '';
-}
-function processBulkAdd() {
-  const text = document.getElementById('bulk-input').value;
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  let added = 0;
-  for (const line of lines) {
-    const parts = line.split(/[,\t|]/).map(p => p.trim());
-    const name = parts[0];
-    if (!name) continue;
-    const phone = parts[1] || '';
-    let site = (parts[2] || 'none').toLowerCase();
-    if (!['none', 'bad', 'ok'].includes(site)) site = 'none';
-    leads.push({
-      id: Date.now() + Math.floor(Math.random() * 100000) + added,
-      name, phone, site,
-      status: 'pending', note: '', callback: '',
-    });
-    added++;
-  }
-  persist();
-  closeBulkAdd();
-  render();
-  if (added) alert(`Added ${added} lead${added === 1 ? '' : 's'}.`);
-}
-
-function toggleCallbackFilter() {
-  callbackFilter = !callbackFilter;
-  render();
-}
-
-function callbackState(dateStr) {
-  if (!dateStr) return null;
-  const today = new Date().toISOString().slice(0, 10);
-  if (dateStr < today) return 'overdue';
-  if (dateStr === today) return 'today';
-  return 'future';
-}
-
-function removeLead(id) {
-  leads = leads.filter(l => l.id !== id);
-  persist();
-  render();
-}
+function setCallback(id, val) { setField(id, 'callback', val); render(); }
+function removeLead(id) { leads = leads.filter(l => l.id !== id); persist(); render(); }
 
 let noteTimers = {};
 function updateNote(id, val) {
@@ -315,12 +272,105 @@ function importData(event) {
       leads = imported;
       persist();
       render();
-    } catch (err) {
-      alert('Could not import: ' + err.message);
-    }
+    } catch (err) { alert('Could not import: ' + err.message); }
   };
   reader.readAsText(file);
   event.target.value = '';
+}
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [], cell = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"' && text[i+1] === '"') { cell += '"'; i++; }
+      else if (c === '"') inQuotes = false;
+      else cell += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',' || c === ';' || c === '\t') { row.push(cell); cell = ''; }
+      else if (c === '\n' || c === '\r') {
+        if (c === '\r' && text[i+1] === '\n') i++;
+        row.push(cell); rows.push(row); row = []; cell = '';
+      } else cell += c;
+    }
+  }
+  if (cell.length || row.length) { row.push(cell); rows.push(row); }
+  return rows.map(r => r.map(c => c.trim())).filter(r => r.some(x => x));
+}
+
+function mapHeader(h) {
+  h = h.trim().toLowerCase();
+  if (['name','business','company','firma','unternehmen'].includes(h)) return 'name';
+  if (['phone','tel','telephone','telefon','number'].includes(h)) return 'phone';
+  if (['website','url','web','site_url','homepage'].includes(h)) return 'website';
+  if (['email','mail','e-mail','e_mail'].includes(h)) return 'email';
+  if (['quality','site_quality','site quality','site','rating'].includes(h)) return 'site';
+  if (['note','notes','notiz','comment','comments'].includes(h)) return 'note';
+  return null;
+}
+
+function normalizeSite(v) {
+  v = (v || '').trim().toLowerCase();
+  if (['none','no','no website','keine'].includes(v)) return 'none';
+  if (['bad','poor','outdated','schlecht'].includes(v)) return 'bad';
+  if (['ok','okay','decent','good','gut'].includes(v)) return 'ok';
+  return 'unknown';
+}
+
+function importCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const rows = parseCSV(e.target.result);
+      if (!rows.length) throw new Error('Empty CSV');
+
+      const headerKeys = rows[0].map(mapHeader);
+      const hasHeader = headerKeys.some(k => k !== null);
+      const dataRows = hasHeader ? rows.slice(1) : rows;
+      const cols = hasHeader ? headerKeys : ['name','phone','website','email','site','note'];
+
+      const newLeads = [];
+      let added = 0;
+      for (const r of dataRows) {
+        const lead = { name: '', phone: '', website: '', email: '', site: '', note: '' };
+        cols.forEach((col, i) => { if (col && r[i] !== undefined) lead[col] = r[i].trim(); });
+        if (!lead.name) continue;
+        newLeads.push({
+          id: newId(added),
+          name: lead.name,
+          phone: lead.phone || MISSING,
+          website: lead.website || MISSING,
+          email: lead.email || MISSING,
+          site: lead.site ? normalizeSite(lead.site) : 'unknown',
+          status: 'pending',
+          note: lead.note || '',
+          callback: '',
+        });
+        added++;
+      }
+      if (!added) throw new Error('No valid rows found (need at least a name column)');
+      leads = leads.concat(newLeads);
+      persist();
+      render();
+      alert(`Imported ${added} lead${added === 1 ? '' : 's'}.${hasHeader ? '' : ' (no header detected — assumed: name, phone, website, email, quality, notes)'}`);
+    } catch (err) { alert('Could not import CSV: ' + err.message); }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function toggleCallbackFilter() { callbackFilter = !callbackFilter; render(); }
+
+function callbackState(dateStr) {
+  if (!dateStr) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  if (dateStr < today) return 'overdue';
+  if (dateStr === today) return 'today';
+  return 'future';
 }
 
 function updateStats() {
@@ -330,12 +380,29 @@ function updateStats() {
   document.getElementById('stat-closed').textContent = leads.filter(l => l.status === 'closed').length;
 }
 
-function siteLabel(s) {
-  return s === 'none' ? 'No website' : s === 'bad' ? 'Bad site' : 'Decent site';
+function escapeHtml(s) {
+  return (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-function escapeHtml(s) {
-  return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function isMissing(v) { return !v || v === MISSING; }
+
+function normalizeUrl(u) {
+  if (!u) return '';
+  return /^https?:\/\//i.test(u) ? u : 'https://' + u;
+}
+
+function renderField(lead, field, type, placeholder) {
+  const val = lead[field] || '';
+  const empty = isMissing(val);
+  const display = empty ? MISSING : val;
+  let prefix = '';
+  if (!empty) {
+    if (type === 'phone') prefix = `<a href="tel:${escapeHtml(val)}" title="Call">📞</a> `;
+    else if (type === 'email') prefix = `<a href="mailto:${escapeHtml(val)}" title="Email">✉</a> `;
+    else if (type === 'website') prefix = `<a href="${escapeHtml(normalizeUrl(val))}" target="_blank" rel="noopener" title="Open">🔗</a> `;
+  }
+  const inputAttrs = `class="inline-edit${empty ? ' empty' : ''}" value="${escapeHtml(display)}" placeholder="${placeholder}" size="${Math.max(placeholder.length, display.length)}" onfocus="if(this.value==='${MISSING}')this.value=''" onblur="setField(${lead.id}, '${field}', this.value.trim())"`;
+  return `<span class="meta-field">${prefix}<input type="text" ${inputAttrs} /></span>`;
 }
 
 function render() {
@@ -375,14 +442,26 @@ function render() {
     ).join('');
     const cbState = callbackState(l.callback);
     const overdueClass = cbState === 'overdue' ? ' overdue' : '';
-    const phoneHtml = l.phone
-      ? `<a href="tel:${escapeHtml(l.phone)}" style="color: var(--color-text-info); text-decoration: none;">${escapeHtml(l.phone)}</a>`
-      : 'No phone';
+    const siteOpts = [
+      ['unknown', '??? Quality'],
+      ['none', 'No website'],
+      ['bad', 'Bad site'],
+      ['ok', 'Decent site'],
+    ].map(([k, lbl]) => `<option value="${k}" ${l.site === k ? 'selected' : ''}>${lbl}</option>`).join('');
+
     return `
     <div class="lead-row${overdueClass}" style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 16px; display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center;">
       <div>
         <div style="font-weight: 500; font-size: 14px;">${escapeHtml(l.name)}</div>
-        <div style="font-size: 12px; color: var(--color-text-secondary); margin-top: 2px;">${phoneHtml} &middot; ${siteLabel(l.site)}</div>
+        <div class="meta-row">
+          ${renderField(l, 'phone', 'phone', 'phone')}
+          <span class="meta-sep">·</span>
+          ${renderField(l, 'website', 'website', 'website')}
+          <span class="meta-sep">·</span>
+          ${renderField(l, 'email', 'email', 'email')}
+          <span class="meta-sep">·</span>
+          <select onchange="setField(${l.id}, 'site', this.value); render()" class="inline-edit" style="font-size: 11px; height: 22px;">${siteOpts}</select>
+        </div>
         <input type="text" placeholder="Notes..." value="${escapeHtml(l.note)}" oninput="updateNote(${l.id}, this.value)" style="margin-top: 6px; width: 100%; font-size: 12px; padding: 4px 8px; height: 28px;" />
         <div style="margin-top: 6px; font-size: 11px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px;">
           <span>Callback:</span>
@@ -399,8 +478,9 @@ function render() {
   }).join('');
 }
 
-document.getElementById('input-name').addEventListener('keydown', e => { if (e.key === 'Enter') addLead(); });
-document.getElementById('input-phone').addEventListener('keydown', e => { if (e.key === 'Enter') addLead(); });
+['input-name','input-phone','input-website','input-email'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') addLead(); });
+});
 
 loadLeads();
 </script>

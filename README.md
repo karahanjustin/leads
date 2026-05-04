@@ -6,11 +6,22 @@ A tiny, zero-backend tool for tracking cold-call outreach. Add leads, mark call 
 
 ## Features
 
-- Track leads with name, phone, and website-quality tag
+- Track leads with name, phone, website, email, and site-quality tag
 - Status workflow: Not called → No answer / Not interested / Interested / Closed
-- Per-lead notes
+- Per-lead notes and callback dates (auto-set on No-answer / Interested)
 - Live stats: total, called, interested, closed
+- **CSV import** — drop a spreadsheet export, missing fields show as `???` and stay editable
 - Export / Import as JSON for backup or moving between devices
+
+## CSV format
+
+Header row is auto-detected. Recognized columns (any subset, any order):
+
+```
+name, phone, website, email, quality, notes
+```
+
+Quality values: `none`, `bad`, `ok` (anything else → `???`). Missing fields become `???` and can be edited inline later.
 
 ## Privacy
 
