@@ -6,159 +6,322 @@
 <title>Call Tracker</title>
 <style>
   :root {
-    --color-background-primary: #1a1a1a;
-    --color-background-secondary: #242424;
-    --color-background-success: #1a3a2a;
-    --color-background-warning: #3a2f1a;
-    --color-background-danger: #3a1f1f;
-    --color-background-info: #1a2a3a;
-    --color-text-primary: #e8e8e8;
-    --color-text-secondary: #999;
-    --color-text-success: #4ade80;
-    --color-text-warning: #fbbf24;
-    --color-text-danger: #f87171;
-    --color-text-info: #60a5fa;
-    --color-border-tertiary: #333;
-    --color-border-danger: #5a2a2a;
-    --border-radius-md: 6px;
-    --border-radius-lg: 8px;
+    --bg: #0b0b12;
+    --bg-2: #11111a;
+    --surface: #16161f;
+    --surface-2: #1d1d28;
+    --surface-hover: #232330;
+    --border: #2a2a38;
+    --border-strong: #3a3a4d;
+    --text: #ececf2;
+    --text-2: #a0a0ad;
+    --text-3: #6b6b7a;
+
+    --accent: #8b5cf6;
+    --accent-2: #a78bfa;
+    --accent-soft: rgba(139, 92, 246, 0.12);
+
+    --success: #4ade80;
+    --success-bg: rgba(74, 222, 128, 0.12);
+    --warning: #fbbf24;
+    --warning-bg: rgba(251, 191, 36, 0.12);
+    --danger: #f87171;
+    --danger-bg: rgba(248, 113, 113, 0.12);
+    --info: #60a5fa;
+    --info-bg: rgba(96, 165, 250, 0.12);
+
+    --r-sm: 6px;
+    --r-md: 10px;
+    --r-lg: 14px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
   }
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-    background: #111;
-    color: var(--color-text-primary);
-    margin: 0 auto;
-    padding: 2rem;
-    max-width: 1100px;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
+    background:
+      radial-gradient(900px 500px at 80% -10%, rgba(139, 92, 246, 0.12), transparent 60%),
+      radial-gradient(700px 400px at -10% 10%, rgba(96, 165, 250, 0.08), transparent 60%),
+      var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 2.5rem 1.5rem 4rem;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
-  .header-row { display: flex; justify-content: space-between; align-items: center; margin: 0 0 1.5rem; flex-wrap: wrap; gap: 8px; }
-  h1 { font-size: 22px; font-weight: 500; margin: 0; }
-  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  input, select, button {
-    background: var(--color-background-secondary);
-    color: var(--color-text-primary);
-    border: 0.5px solid var(--color-border-tertiary);
-    border-radius: var(--border-radius-md);
-    padding: 8px 10px;
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  /* Header */
+  .header-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 2rem; flex-wrap: wrap; gap: 12px;
+  }
+  h1 {
+    font-size: 28px; font-weight: 600; margin: 0;
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent-2) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+  }
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+  /* Form elements */
+  input, select, button, textarea {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    padding: 9px 12px;
     font-size: 14px;
     font-family: inherit;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
   }
   button { cursor: pointer; }
-  button:hover { background: #2e2e2e; }
-  .small-btn { font-size: 12px; padding: 6px 10px; }
-  .footer { margin-top: 2rem; font-size: 11px; color: var(--color-text-secondary); text-align: center; }
-  .footer a { color: var(--color-text-secondary); }
+  button:hover { background: var(--surface-hover); border-color: var(--border-strong); }
+  button:active { transform: translateY(1px); }
+  button.primary {
+    background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 100%);
+    border-color: transparent; color: white; font-weight: 500;
+  }
+  button.primary:hover { filter: brightness(1.1); }
+  button.danger { color: var(--danger); border-color: rgba(248,113,113,0.25); }
+  button.danger:hover { background: var(--danger-bg); border-color: var(--danger); }
+  button.small { font-size: 12px; padding: 6px 12px; }
+
+  /* Stats grid */
+  .stats {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 12px; margin-bottom: 1.75rem;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 1rem 1.1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .stat::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--accent);
+    border-radius: var(--r-md) 0 0 var(--r-md);
+  }
+  .stat.s-success::before { background: var(--success); }
+  .stat.s-info::before { background: var(--info); }
+  .stat.s-warn::before { background: var(--warning); }
+  .stat-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .stat-value { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+  .stat.s-success .stat-value { color: var(--success); }
+  .stat.s-info .stat-value { color: var(--info); }
+
+  /* Add form */
+  .add-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 1rem;
+    margin-bottom: 1.25rem;
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 1.2fr 1fr 0.9fr auto;
+    gap: 10px;
+    align-items: end;
+  }
+  .field-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+  .add-form input, .add-form select { width: 100%; }
+
+  /* Callback banner */
   .callback-banner {
-    background: var(--color-background-warning);
-    color: var(--color-text-warning);
+    background: linear-gradient(135deg, var(--warning-bg), rgba(251, 191, 36, 0.05));
+    color: var(--warning);
+    border: 1px solid rgba(251, 191, 36, 0.3);
     padding: 10px 14px;
-    border-radius: var(--border-radius-md);
+    border-radius: var(--r-md);
     margin-bottom: 1rem;
     font-size: 13px;
     display: none;
     cursor: pointer;
+    transition: filter 0.15s;
   }
+  .callback-banner:hover { filter: brightness(1.15); }
   .callback-banner.active { display: block; }
-  .lead-row.overdue { border-color: var(--color-border-danger); }
-  .callback-input {
-    font-size: 11px; padding: 2px 6px; height: 24px;
-    color-scheme: dark;
+
+  /* Lead list */
+  #lead-list { display: flex; flex-direction: column; gap: 10px; }
+  .lead-row {
+    background: linear-gradient(180deg, var(--surface) 0%, var(--bg-2) 100%);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 14px 18px 14px 22px;
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: 12px;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
   }
+  .lead-row:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .lead-row::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+    background: var(--text-3);
+  }
+  .lead-row.s-pending::before { background: var(--text-3); }
+  .lead-row.s-no_answer::before { background: var(--warning); }
+  .lead-row.s-not_int::before { background: var(--danger); }
+  .lead-row.s-interested::before { background: var(--success); }
+  .lead-row.s-closed::before { background: var(--info); }
+  .lead-row.overdue { border-color: rgba(248, 113, 113, 0.4); }
+  .lead-row.overdue::before { background: var(--danger); }
+
+  .lead-name { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+
+  .meta-row {
+    font-size: 12px; color: var(--text-2); margin-top: 4px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px;
+  }
+  .meta-row a { color: var(--accent-2); text-decoration: none; }
+  .meta-row a:hover { text-decoration: underline; }
+  .meta-field { display: inline-flex; align-items: center; gap: 5px; }
+  .meta-sep { color: var(--text-3); }
+  .meta-label { color: var(--text-3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+
   .inline-edit {
     background: transparent;
-    border: 0.5px solid transparent;
-    color: var(--color-text-secondary);
+    border: 1px solid transparent;
+    color: var(--text);
     font-size: 12px;
-    padding: 2px 4px;
-    border-radius: 4px;
+    padding: 2px 6px;
+    border-radius: 5px;
     font-family: inherit;
     min-width: 30px;
     max-width: 100%;
+    transition: border-color 0.15s, background 0.15s;
   }
-  .inline-edit:hover { border-color: var(--color-border-tertiary); }
-  .inline-edit:focus { border-color: var(--color-text-info); outline: none; color: var(--color-text-primary); }
-  .inline-edit.empty { color: #666; font-style: italic; }
-  .meta-row { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
-  .meta-row a { color: var(--color-text-info); text-decoration: none; }
-  .meta-row a:hover { text-decoration: underline; }
-  .meta-field { display: inline-flex; align-items: center; gap: 4px; }
-  .meta-sep { color: #555; }
-  .meta-label { color: #777; font-size: 11px; }
+  .inline-edit:hover { background: var(--surface-2); }
+  .inline-edit:focus { background: var(--surface-2); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); outline: none; }
+  .inline-edit.empty { color: var(--text-3); font-style: italic; }
+
+  .status-badge {
+    font-size: 11px; font-weight: 500; padding: 4px 10px;
+    border-radius: 999px; white-space: nowrap;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .badge-pending    { background: var(--surface-2); color: var(--text-3); }
+  .badge-no_answer  { background: var(--warning-bg); color: var(--warning); }
+  .badge-not_int    { background: var(--danger-bg); color: var(--danger); }
+  .badge-interested { background: var(--success-bg); color: var(--success); }
+  .badge-closed     { background: var(--info-bg); color: var(--info); }
+
+  .notes-input {
+    margin-top: 8px; width: 100%; font-size: 12px; padding: 6px 10px; height: 32px;
+    background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm);
+  }
+  .callback-row {
+    margin-top: 8px; font-size: 11px; color: var(--text-2);
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  }
+  .callback-input { font-size: 11px; padding: 3px 6px; height: 26px; color-scheme: dark; }
+  .icon-btn {
+    font-size: 12px; padding: 0 12px; height: 30px;
+    color: var(--text-2); background: transparent;
+  }
+  .icon-btn.danger:hover { color: var(--danger); border-color: rgba(248,113,113,0.4); background: var(--danger-bg); }
+
+  .empty-state {
+    text-align: center; padding: 3rem 1rem;
+    color: var(--text-3); font-size: 14px;
+    border: 1px dashed var(--border); border-radius: var(--r-md);
+    background: rgba(255,255,255,0.01);
+  }
+
+  .footer {
+    margin-top: 3rem; font-size: 11px; color: var(--text-3); text-align: center;
+    line-height: 1.6;
+  }
+  .footer code { background: var(--surface); padding: 1px 6px; border-radius: 4px; color: var(--text-2); }
+
+  @media (max-width: 720px) {
+    body { padding: 1.5rem 1rem 3rem; }
+    h1 { font-size: 22px; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .add-form { grid-template-columns: 1fr 1fr; }
+    .add-form > button { grid-column: 1 / -1; }
+    .lead-row { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
 
+<div class="container">
+
 <div class="header-row">
   <h1>Call Tracker</h1>
   <div class="header-actions">
-    <button class="small-btn" onclick="document.getElementById('csv-file').click()">Import CSV</button>
+    <button class="small" onclick="document.getElementById('csv-file').click()">Import CSV</button>
     <input type="file" id="csv-file" accept=".csv,text/csv" style="display:none" onchange="importCSV(event)" />
-    <button class="small-btn" onclick="exportData()">Export JSON</button>
-    <button class="small-btn" onclick="document.getElementById('import-file').click()">Import JSON</button>
+    <button class="small" onclick="exportData()">Export JSON</button>
+    <button class="small" onclick="document.getElementById('import-file').click()">Import JSON</button>
     <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)" />
+    <button class="small danger" onclick="clearAll()">Clear all</button>
   </div>
 </div>
 
-<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem;">
-  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; text-align: center;">
-    <div style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px;">Total</div>
-    <div style="font-size: 24px; font-weight: 500;" id="stat-total">0</div>
-  </div>
-  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; text-align: center;">
-    <div style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px;">Called</div>
-    <div style="font-size: 24px; font-weight: 500;" id="stat-called">0</div>
-  </div>
-  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; text-align: center;">
-    <div style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px;">Interested</div>
-    <div style="font-size: 24px; font-weight: 500; color: var(--color-text-success);" id="stat-interested">0</div>
-  </div>
-  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; text-align: center;">
-    <div style="font-size: 13px; color: var(--color-text-secondary); margin-bottom: 4px;">Closed</div>
-    <div style="font-size: 24px; font-weight: 500; color: var(--color-text-info);" id="stat-closed">0</div>
-  </div>
+<div class="stats">
+  <div class="stat"><div class="stat-label">Total</div><div class="stat-value" id="stat-total">0</div></div>
+  <div class="stat s-warn"><div class="stat-label">Called</div><div class="stat-value" id="stat-called">0</div></div>
+  <div class="stat s-success"><div class="stat-label">Interested</div><div class="stat-value" id="stat-interested">0</div></div>
+  <div class="stat s-info"><div class="stat-label">Closed</div><div class="stat-value" id="stat-closed">0</div></div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1.2fr 1fr 1.2fr 1fr 0.9fr auto; gap: 8px; margin-bottom: 1rem; align-items: end;">
+<div class="add-form">
   <div>
-    <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Business name</div>
-    <input type="text" id="input-name" placeholder="e.g. Austin Plumbing" style="width: 100%;" />
+    <div class="field-label">Business name</div>
+    <input type="text" id="input-name" placeholder="e.g. Austin Plumbing" />
   </div>
   <div>
-    <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Phone</div>
-    <input type="text" id="input-phone" placeholder="optional" style="width: 100%;" />
+    <div class="field-label">Phone</div>
+    <input type="text" id="input-phone" placeholder="optional" />
   </div>
   <div>
-    <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Website</div>
-    <input type="text" id="input-website" placeholder="optional" style="width: 100%;" />
+    <div class="field-label">Website</div>
+    <input type="text" id="input-website" placeholder="optional" />
   </div>
   <div>
-    <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Email</div>
-    <input type="text" id="input-email" placeholder="optional" style="width: 100%;" />
+    <div class="field-label">Email</div>
+    <input type="text" id="input-email" placeholder="optional" />
   </div>
   <div>
-    <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Site quality</div>
-    <select id="input-site" style="width: 100%;">
+    <div class="field-label">Site quality</div>
+    <select id="input-site">
       <option value="unknown">???</option>
       <option value="none">No website</option>
       <option value="bad">Bad / outdated</option>
       <option value="ok">Decent</option>
     </select>
   </div>
-  <button onclick="addLead()" style="height: 36px; padding: 0 16px; white-space: nowrap;">+ Add</button>
+  <button class="primary" onclick="addLead()" style="height: 38px;">+ Add</button>
 </div>
 
 <div id="callback-banner" class="callback-banner" onclick="toggleCallbackFilter()"></div>
 
-<div id="lead-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+<div id="lead-list"></div>
 
-<div id="empty-state" style="text-align: center; padding: 2rem; color: var(--color-text-secondary); font-size: 14px;">
+<div id="empty-state" class="empty-state">
   Add your first lead above — aim for 20 before you start calling
 </div>
 
 <div class="footer">
   Data is stored locally in your browser and never leaves this device.<br/>
   CSV format: header row recognized — <code>name, phone, website, email, quality, notes</code> (any subset). Missing fields show as <code>???</code> and can be edited later.
+</div>
+
 </div>
 
 <script>
@@ -168,37 +331,24 @@ let leads = [];
 let callbackFilter = false;
 
 const statusConfig = {
-  pending:    { label: 'Not called',     bg: 'var(--color-background-secondary)', color: 'var(--color-text-secondary)' },
-  no_answer:  { label: 'No answer',      bg: 'var(--color-background-warning)',   color: 'var(--color-text-warning)' },
-  not_int:    { label: 'Not interested', bg: 'var(--color-background-danger)',    color: 'var(--color-text-danger)' },
-  interested: { label: 'Interested',     bg: 'var(--color-background-success)',   color: 'var(--color-text-success)' },
-  closed:     { label: 'Closed',         bg: 'var(--color-background-info)',      color: 'var(--color-text-info)' },
+  pending:    { label: 'Not called' },
+  no_answer:  { label: 'No answer' },
+  not_int:    { label: 'Not interested' },
+  interested: { label: 'Interested' },
+  closed:     { label: 'Closed' },
 };
-
-function siteLabel(s) {
-  if (s === 'none') return 'No website';
-  if (s === 'bad') return 'Bad site';
-  if (s === 'ok') return 'Decent site';
-  return MISSING + ' Quality';
-}
 
 function loadLeads() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     leads = raw ? JSON.parse(raw) : [];
-    leads = leads.map(l => ({
-      website: '', email: '', callback: '',
-      ...l,
-    }));
+    leads = leads.map(l => ({ website: '', email: '', callback: '', ...l }));
   } catch (e) { leads = []; }
   render();
 }
 
 function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(leads)); }
-
-function newId(offset = 0) {
-  return Date.now() + Math.floor(Math.random() * 100000) + offset;
-}
+function newId(offset = 0) { return Date.now() + Math.floor(Math.random() * 100000) + offset; }
 
 function addLead() {
   const name = document.getElementById('input-name').value.trim();
@@ -210,9 +360,7 @@ function addLead() {
     website: document.getElementById('input-website').value.trim(),
     email: document.getElementById('input-email').value.trim(),
     site: document.getElementById('input-site').value,
-    status: 'pending',
-    note: '',
-    callback: '',
+    status: 'pending', note: '', callback: '',
   });
   persist();
   ['input-name','input-phone','input-website','input-email'].forEach(id => document.getElementById(id).value = '');
@@ -243,6 +391,15 @@ function setField(id, field, val) {
 
 function setCallback(id, val) { setField(id, 'callback', val); render(); }
 function removeLead(id) { leads = leads.filter(l => l.id !== id); persist(); render(); }
+
+function clearAll() {
+  if (!leads.length) return alert('Already empty.');
+  if (!confirm(`Delete all ${leads.length} lead${leads.length === 1 ? '' : 's'}? This cannot be undone.`)) return;
+  if (!confirm('Are you absolutely sure? Export your data first if you want a backup.')) return;
+  leads = [];
+  persist();
+  render();
+}
 
 let noteTimers = {};
 function updateNote(id, val) {
@@ -328,12 +485,10 @@ function importCSV(event) {
     try {
       const rows = parseCSV(e.target.result);
       if (!rows.length) throw new Error('Empty CSV');
-
       const headerKeys = rows[0].map(mapHeader);
       const hasHeader = headerKeys.some(k => k !== null);
       const dataRows = hasHeader ? rows.slice(1) : rows;
       const cols = hasHeader ? headerKeys : ['name','phone','website','email','site','note'];
-
       const newLeads = [];
       let added = 0;
       for (const r of dataRows) {
@@ -357,7 +512,7 @@ function importCSV(event) {
       leads = leads.concat(newLeads);
       persist();
       render();
-      alert(`Imported ${added} lead${added === 1 ? '' : 's'}.${hasHeader ? '' : ' (no header detected — assumed: name, phone, website, email, quality, notes)'}`);
+      alert(`Imported ${added} lead${added === 1 ? '' : 's'}.${hasHeader ? '' : ' (no header detected)'}`);
     } catch (err) { alert('Could not import CSV: ' + err.message); }
   };
   reader.readAsText(file);
@@ -386,11 +541,7 @@ function escapeHtml(s) {
 }
 
 function isMissing(v) { return !v || v === MISSING; }
-
-function normalizeUrl(u) {
-  if (!u) return '';
-  return /^https?:\/\//i.test(u) ? u : 'https://' + u;
-}
+function normalizeUrl(u) { return /^https?:\/\//i.test(u) ? u : 'https://' + u; }
 
 function renderField(lead, field, type, placeholder, label) {
   const val = lead[field] || '';
@@ -437,12 +588,11 @@ function render() {
   empty.style.display = visible.length ? 'none' : 'block';
 
   list.innerHTML = visible.map(l => {
-    const sc = statusConfig[l.status] || statusConfig.pending;
+    const cbState = callbackState(l.callback);
+    const overdueClass = cbState === 'overdue' ? ' overdue' : '';
     const statusOpts = Object.entries(statusConfig).map(([k, v]) =>
       `<option value="${k}" ${l.status === k ? 'selected' : ''}>${v.label}</option>`
     ).join('');
-    const cbState = callbackState(l.callback);
-    const overdueClass = cbState === 'overdue' ? ' overdue' : '';
     const siteOpts = [
       ['unknown', '???'],
       ['none', 'No website'],
@@ -451,9 +601,9 @@ function render() {
     ].map(([k, lbl]) => `<option value="${k}" ${l.site === k ? 'selected' : ''}>${lbl}</option>`).join('');
 
     return `
-    <div class="lead-row${overdueClass}" style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 16px; display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center;">
+    <div class="lead-row s-${l.status}${overdueClass}">
       <div>
-        <div style="font-weight: 500; font-size: 14px;">${escapeHtml(l.name)}</div>
+        <div class="lead-name">${escapeHtml(l.name)}</div>
         <div class="meta-row">
           ${renderField(l, 'phone', 'phone', 'phone', 'Phone:')}
           <span class="meta-sep">·</span>
@@ -461,20 +611,20 @@ function render() {
           <span class="meta-sep">·</span>
           ${renderField(l, 'email', 'email', 'email', 'E-Mail:')}
           <span class="meta-sep">·</span>
-          <span class="meta-field"><span class="meta-label">Quality:</span><select onchange="setField(${l.id}, 'site', this.value); render()" class="inline-edit" style="font-size: 11px; height: 22px;">${siteOpts}</select></span>
+          <span class="meta-field"><span class="meta-label">Quality:</span><select onchange="setField(${l.id}, 'site', this.value); render()" class="inline-edit" style="font-size: 11px; height: 24px;">${siteOpts}</select></span>
         </div>
-        <input type="text" placeholder="Notes..." value="${escapeHtml(l.note)}" oninput="updateNote(${l.id}, this.value)" style="margin-top: 6px; width: 100%; font-size: 12px; padding: 4px 8px; height: 28px;" />
-        <div style="margin-top: 6px; font-size: 11px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px;">
-          <span>Callback:</span>
+        <input type="text" class="notes-input" placeholder="Notes..." value="${escapeHtml(l.note)}" oninput="updateNote(${l.id}, this.value)" />
+        <div class="callback-row">
+          <span class="meta-label">Callback</span>
           <input type="date" class="callback-input" value="${escapeHtml(l.callback || '')}" onchange="setCallback(${l.id}, this.value)" />
-          ${l.callback ? `<button class="small-btn" style="font-size:10px; padding:2px 6px; height:22px;" onclick="setCallback(${l.id}, '')">clear</button>` : ''}
-          ${cbState === 'overdue' ? '<span style="color: var(--color-text-danger);">overdue</span>' : ''}
-          ${cbState === 'today' ? '<span style="color: var(--color-text-warning);">today</span>' : ''}
+          ${l.callback ? `<button class="small" style="font-size:10px; padding:2px 8px; height:22px;" onclick="setCallback(${l.id}, '')">clear</button>` : ''}
+          ${cbState === 'overdue' ? '<span style="color: var(--danger); font-weight: 500;">overdue</span>' : ''}
+          ${cbState === 'today' ? '<span style="color: var(--warning); font-weight: 500;">today</span>' : ''}
         </div>
       </div>
-      <span style="font-size: 11px; padding: 3px 10px; border-radius: var(--border-radius-md); background: ${sc.bg}; color: ${sc.color}; white-space: nowrap;">${sc.label}</span>
-      <select onchange="setStatus(${l.id}, this.value)" style="font-size: 12px; padding: 2px 6px; height: 28px;">${statusOpts}</select>
-      <button onclick="removeLead(${l.id})" style="font-size: 12px; padding: 0 10px; height: 28px; color: var(--color-text-danger); border-color: var(--color-border-danger);">✕</button>
+      <span class="status-badge badge-${l.status}">${statusConfig[l.status].label}</span>
+      <select onchange="setStatus(${l.id}, this.value)" style="font-size: 12px; padding: 4px 8px; height: 30px;">${statusOpts}</select>
+      <button class="icon-btn danger" onclick="removeLead(${l.id})" title="Remove">✕</button>
     </div>`;
   }).join('');
 }
