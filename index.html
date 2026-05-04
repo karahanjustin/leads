@@ -49,6 +49,46 @@
   .small-btn { font-size: 12px; padding: 6px 10px; }
   .footer { margin-top: 2rem; font-size: 11px; color: var(--color-text-secondary); text-align: center; }
   .footer a { color: var(--color-text-secondary); }
+  .callback-banner {
+    background: var(--color-background-warning);
+    color: var(--color-text-warning);
+    padding: 10px 14px;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 1rem;
+    font-size: 13px;
+    display: none;
+    cursor: pointer;
+  }
+  .callback-banner.active { display: block; }
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal-backdrop.active { display: flex; }
+  .modal {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    width: 90%;
+    max-width: 600px;
+  }
+  .modal h2 { margin: 0 0 0.5rem; font-size: 16px; font-weight: 500; }
+  .modal p { margin: 0 0 1rem; font-size: 13px; color: var(--color-text-secondary); }
+  .modal textarea {
+    width: 100%; min-height: 200px; resize: vertical;
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-md);
+    padding: 10px; font-size: 13px; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1rem; }
+  .lead-row.overdue { border-color: var(--color-border-danger); }
+  .callback-input {
+    font-size: 11px; padding: 2px 6px; height: 24px;
+    color-scheme: dark;
+  }
 </style>
 </head>
 <body>
@@ -56,6 +96,7 @@
 <div class="header-row">
   <h1>Call Tracker</h1>
   <div class="header-actions">
+    <button class="small-btn" onclick="openBulkAdd()">Bulk add</button>
     <button class="small-btn" onclick="exportData()">Export</button>
     <button class="small-btn" onclick="document.getElementById('import-file').click()">Import</button>
     <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)" />
@@ -101,7 +142,23 @@
   <button onclick="addLead()" style="height: 36px; padding: 0 16px; white-space: nowrap;">+ Add</button>
 </div>
 
+<div id="callback-banner" class="callback-banner" onclick="toggleCallbackFilter()"></div>
+
 <div id="lead-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+
+<div id="bulk-modal" class="modal-backdrop" onclick="if(event.target===this)closeBulkAdd()">
+  <div class="modal">
+    <h2>Bulk add leads</h2>
+    <p>One lead per line. Use comma, tab, or pipe between fields:<br/><code>Name, Phone, site quality (none/bad/ok)</code></p>
+    <textarea id="bulk-input" placeholder="Austin Plumbing Co., +1 512 555 0100, bad
+Joe's Garage | 555-0200 | none
+Acme Roofing	555-0300	ok"></textarea>
+    <div class="modal-actions">
+      <button class="small-btn" onclick="closeBulkAdd()">Cancel</button>
+      <button class="small-btn" onclick="processBulkAdd()">Add leads</button>
+    </div>
+  </div>
+</div>
 
 <div id="empty-state" style="text-align: center; padding: 2rem; color: var(--color-text-secondary); font-size: 14px;">
   Add your first lead above — aim for 20 before you start calling
@@ -114,6 +171,7 @@
 <script>
 const STORAGE_KEY = 'call-tracker-leads-v1';
 let leads = [];
+let callbackFilter = false;
 
 const statusConfig = {
   pending:    { label: 'Not called',     bg: 'var(--color-background-secondary)', color: 'var(--color-text-secondary)' },
@@ -147,6 +205,7 @@ function addLead() {
     name, phone, site,
     status: 'pending',
     note: '',
+    callback: '',
   };
   leads.push(lead);
   persist();
@@ -156,9 +215,69 @@ function addLead() {
 }
 
 function setStatus(id, status) {
-  leads = leads.map(l => l.id === id ? { ...l, status } : l);
+  leads = leads.map(l => {
+    if (l.id !== id) return l;
+    const updated = { ...l, status };
+    if ((status === 'no_answer' || status === 'interested') && !l.callback) {
+      const days = status === 'no_answer' ? 2 : 5;
+      const d = new Date(); d.setDate(d.getDate() + days);
+      updated.callback = d.toISOString().slice(0, 10);
+    }
+    return updated;
+  });
   persist();
   render();
+}
+
+function setCallback(id, val) {
+  leads = leads.map(l => l.id === id ? { ...l, callback: val } : l);
+  persist();
+  render();
+}
+
+function openBulkAdd() {
+  document.getElementById('bulk-modal').classList.add('active');
+  document.getElementById('bulk-input').focus();
+}
+function closeBulkAdd() {
+  document.getElementById('bulk-modal').classList.remove('active');
+  document.getElementById('bulk-input').value = '';
+}
+function processBulkAdd() {
+  const text = document.getElementById('bulk-input').value;
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  let added = 0;
+  for (const line of lines) {
+    const parts = line.split(/[,\t|]/).map(p => p.trim());
+    const name = parts[0];
+    if (!name) continue;
+    const phone = parts[1] || '';
+    let site = (parts[2] || 'none').toLowerCase();
+    if (!['none', 'bad', 'ok'].includes(site)) site = 'none';
+    leads.push({
+      id: Date.now() + Math.floor(Math.random() * 100000) + added,
+      name, phone, site,
+      status: 'pending', note: '', callback: '',
+    });
+    added++;
+  }
+  persist();
+  closeBulkAdd();
+  render();
+  if (added) alert(`Added ${added} lead${added === 1 ? '' : 's'}.`);
+}
+
+function toggleCallbackFilter() {
+  callbackFilter = !callbackFilter;
+  render();
+}
+
+function callbackState(dateStr) {
+  if (!dateStr) return null;
+  const today = new Date().toISOString().slice(0, 10);
+  if (dateStr < today) return 'overdue';
+  if (dateStr === today) return 'today';
+  return 'future';
 }
 
 function removeLead(id) {
@@ -223,19 +342,55 @@ function render() {
   updateStats();
   const list = document.getElementById('lead-list');
   const empty = document.getElementById('empty-state');
-  empty.style.display = leads.length ? 'none' : 'block';
 
-  list.innerHTML = leads.map(l => {
+  const today = new Date().toISOString().slice(0, 10);
+  const dueCount = leads.filter(l => l.callback && l.callback <= today && l.status !== 'closed' && l.status !== 'not_int').length;
+  const banner = document.getElementById('callback-banner');
+  if (dueCount > 0) {
+    banner.classList.add('active');
+    banner.textContent = callbackFilter
+      ? `Showing ${dueCount} callback${dueCount === 1 ? '' : 's'} due — click to show all leads`
+      : `${dueCount} callback${dueCount === 1 ? '' : 's'} due today or overdue — click to focus`;
+  } else {
+    banner.classList.remove('active');
+    if (callbackFilter) callbackFilter = false;
+  }
+
+  let visible = leads.slice();
+  if (callbackFilter) {
+    visible = visible.filter(l => l.callback && l.callback <= today && l.status !== 'closed' && l.status !== 'not_int');
+  }
+  visible.sort((a, b) => {
+    const sa = callbackState(a.callback), sb = callbackState(b.callback);
+    const rank = { overdue: 0, today: 1, future: 2, null: 3 };
+    return rank[sa] - rank[sb];
+  });
+
+  empty.style.display = visible.length ? 'none' : 'block';
+
+  list.innerHTML = visible.map(l => {
     const sc = statusConfig[l.status] || statusConfig.pending;
     const statusOpts = Object.entries(statusConfig).map(([k, v]) =>
       `<option value="${k}" ${l.status === k ? 'selected' : ''}>${v.label}</option>`
     ).join('');
+    const cbState = callbackState(l.callback);
+    const overdueClass = cbState === 'overdue' ? ' overdue' : '';
+    const phoneHtml = l.phone
+      ? `<a href="tel:${escapeHtml(l.phone)}" style="color: var(--color-text-info); text-decoration: none;">${escapeHtml(l.phone)}</a>`
+      : 'No phone';
     return `
-    <div style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 16px; display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center;">
+    <div class="lead-row${overdueClass}" style="background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 12px 16px; display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center;">
       <div>
         <div style="font-weight: 500; font-size: 14px;">${escapeHtml(l.name)}</div>
-        <div style="font-size: 12px; color: var(--color-text-secondary); margin-top: 2px;">${escapeHtml(l.phone) || 'No phone'} &middot; ${siteLabel(l.site)}</div>
+        <div style="font-size: 12px; color: var(--color-text-secondary); margin-top: 2px;">${phoneHtml} &middot; ${siteLabel(l.site)}</div>
         <input type="text" placeholder="Notes..." value="${escapeHtml(l.note)}" oninput="updateNote(${l.id}, this.value)" style="margin-top: 6px; width: 100%; font-size: 12px; padding: 4px 8px; height: 28px;" />
+        <div style="margin-top: 6px; font-size: 11px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px;">
+          <span>Callback:</span>
+          <input type="date" class="callback-input" value="${escapeHtml(l.callback || '')}" onchange="setCallback(${l.id}, this.value)" />
+          ${l.callback ? `<button class="small-btn" style="font-size:10px; padding:2px 6px; height:22px;" onclick="setCallback(${l.id}, '')">clear</button>` : ''}
+          ${cbState === 'overdue' ? '<span style="color: var(--color-text-danger);">overdue</span>' : ''}
+          ${cbState === 'today' ? '<span style="color: var(--color-text-warning);">today</span>' : ''}
+        </div>
       </div>
       <span style="font-size: 11px; padding: 3px 10px; border-radius: var(--border-radius-md); background: ${sc.bg}; color: ${sc.color}; white-space: nowrap;">${sc.label}</span>
       <select onchange="setStatus(${l.id}, this.value)" style="font-size: 12px; padding: 2px 6px; height: 28px;">${statusOpts}</select>
