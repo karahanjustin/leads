@@ -84,6 +84,7 @@
   .meta-row a:hover { text-decoration: underline; }
   .meta-field { display: inline-flex; align-items: center; gap: 4px; }
   .meta-sep { color: #555; }
+  .meta-label { color: #777; font-size: 11px; }
 </style>
 </head>
 <body>
@@ -138,7 +139,7 @@
   <div>
     <div style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px;">Site quality</div>
     <select id="input-site" style="width: 100%;">
-      <option value="unknown">??? Unknown</option>
+      <option value="unknown">???</option>
       <option value="none">No website</option>
       <option value="bad">Bad / outdated</option>
       <option value="ok">Decent</option>
@@ -391,18 +392,18 @@ function normalizeUrl(u) {
   return /^https?:\/\//i.test(u) ? u : 'https://' + u;
 }
 
-function renderField(lead, field, type, placeholder) {
+function renderField(lead, field, type, placeholder, label) {
   const val = lead[field] || '';
   const empty = isMissing(val);
   const display = empty ? MISSING : val;
-  let prefix = '';
+  let icon = '';
   if (!empty) {
-    if (type === 'phone') prefix = `<a href="tel:${escapeHtml(val)}" title="Call">📞</a> `;
-    else if (type === 'email') prefix = `<a href="mailto:${escapeHtml(val)}" title="Email">✉</a> `;
-    else if (type === 'website') prefix = `<a href="${escapeHtml(normalizeUrl(val))}" target="_blank" rel="noopener" title="Open">🔗</a> `;
+    if (type === 'phone') icon = ` <a href="tel:${escapeHtml(val)}" title="Call">📞</a>`;
+    else if (type === 'email') icon = ` <a href="mailto:${escapeHtml(val)}" title="Email">✉</a>`;
+    else if (type === 'website') icon = ` <a href="${escapeHtml(normalizeUrl(val))}" target="_blank" rel="noopener" title="Open">🔗</a>`;
   }
   const inputAttrs = `class="inline-edit${empty ? ' empty' : ''}" value="${escapeHtml(display)}" placeholder="${placeholder}" size="${Math.max(placeholder.length, display.length)}" onfocus="if(this.value==='${MISSING}')this.value=''" onblur="setField(${lead.id}, '${field}', this.value.trim())"`;
-  return `<span class="meta-field">${prefix}<input type="text" ${inputAttrs} /></span>`;
+  return `<span class="meta-field"><span class="meta-label">${label}</span><input type="text" ${inputAttrs} />${icon}</span>`;
 }
 
 function render() {
@@ -443,10 +444,10 @@ function render() {
     const cbState = callbackState(l.callback);
     const overdueClass = cbState === 'overdue' ? ' overdue' : '';
     const siteOpts = [
-      ['unknown', '??? Quality'],
+      ['unknown', '???'],
       ['none', 'No website'],
-      ['bad', 'Bad site'],
-      ['ok', 'Decent site'],
+      ['bad', 'Bad / outdated'],
+      ['ok', 'Decent'],
     ].map(([k, lbl]) => `<option value="${k}" ${l.site === k ? 'selected' : ''}>${lbl}</option>`).join('');
 
     return `
@@ -454,13 +455,13 @@ function render() {
       <div>
         <div style="font-weight: 500; font-size: 14px;">${escapeHtml(l.name)}</div>
         <div class="meta-row">
-          ${renderField(l, 'phone', 'phone', 'phone')}
+          ${renderField(l, 'phone', 'phone', 'phone', 'Phone:')}
           <span class="meta-sep">·</span>
-          ${renderField(l, 'website', 'website', 'website')}
+          ${renderField(l, 'website', 'website', 'website', 'Link')}
           <span class="meta-sep">·</span>
-          ${renderField(l, 'email', 'email', 'email')}
+          ${renderField(l, 'email', 'email', 'email', 'E-Mail:')}
           <span class="meta-sep">·</span>
-          <select onchange="setField(${l.id}, 'site', this.value); render()" class="inline-edit" style="font-size: 11px; height: 22px;">${siteOpts}</select>
+          <span class="meta-field"><span class="meta-label">Quality:</span><select onchange="setField(${l.id}, 'site', this.value); render()" class="inline-edit" style="font-size: 11px; height: 22px;">${siteOpts}</select></span>
         </div>
         <input type="text" placeholder="Notes..." value="${escapeHtml(l.note)}" oninput="updateNote(${l.id}, this.value)" style="margin-top: 6px; width: 100%; font-size: 12px; padding: 4px 8px; height: 28px;" />
         <div style="margin-top: 6px; font-size: 11px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px;">
