@@ -220,8 +220,14 @@
   .badge-closed     { background: var(--info-bg); color: var(--info); }
 
   .notes-input {
-    margin-top: 8px; width: 100%; font-size: 12px; padding: 6px 10px; height: 32px;
+    margin-top: 8px; width: 100%; font-size: 12px; padding: 8px 10px;
+    min-height: 64px; resize: vertical;
     background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm);
+    font-family: inherit; line-height: 1.5; color: var(--text);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .notes-input:focus {
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
   }
   .callback-row {
     margin-top: 8px; font-size: 11px; color: var(--text-2);
@@ -613,7 +619,7 @@ function render() {
           <span class="meta-sep">·</span>
           <span class="meta-field"><span class="meta-label">Quality:</span><select onchange="setField(${l.id}, 'site', this.value); render()" class="inline-edit" style="font-size: 11px; height: 24px;">${siteOpts}</select></span>
         </div>
-        <input type="text" class="notes-input" placeholder="Notes..." value="${escapeHtml(l.note)}" oninput="updateNote(${l.id}, this.value)" />
+        <textarea class="notes-input" placeholder="Notes — type freely, Cmd/Ctrl+Enter saves immediately" rows="3" oninput="updateNote(${l.id}, this.value)" onkeydown="if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();this.blur();}">${escapeHtml(l.note)}</textarea>
         <div class="callback-row">
           <span class="meta-label">Callback</span>
           <input type="date" class="callback-input" value="${escapeHtml(l.callback || '')}" onchange="setCallback(${l.id}, this.value)" />
