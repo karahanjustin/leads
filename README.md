@@ -6,11 +6,12 @@ A tiny, zero-backend tool for tracking cold-call outreach. Add leads, mark call 
 
 ## Features
 
-- Track leads with name, phone, website, email, and site-quality tag
+- **Find leads (OpenStreetMap)** - pick a niche and a US State + City, get a list of businesses (name, address, phone, website, email), edit or drop rows, then add the rest to your Un-called list in one click. Runs fully in the browser, no server. Phone/website/address come from OpenStreetMap; email is often missing there and stays editable.
+- Track leads with name, phone, website, email, address, and site-quality tag
 - Status workflow: Not called → No answer / Not interested / Interested / Closed
 - Per-lead notes and callback dates (auto-set on No-answer / Interested)
 - Live stats: total, called, interested, closed
-- **CSV import** — drop a spreadsheet export, missing fields show as `???` and stay editable
+- **CSV import** — drop a spreadsheet export, missing fields show as `???` and stay editable (now also recognizes an `address` column)
 - Export / Import as JSON for backup or moving between devices
 
 ## CSV format
