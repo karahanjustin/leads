@@ -95,6 +95,22 @@
   button.danger:hover { background: var(--danger-bg); border-color: var(--danger); }
   button.small { font-size: 12px; padding: 6px 12px; }
 
+  /* Mode switch (Calls / Email) */
+  .mode-switch {
+    display: inline-flex; background: var(--surface); border: 1px solid var(--border);
+    border-radius: 999px; padding: 3px; gap: 2px;
+  }
+  .mode-btn {
+    border: none; background: transparent; color: var(--text-2);
+    padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: 500;
+  }
+  .mode-btn:hover { background: var(--surface-hover); border-color: transparent; }
+  .mode-btn.active {
+    background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 100%);
+    color: #fff;
+  }
+  .mode-btn.active:hover { filter: brightness(1.1); background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 100%); }
+
   /* Stats grid */
   .stats {
     display: grid; grid-template-columns: repeat(4, 1fr);
@@ -328,7 +344,13 @@
 <div class="container">
 
 <div class="header-row">
-  <h1>Call Tracker</h1>
+  <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+    <h1 id="app-title">Call Tracker</h1>
+    <div class="mode-switch">
+      <button id="mode-call" class="mode-btn" onclick="setMode('call')">Calls</button>
+      <button id="mode-email" class="mode-btn" onclick="setMode('email')">Email</button>
+    </div>
+  </div>
   <div class="header-actions">
     <button class="small primary" onclick="toggleFinder()" id="finder-toggle">Find leads</button>
     <button class="small" onclick="document.getElementById('csv-file').click()">Import CSV</button>
@@ -344,7 +366,7 @@
   <div class="finder-head">
     <div>
       <div class="title">Find leads</div>
-      <div class="sub">Pick a niche and a US location, then add the results to your call list. Data comes from OpenStreetMap. Email is often missing and stays editable.</div>
+      <div class="sub">Pick a niche and a US location, then add the results to your list. Data comes from OpenStreetMap. Email is often missing and stays editable.</div>
     </div>
     <button class="small" onclick="toggleFinder()">Close</button>
   </div>
@@ -393,8 +415,8 @@
 
 <div class="stats">
   <div class="stat"><div class="stat-label">Total</div><div class="stat-value" id="stat-total">0</div></div>
-  <div class="stat s-warn"><div class="stat-label">Called</div><div class="stat-value" id="stat-called">0</div></div>
-  <div class="stat s-success"><div class="stat-label">Interested</div><div class="stat-value" id="stat-interested">0</div></div>
+  <div class="stat s-warn"><div class="stat-label" id="lbl-called">Called</div><div class="stat-value" id="stat-called">0</div></div>
+  <div class="stat s-success"><div class="stat-label" id="lbl-interested">Interested</div><div class="stat-value" id="stat-interested">0</div></div>
   <div class="stat s-info"><div class="stat-label">Closed</div><div class="stat-value" id="stat-closed">0</div></div>
 </div>
 
@@ -403,7 +425,7 @@
     <div class="field-label">Business name</div>
     <input type="text" id="input-name" placeholder="e.g. Austin Plumbing" />
   </div>
-  <div>
+  <div id="field-phone">
     <div class="field-label">Phone</div>
     <input type="text" id="input-phone" placeholder="optional" />
   </div>
@@ -437,35 +459,72 @@
 
 <div class="footer">
   Data is stored locally in your browser and never leaves this device.<br/>
-  CSV format: header row recognized — <code>name, phone, website, email, quality, notes</code> (any subset). Missing fields show as <code>???</code> and can be edited later.
+  CSV format: header row recognized, <code>name, phone, website, email, address, quality, notes</code> (any subset). Missing fields show as <code>???</code> and can be edited later.
 </div>
 
 </div>
 
 <script>
-const STORAGE_KEY = 'call-tracker-leads-v1';
 const MISSING = '???';
 let leads = [];
 let callbackFilter = false;
 
-const statusConfig = {
-  pending:    { label: 'Not called' },
-  no_answer:  { label: 'No answer' },
-  not_int:    { label: 'Not interested' },
-  interested: { label: 'Interested' },
-  closed:     { label: 'Closed' },
+// Two independent lists, switched by mode. Email and call share the same status
+// keys, only the labels and a few terms differ.
+const CALL_KEY = 'call-tracker-leads-v1';
+const EMAIL_KEY = 'call-tracker-emails-v1';
+let mode = (localStorage.getItem('call-tracker-mode') === 'email') ? 'email' : 'call';
+function storageKey() { return mode === 'email' ? EMAIL_KEY : CALL_KEY; }
+
+const STATUS_LABELS = {
+  call:  { pending:'Not called', no_answer:'No answer', not_int:'Not interested', interested:'Interested', closed:'Closed' },
+  email: { pending:'Not sent',   no_answer:'No reply',  not_int:'Not interested', interested:'Replied',    closed:'Closed' },
 };
+const MODE_TERMS = {
+  call:  { called:'Called', interested:'Interested', dateLabel:'Callback',  dueNoun:'callback',  uncontacted:'Un-called', verb:'calling',  title:'Call Tracker' },
+  email: { called:'Sent',   interested:'Replied',    dateLabel:'Follow-up', dueNoun:'follow-up', uncontacted:'Not-sent',  verb:'emailing', title:'Email Tracker' },
+};
+function statusConfig() {
+  const m = STATUS_LABELS[mode];
+  return { pending:{label:m.pending}, no_answer:{label:m.no_answer}, not_int:{label:m.not_int}, interested:{label:m.interested}, closed:{label:m.closed} };
+}
+function terms() { return MODE_TERMS[mode]; }
 
 function loadLeads() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey());
     leads = raw ? JSON.parse(raw) : [];
     leads = leads.map(l => ({ website: '', email: '', address: '', callback: '', ...l }));
   } catch (e) { leads = []; }
   render();
 }
 
-function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(leads)); }
+function persist() { localStorage.setItem(storageKey(), JSON.stringify(leads)); }
+
+function setMode(m) {
+  if (m === mode) return;
+  persist();                       // save the list we are leaving
+  mode = m;
+  localStorage.setItem('call-tracker-mode', mode);
+  applyModeChrome();
+  loadLeads();                     // load + render the other list
+}
+
+// Update all mode-dependent labels/chrome (does not touch the list data).
+function applyModeChrome() {
+  const t = terms();
+  document.getElementById('mode-call').classList.toggle('active', mode === 'call');
+  document.getElementById('mode-email').classList.toggle('active', mode === 'email');
+  document.getElementById('app-title').textContent = t.title;
+  document.title = t.title;
+  document.getElementById('lbl-called').textContent = t.called;
+  document.getElementById('lbl-interested').textContent = t.interested;
+  document.getElementById('field-phone').style.display = (mode === 'email') ? 'none' : '';
+  const empty = document.getElementById('empty-state');
+  if (empty) empty.textContent = `Add your first lead above, aim for 20 before you start ${t.verb}`;
+  const addAll = document.getElementById('f-addall');
+  if (addAll && !finderResults.length) addAll.textContent = `Add all to ${t.uncontacted}`;
+}
 function newId(offset = 0) { return Date.now() + Math.floor(Math.random() * 100000) + offset; }
 
 function addLead() {
@@ -688,9 +747,10 @@ function render() {
   const banner = document.getElementById('callback-banner');
   if (dueCount > 0) {
     banner.classList.add('active');
+    const dn = terms().dueNoun;
     banner.textContent = callbackFilter
-      ? `Showing ${dueCount} callback${dueCount === 1 ? '' : 's'} due — click to show all leads`
-      : `${dueCount} callback${dueCount === 1 ? '' : 's'} due today or overdue — click to focus`;
+      ? `Showing ${dueCount} ${dn}${dueCount === 1 ? '' : 's'} due, click to show all leads`
+      : `${dueCount} ${dn}${dueCount === 1 ? '' : 's'} due today or overdue, click to focus`;
   } else {
     banner.classList.remove('active');
     if (callbackFilter) callbackFilter = false;
@@ -711,7 +771,8 @@ function render() {
   list.innerHTML = visible.map(l => {
     const cbState = callbackState(l.callback);
     const overdueClass = cbState === 'overdue' ? ' overdue' : '';
-    const statusOpts = Object.entries(statusConfig).map(([k, v]) =>
+    const sc = statusConfig();
+    const statusOpts = Object.entries(sc).map(([k, v]) =>
       `<option value="${k}" ${l.status === k ? 'selected' : ''}>${v.label}</option>`
     ).join('');
     const siteOpts = [
@@ -726,8 +787,7 @@ function render() {
       <div>
         <div class="lead-name">${escapeHtml(l.name)}</div>
         <div class="meta-row">
-          ${renderField(l, 'phone', 'phone', 'phone', 'Phone:')}
-          <span class="meta-sep">·</span>
+          ${mode === 'call' ? renderField(l, 'phone', 'phone', 'phone', 'Phone:') + '<span class="meta-sep">·</span>' : ''}
           ${renderField(l, 'website', 'website', 'website', 'Link')}
           <span class="meta-sep">·</span>
           ${renderField(l, 'email', 'email', 'email', 'E-Mail:')}
@@ -739,14 +799,14 @@ function render() {
         </div>
         <textarea class="notes-input" placeholder="Notes — type freely, Cmd/Ctrl+Enter saves immediately" rows="3" oninput="updateNote(${l.id}, this.value)" onkeydown="if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();this.blur();}">${escapeHtml(l.note)}</textarea>
         <div class="callback-row">
-          <span class="meta-label">Callback</span>
+          <span class="meta-label">${terms().dateLabel}</span>
           <input type="date" class="callback-input" value="${escapeHtml(l.callback || '')}" onchange="setCallback(${l.id}, this.value)" />
           ${l.callback ? `<button class="small" style="font-size:10px; padding:2px 8px; height:22px;" onclick="setCallback(${l.id}, '')">clear</button>` : ''}
           ${cbState === 'overdue' ? '<span style="color: var(--danger); font-weight: 500;">overdue</span>' : ''}
           ${cbState === 'today' ? '<span style="color: var(--warning); font-weight: 500;">today</span>' : ''}
         </div>
       </div>
-      <span class="status-badge badge-${l.status}">${statusConfig[l.status].label}</span>
+      <span class="status-badge badge-${l.status}">${sc[l.status].label}</span>
       <select onchange="setStatus(${l.id}, this.value)" style="font-size: 12px; padding: 4px 8px; height: 30px;">${statusOpts}</select>
       <button class="icon-btn danger" onclick="removeLead(${l.id})" title="Remove">✕</button>
     </div>`;
@@ -1316,7 +1376,7 @@ function renderStaging(){
   if (!finderResults.length){ wrap.style.display = 'none'; body.innerHTML = ''; return; }
   wrap.style.display = 'block';
   count.textContent = `${finderResults.length} business${finderResults.length === 1 ? '' : 'es'}`;
-  document.getElementById('f-addall').textContent = `Add ${finderResults.length} to Un-called`;
+  document.getElementById('f-addall').textContent = `Add ${finderResults.length} to ${terms().uncontacted}`;
   body.innerHTML = finderResults.map(r => {
     const f = (field, ph) => `<input type="text" value="${escapeHtml(r[field] || '')}" placeholder="${ph}" oninput="stagingEdit(${r._sid}, '${field}', this.value)" />`;
     return `<tr>
@@ -1377,7 +1437,7 @@ function addAllStaged(){
   persistStaging();
   renderStaging();
   render();
-  fStatus(`Added ${added} to Un-called${skipped ? `, skipped ${skipped} already in your list` : ''}.`, 'ok');
+  fStatus(`Added ${added} to ${terms().uncontacted}${skipped ? `, skipped ${skipped} already in your list` : ''}.`, 'ok');
 }
 
 // --- Finder init ----------------------------------------------------------
@@ -1404,6 +1464,7 @@ function toggleFinder(){
   loadStaging();
 })();
 
+applyModeChrome();
 loadLeads();
 </script>
 </body>
