@@ -318,6 +318,10 @@
   table.staging input:hover { background: var(--surface); border-color: var(--border); }
   table.staging input:focus { background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); outline: none; }
   table.staging .col-x { width: 36px; text-align: center; }
+  table.staging td .web-cell { display: flex; align-items: center; gap: 6px; }
+  table.staging td .web-cell input { flex: 1 1 auto; min-width: 60px; width: auto; }
+  table.staging .web-link { flex: none; text-decoration: none; font-size: 13px; line-height: 1; }
+  table.staging .web-link:hover { opacity: 0.7; }
   .row-remove {
     width: 26px; height: 26px; padding: 0; line-height: 1; font-size: 14px;
     color: var(--text-3); background: transparent; border: 1px solid var(--border);
@@ -1383,7 +1387,7 @@ function renderStaging(){
       <td>${f('name','name')}</td>
       <td>${f('email','email')}</td>
       <td>${f('address','address')}</td>
-      <td>${f('website','website')}</td>
+      <td><div class="web-cell">${f('website','website')}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="Open website">🔗</a>` : ''}</div></td>
       <td>${f('phone','phone')}</td>
       <td class="col-x"><button class="row-remove" title="Remove" onclick="stagingRemove(${r._sid})">&minus;</button></td>
     </tr>`;
