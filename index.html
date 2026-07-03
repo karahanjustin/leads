@@ -359,6 +359,7 @@
     <button class="small primary" onclick="toggleFinder()" id="finder-toggle">Find leads</button>
     <button class="small" onclick="document.getElementById('csv-file').click()">Import CSV</button>
     <input type="file" id="csv-file" accept=".csv,text/csv" style="display:none" onchange="importCSV(event)" />
+    <button class="small" onclick="exportCSV()">Export CSV</button>
     <button class="small" onclick="exportData()">Export JSON</button>
     <button class="small" onclick="document.getElementById('import-file').click()">Import JSON</button>
     <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)" />
@@ -596,6 +597,27 @@ function exportData() {
   const a = document.createElement('a');
   a.href = url;
   a.download = `call-tracker-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportCSV() {
+  if (!leads.length) return alert('Nothing to export.');
+  const headers = ['name', 'phone', 'website', 'email', 'address', 'quality', 'status', 'note', 'callback'];
+  const esc = (v) => {
+    v = (v === undefined || v === null) ? '' : String(v);
+    if (v === MISSING) v = '';
+    return /[",;\t\n\r]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v;
+  };
+  const lines = [headers.join(',')];
+  for (const l of leads) {
+    lines.push([l.name, l.phone, l.website, l.email, l.address, l.site, l.status, l.note, l.callback].map(esc).join(','));
+  }
+  const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${mode === 'email' ? 'email' : 'call'}-tracker-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
