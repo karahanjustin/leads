@@ -110,6 +110,7 @@
     color: #fff;
   }
   .mode-btn.active:hover { filter: brightness(1.1); background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 100%); }
+  .lang-switch .mode-btn { padding: 6px 12px; font-size: 12px; letter-spacing: 0.04em; }
 
   /* Stats grid */
   .stats {
@@ -285,7 +286,7 @@
   #finder .finder-head .sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
   .finder-form {
     display: grid;
-    grid-template-columns: 1.4fr 1fr 1fr 0.7fr auto;
+    grid-template-columns: 1.3fr 0.9fr 1fr 1fr 0.7fr auto;
     gap: 10px; align-items: end;
   }
   .finder-form input, .finder-form select { width: 100%; }
@@ -351,107 +352,118 @@
   <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
     <h1 id="app-title">Call Tracker</h1>
     <div class="mode-switch">
-      <button id="mode-call" class="mode-btn" onclick="setMode('call')">Calls</button>
-      <button id="mode-email" class="mode-btn" onclick="setMode('email')">Email</button>
+      <button id="mode-call" class="mode-btn" onclick="setMode('call')" data-i18n="mode_calls">Calls</button>
+      <button id="mode-email" class="mode-btn" onclick="setMode('email')" data-i18n="mode_email">Email</button>
     </div>
   </div>
   <div class="header-actions">
-    <button class="small primary" onclick="toggleFinder()" id="finder-toggle">Find leads</button>
-    <button class="small" onclick="document.getElementById('csv-file').click()">Import CSV</button>
+    <div class="mode-switch lang-switch" title="Language / Sprache">
+      <button id="lang-en" class="mode-btn" onclick="setLang('en')">EN</button>
+      <button id="lang-de" class="mode-btn" onclick="setLang('de')">DE</button>
+    </div>
+    <button class="small primary" onclick="toggleFinder()" id="finder-toggle" data-i18n="btn_find">Find leads</button>
+    <button class="small" onclick="document.getElementById('csv-file').click()" data-i18n="btn_import_csv">Import CSV</button>
     <input type="file" id="csv-file" accept=".csv,text/csv" style="display:none" onchange="importCSV(event)" />
-    <button class="small" onclick="exportCSV()">Export CSV</button>
-    <button class="small" onclick="exportData()">Export JSON</button>
-    <button class="small" onclick="document.getElementById('import-file').click()">Import JSON</button>
+    <button class="small" onclick="exportCSV()" data-i18n="btn_export_csv">Export CSV</button>
+    <button class="small" onclick="exportData()" data-i18n="btn_export_json">Export JSON</button>
+    <button class="small" onclick="document.getElementById('import-file').click()" data-i18n="btn_import_json">Import JSON</button>
     <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)" />
-    <button class="small danger" onclick="clearAll()">Clear all</button>
+    <button class="small danger" onclick="clearAll()" data-i18n="btn_clear_all">Clear all</button>
   </div>
 </div>
 
 <section id="finder" style="display:none">
   <div class="finder-head">
     <div>
-      <div class="title">Find leads</div>
-      <div class="sub">Pick a niche and a US location, then add the results to your list. Data comes from OpenStreetMap. Email is often missing and stays editable.</div>
+      <div class="title" data-i18n="finder_title">Find leads</div>
+      <div class="sub" id="finder-sub" data-i18n="finder_sub">Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap. Email is often missing and stays editable.</div>
     </div>
-    <button class="small" onclick="toggleFinder()">Close</button>
+    <button class="small" onclick="toggleFinder()" data-i18n="btn_close">Close</button>
   </div>
   <div class="finder-form">
     <div>
-      <div class="field-label">Niche</div>
-      <input type="text" id="f-niche" list="niche-suggest" placeholder="e.g. dentist, plumber, restaurant" />
+      <div class="field-label" data-i18n="lbl_niche">Niche</div>
+      <input type="text" id="f-niche" list="niche-suggest" data-i18n-ph="ph_niche" placeholder="e.g. dentist, plumber, restaurant" />
       <datalist id="niche-suggest"></datalist>
     </div>
     <div>
-      <div class="field-label">State</div>
+      <div class="field-label" data-i18n="lbl_country">Country</div>
+      <select id="f-country" onchange="onCountryChange()">
+        <option value="us">United States</option>
+        <option value="de">Deutschland</option>
+      </select>
+    </div>
+    <div>
+      <div class="field-label" id="lbl-state">State</div>
       <select id="f-state"></select>
     </div>
     <div>
-      <div class="field-label">City</div>
+      <div class="field-label" data-i18n="lbl_city">City</div>
       <input type="text" id="f-city" list="city-suggest" placeholder="e.g. Austin" />
       <datalist id="city-suggest"></datalist>
     </div>
     <div>
-      <div class="field-label">Metro radius</div>
+      <div class="field-label" data-i18n="lbl_radius">Metro radius</div>
       <select id="f-radius">
-        <option value="0">City only</option>
+        <option value="0" data-i18n="radius_city">City only</option>
         <option value="25000" selected>+ 25 km</option>
         <option value="50000">+ 50 km</option>
       </select>
     </div>
-    <button class="primary" id="f-go" onclick="runFinderSearch()" style="height: 38px;">Search</button>
+    <button class="primary" id="f-go" onclick="runFinderSearch()" style="height: 38px;" data-i18n="btn_search">Search</button>
   </div>
   <div class="finder-status" id="f-status"></div>
   <div class="staging-wrap" id="staging-wrap" style="display:none">
     <table class="staging" id="staging-table">
       <thead>
         <tr>
-          <th>Name</th><th>Email</th><th>Address</th><th>Website</th><th>Phone</th><th class="col-x"></th>
+          <th data-i18n="th_name">Name</th><th data-i18n="th_email">Email</th><th data-i18n="th_address">Address</th><th data-i18n="th_website">Website</th><th data-i18n="th_phone">Phone</th><th class="col-x"></th>
         </tr>
       </thead>
       <tbody id="staging-body"></tbody>
     </table>
     <div class="staging-actions">
       <button class="primary" id="f-addall" onclick="addAllStaged()">Add all to Un-called</button>
-      <button class="small danger" onclick="clearStaging()">Clear results</button>
+      <button class="small danger" onclick="clearStaging()" data-i18n="btn_clear_results">Clear results</button>
       <span class="staging-count" id="staging-count"></span>
     </div>
   </div>
 </section>
 
 <div class="stats">
-  <div class="stat"><div class="stat-label">Total</div><div class="stat-value" id="stat-total">0</div></div>
+  <div class="stat"><div class="stat-label" data-i18n="stat_total">Total</div><div class="stat-value" id="stat-total">0</div></div>
   <div class="stat s-warn"><div class="stat-label" id="lbl-called">Called</div><div class="stat-value" id="stat-called">0</div></div>
   <div class="stat s-success"><div class="stat-label" id="lbl-interested">Interested</div><div class="stat-value" id="stat-interested">0</div></div>
-  <div class="stat s-info"><div class="stat-label">Closed</div><div class="stat-value" id="stat-closed">0</div></div>
+  <div class="stat s-info"><div class="stat-label" data-i18n="stat_closed">Closed</div><div class="stat-value" id="stat-closed">0</div></div>
 </div>
 
 <div class="add-form">
   <div>
-    <div class="field-label">Business name</div>
-    <input type="text" id="input-name" placeholder="e.g. Austin Plumbing" />
+    <div class="field-label" data-i18n="lbl_business">Business name</div>
+    <input type="text" id="input-name" data-i18n-ph="ph_bizname" placeholder="e.g. Austin Plumbing" />
   </div>
   <div id="field-phone">
-    <div class="field-label">Phone</div>
-    <input type="text" id="input-phone" placeholder="optional" />
+    <div class="field-label" data-i18n="lbl_phone">Phone</div>
+    <input type="text" id="input-phone" data-i18n-ph="ph_optional" placeholder="optional" />
   </div>
   <div>
-    <div class="field-label">Website</div>
-    <input type="text" id="input-website" placeholder="optional" />
+    <div class="field-label" data-i18n="lbl_website">Website</div>
+    <input type="text" id="input-website" data-i18n-ph="ph_optional" placeholder="optional" />
   </div>
   <div>
-    <div class="field-label">Email</div>
-    <input type="text" id="input-email" placeholder="optional" />
+    <div class="field-label" data-i18n="lbl_email">Email</div>
+    <input type="text" id="input-email" data-i18n-ph="ph_optional" placeholder="optional" />
   </div>
   <div>
-    <div class="field-label">Site quality</div>
+    <div class="field-label" data-i18n="lbl_quality">Site quality</div>
     <select id="input-site">
       <option value="unknown">???</option>
-      <option value="none">No website</option>
-      <option value="bad">Bad / outdated</option>
-      <option value="ok">Decent</option>
+      <option value="none" data-i18n="site_none">No website</option>
+      <option value="bad" data-i18n="site_bad">Bad / outdated</option>
+      <option value="ok" data-i18n="site_ok">Decent</option>
     </select>
   </div>
-  <button class="primary" onclick="addLead()" style="height: 38px;">+ Add</button>
+  <button class="primary" onclick="addLead()" style="height: 38px;" data-i18n="btn_add">+ Add</button>
 </div>
 
 <div id="callback-banner" class="callback-banner" onclick="toggleCallbackFilter()"></div>
@@ -459,10 +471,10 @@
 <div id="lead-list"></div>
 
 <div id="empty-state" class="empty-state">
-  Add your first lead above — aim for 20 before you start calling
+  Add your first lead above, aim for 20 before you start calling
 </div>
 
-<div class="footer">
+<div class="footer" id="footer-text">
   Data is stored locally in your browser and never leaves this device.<br/>
   CSV format: header row recognized, <code>name, phone, website, email, address, quality, notes</code> (any subset). Missing fields show as <code>???</code> and can be edited later.
 </div>
@@ -474,6 +486,144 @@ const MISSING = '???';
 let leads = [];
 let callbackFilter = false;
 
+/* ==================================================================
+   I18N: the whole UI switches between English and German.
+   Static text is tagged with data-i18n / data-i18n-ph in the markup,
+   everything dynamic goes through t().
+================================================================== */
+const I18N = {
+  en: {
+    mode_calls:'Calls', mode_email:'Email',
+    btn_find:'Find leads', btn_import_csv:'Import CSV', btn_export_csv:'Export CSV',
+    btn_export_json:'Export JSON', btn_import_json:'Import JSON', btn_clear_all:'Clear all',
+    btn_close:'Close', btn_search:'Search', btn_add:'+ Add', btn_clear_results:'Clear results',
+    finder_title:'Find leads',
+    finder_sub:'Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap. Email is often missing and stays editable.',
+    lbl_niche:'Niche', lbl_country:'Country', lbl_city:'City', lbl_radius:'Metro radius',
+    lbl_state_us:'State', lbl_state_de:'Federal state',
+    sel_state_us:'Select state', sel_state_de:'Select federal state',
+    radius_city:'City only',
+    ph_niche:'e.g. dentist, plumber, restaurant', ph_city_us:'e.g. Austin', ph_city_de:'e.g. Bielefeld',
+    ph_bizname:'e.g. Austin Plumbing', ph_optional:'optional',
+    th_name:'Name', th_email:'Email', th_address:'Address', th_website:'Website', th_phone:'Phone',
+    stat_total:'Total', stat_closed:'Closed',
+    lbl_business:'Business name', lbl_phone:'Phone', lbl_website:'Website', lbl_email:'Email',
+    lbl_quality:'Site quality',
+    site_none:'No website', site_bad:'Bad / outdated', site_ok:'Decent',
+    meta_phone:'Phone:', meta_link:'Link', meta_email:'E-Mail:', meta_quality:'Quality:', meta_addr:'Addr:',
+    notes_ph:'Notes, type freely. Cmd/Ctrl+Enter saves immediately',
+    overdue:'overdue', today:'today', clear:'clear',
+    empty_first:(verb)=>`Add your first lead above, aim for 20 before you start ${verb}`,
+    footer:'Data is stored locally in your browser and never leaves this device.<br/>CSV format: header row recognized, <code>name, phone, website, email, address, quality, notes</code> (any subset). Missing fields show as <code>???</code> and can be edited later.',
+    banner_focus:(n,dn)=>`${n} ${dn}${n===1?'':'s'} due today or overdue, click to focus`,
+    banner_showing:(n,dn)=>`Showing ${n} ${dn}${n===1?'':'s'} due, click to show all leads`,
+    add_all:(n,target)=>`Add ${n} to ${target}`,
+    add_all_empty:(target)=>`Add all to ${target}`,
+    count_biz:(n)=>`${n} business${n===1?'':'es'}`,
+    a_empty:'Already empty.',
+    a_confirm_clear:(n)=>`Delete all ${n} lead${n===1?'':'s'}? This cannot be undone.`,
+    a_confirm_clear2:'Are you absolutely sure? Export your data first if you want a backup.',
+    a_nothing_export:'Nothing to export.',
+    a_confirm_import:(a,b)=>`Replace ${a} existing leads with ${b} imported leads?`,
+    a_bad_import:(m)=>'Could not import: ' + m,
+    a_bad_csv:(m)=>'Could not import CSV: ' + m,
+    a_imported:(n,noHdr)=>`Imported ${n} lead${n===1?'':'s'}.${noHdr?' (no header detected)':''}`,
+    e_empty_csv:'Empty CSV', e_no_rows:'No valid rows found (need at least a name column)',
+    e_bad_format:'Invalid format',
+    f_need_city:'Enter a city.',
+    f_looking_up:(city,state)=>`Looking up ${city}, ${state} ...`,
+    f_no_place:'Could not find that location. Try another spelling.',
+    f_searching:(niche,city)=>`Searching for ${niche} in ${city} ...`,
+    f_businesses:'businesses',
+    f_tiles:'Large area, scanning in tiles ...',
+    f_addresses:(i,n)=>`Improving addresses ${i} of ${n} ...`,
+    f_found:(n)=>`Found ${n} businesses. Edit or remove rows, then add them to your call list.`,
+    f_none:'No results. Try a bigger city, a different niche, or a larger radius.',
+    f_error:(m)=>'Error: ' + m,
+    f_added:(n,target,skipped)=>`Added ${n} to ${target}${skipped?`, skipped ${skipped} already in your list`:''}.`,
+  },
+  de: {
+    mode_calls:'Anrufe', mode_email:'E-Mail',
+    btn_find:'Leads finden', btn_import_csv:'CSV importieren', btn_export_csv:'CSV exportieren',
+    btn_export_json:'JSON exportieren', btn_import_json:'JSON importieren', btn_clear_all:'Alle löschen',
+    btn_close:'Schließen', btn_search:'Suchen', btn_add:'+ Hinzufügen', btn_clear_results:'Ergebnisse löschen',
+    finder_title:'Leads finden',
+    finder_sub:'Branche und Ort wählen, dann die Treffer in die Liste übernehmen. Die Daten kommen von OpenStreetMap. E-Mail fehlt häufig und bleibt bearbeitbar.',
+    lbl_niche:'Branche', lbl_country:'Land', lbl_city:'Stadt', lbl_radius:'Umkreis',
+    lbl_state_us:'Bundesstaat', lbl_state_de:'Bundesland',
+    sel_state_us:'Bundesstaat wählen', sel_state_de:'Bundesland wählen',
+    radius_city:'Nur Stadt',
+    ph_niche:'z.B. Zahnarzt, Klempner, Restaurant', ph_city_us:'z.B. Austin', ph_city_de:'z.B. Bielefeld',
+    ph_bizname:'z.B. Müller Sanitär', ph_optional:'optional',
+    th_name:'Name', th_email:'E-Mail', th_address:'Adresse', th_website:'Webseite', th_phone:'Telefon',
+    stat_total:'Gesamt', stat_closed:'Abgeschlossen',
+    lbl_business:'Firmenname', lbl_phone:'Telefon', lbl_website:'Webseite', lbl_email:'E-Mail',
+    lbl_quality:'Website-Qualität',
+    site_none:'Keine Website', site_bad:'Schlecht / veraltet', site_ok:'Ordentlich',
+    meta_phone:'Tel.:', meta_link:'Link', meta_email:'E-Mail:', meta_quality:'Qualität:', meta_addr:'Adresse:',
+    notes_ph:'Notizen, einfach lostippen. Cmd/Strg+Enter speichert sofort',
+    overdue:'überfällig', today:'heute', clear:'leeren',
+    empty_first:(verb)=>`Oben den ersten Lead eintragen, ca. 20 sammeln bevor du mit dem ${verb} anfängst`,
+    footer:'Die Daten liegen lokal im Browser und verlassen dieses Gerät nie.<br/>CSV-Format: Kopfzeile wird erkannt, <code>name, phone, website, email, address, quality, notes</code> (beliebige Auswahl). Fehlende Felder erscheinen als <code>???</code> und lassen sich später ergänzen.',
+    banner_focus:(n,dn)=>`${n} ${dn} heute fällig oder überfällig, zum Filtern klicken`,
+    banner_showing:(n,dn)=>`${n} fällige ${dn} werden gezeigt, klicken für alle Leads`,
+    add_all:(n,target)=>`${n} zu ${target} hinzufügen`,
+    add_all_empty:(target)=>`Alle zu ${target} hinzufügen`,
+    count_biz:(n)=>`${n} ${n===1?'Betrieb':'Betriebe'}`,
+    a_empty:'Ist bereits leer.',
+    a_confirm_clear:(n)=>`Alle ${n} Leads löschen? Das lässt sich nicht rückgängig machen.`,
+    a_confirm_clear2:'Wirklich ganz sicher? Exportiere vorher deine Daten, wenn du ein Backup willst.',
+    a_nothing_export:'Nichts zu exportieren.',
+    a_confirm_import:(a,b)=>`${a} vorhandene Leads durch ${b} importierte Leads ersetzen?`,
+    a_bad_import:(m)=>'Import fehlgeschlagen: ' + m,
+    a_bad_csv:(m)=>'CSV-Import fehlgeschlagen: ' + m,
+    a_imported:(n,noHdr)=>`${n} Leads importiert.${noHdr?' (keine Kopfzeile erkannt)':''}`,
+    e_empty_csv:'Leere CSV', e_no_rows:'Keine gültigen Zeilen gefunden (mindestens eine Namensspalte nötig)',
+    e_bad_format:'Ungültiges Format',
+    f_need_city:'Bitte eine Stadt eingeben.',
+    f_looking_up:(city,state)=>`Suche Ort ${city}, ${state} ...`,
+    f_no_place:'Ort nicht gefunden. Andere Schreibweise probieren.',
+    f_searching:(niche,city)=>`Suche ${niche} in ${city} ...`,
+    f_businesses:'Betriebe',
+    f_tiles:'Großes Gebiet, wird in Kacheln durchsucht ...',
+    f_addresses:(i,n)=>`Adressen werden ergänzt, ${i} von ${n} ...`,
+    f_found:(n)=>`${n} Betriebe gefunden. Zeilen bearbeiten oder entfernen, dann in die Liste übernehmen.`,
+    f_none:'Keine Treffer. Größere Stadt, andere Branche oder größeren Umkreis probieren.',
+    f_error:(m)=>'Fehler: ' + m,
+    f_added:(n,target,skipped)=>`${n} zu ${target} hinzugefügt${skipped?`, ${skipped} bereits in der Liste übersprungen`:''}.`,
+  },
+};
+
+let lang = localStorage.getItem('call-tracker-lang')
+  || ((navigator.language || '').toLowerCase().startsWith('de') ? 'de' : 'en');
+if (!I18N[lang]) lang = 'en';
+
+function t(key, ...args) {
+  const v = I18N[lang][key];
+  if (v === undefined) return key;
+  return typeof v === 'function' ? v(...args) : v;
+}
+
+function setLang(l) {
+  if (l === lang || !I18N[l]) return;
+  lang = l;
+  localStorage.setItem('call-tracker-lang', lang);
+  applyLang();
+  applyModeChrome();
+  render();
+  renderStaging();
+}
+
+function applyLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.getElementById('footer-text').innerHTML = t('footer');
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-de').classList.toggle('active', lang === 'de');
+  applyCountryChrome();
+}
+
 // Two independent lists, switched by mode. Email and call share the same status
 // keys, only the labels and a few terms differ.
 const CALL_KEY = 'call-tracker-leads-v1';
@@ -482,18 +632,30 @@ let mode = (localStorage.getItem('call-tracker-mode') === 'email') ? 'email' : '
 function storageKey() { return mode === 'email' ? EMAIL_KEY : CALL_KEY; }
 
 const STATUS_LABELS = {
-  call:  { pending:'Not called', no_answer:'No answer', not_int:'Not interested', interested:'Interested', closed:'Closed' },
-  email: { pending:'Not sent',   no_answer:'No reply',  not_int:'Not interested', interested:'Replied',    closed:'Closed' },
+  en: {
+    call:  { pending:'Not called', no_answer:'No answer', not_int:'Not interested', interested:'Interested', closed:'Closed' },
+    email: { pending:'Not sent',   no_answer:'No reply',  not_int:'Not interested', interested:'Replied',    closed:'Closed' },
+  },
+  de: {
+    call:  { pending:'Nicht angerufen', no_answer:'Nicht erreicht', not_int:'Kein Interesse', interested:'Interessiert', closed:'Abgeschlossen' },
+    email: { pending:'Nicht gesendet',  no_answer:'Keine Antwort',  not_int:'Kein Interesse', interested:'Geantwortet',  closed:'Abgeschlossen' },
+  },
 };
 const MODE_TERMS = {
-  call:  { called:'Called', interested:'Interested', dateLabel:'Callback',  dueNoun:'callback',  uncontacted:'Un-called', verb:'calling',  title:'Call Tracker' },
-  email: { called:'Sent',   interested:'Replied',    dateLabel:'Follow-up', dueNoun:'follow-up', uncontacted:'Not-sent',  verb:'emailing', title:'Email Tracker' },
+  en: {
+    call:  { called:'Called', interested:'Interested', dateLabel:'Callback',  dueNoun:'callback',  uncontacted:'Un-called', verb:'calling',  title:'Call Tracker' },
+    email: { called:'Sent',   interested:'Replied',    dateLabel:'Follow-up', dueNoun:'follow-up', uncontacted:'Not-sent',  verb:'emailing', title:'Email Tracker' },
+  },
+  de: {
+    call:  { called:'Angerufen', interested:'Interessiert', dateLabel:'Rückruf',    dueNoun:'Rückrufe',    uncontacted:'Nicht angerufen', verb:'Anrufen',  title:'Anruf-Tracker' },
+    email: { called:'Gesendet',  interested:'Geantwortet',  dateLabel:'Nachfassen', dueNoun:'Nachfassungen', uncontacted:'Nicht gesendet',  verb:'Mailen', title:'E-Mail-Tracker' },
+  },
 };
 function statusConfig() {
-  const m = STATUS_LABELS[mode];
+  const m = STATUS_LABELS[lang][mode];
   return { pending:{label:m.pending}, no_answer:{label:m.no_answer}, not_int:{label:m.not_int}, interested:{label:m.interested}, closed:{label:m.closed} };
 }
-function terms() { return MODE_TERMS[mode]; }
+function terms() { return MODE_TERMS[lang][mode]; }
 
 function loadLeads() {
   try {
@@ -526,9 +688,9 @@ function applyModeChrome() {
   document.getElementById('lbl-interested').textContent = t.interested;
   document.getElementById('field-phone').style.display = (mode === 'email') ? 'none' : '';
   const empty = document.getElementById('empty-state');
-  if (empty) empty.textContent = `Add your first lead above, aim for 20 before you start ${t.verb}`;
+  if (empty) empty.textContent = I18N[lang].empty_first(t.verb);
   const addAll = document.getElementById('f-addall');
-  if (addAll && !finderResults.length) addAll.textContent = `Add all to ${t.uncontacted}`;
+  if (addAll && !finderResults.length) addAll.textContent = I18N[lang].add_all_empty(t.uncontacted);
 }
 function newId(offset = 0) { return Date.now() + Math.floor(Math.random() * 100000) + offset; }
 
@@ -576,9 +738,9 @@ function setCallback(id, val) { setField(id, 'callback', val); render(); }
 function removeLead(id) { leads = leads.filter(l => l.id !== id); persist(); render(); }
 
 function clearAll() {
-  if (!leads.length) return alert('Already empty.');
-  if (!confirm(`Delete all ${leads.length} lead${leads.length === 1 ? '' : 's'}? This cannot be undone.`)) return;
-  if (!confirm('Are you absolutely sure? Export your data first if you want a backup.')) return;
+  if (!leads.length) return alert(t('a_empty'));
+  if (!confirm(t('a_confirm_clear', leads.length))) return;
+  if (!confirm(t('a_confirm_clear2'))) return;
   leads = [];
   persist();
   render();
@@ -602,7 +764,7 @@ function exportData() {
 }
 
 function exportCSV() {
-  if (!leads.length) return alert('Nothing to export.');
+  if (!leads.length) return alert(t('a_nothing_export'));
   const headers = ['name', 'phone', 'website', 'email', 'address', 'quality', 'status', 'note', 'callback'];
   const esc = (v) => {
     v = (v === undefined || v === null) ? '' : String(v);
@@ -629,12 +791,12 @@ function importData(event) {
   reader.onload = (e) => {
     try {
       const imported = JSON.parse(e.target.result);
-      if (!Array.isArray(imported)) throw new Error('Invalid format');
-      if (leads.length && !confirm(`Replace ${leads.length} existing leads with ${imported.length} imported leads?`)) return;
+      if (!Array.isArray(imported)) throw new Error(t('e_bad_format'));
+      if (leads.length && !confirm(t('a_confirm_import', leads.length, imported.length))) return;
       leads = imported;
       persist();
       render();
-    } catch (err) { alert('Could not import: ' + err.message); }
+    } catch (err) { alert(t('a_bad_import', err.message)); }
   };
   reader.readAsText(file);
   event.target.value = '';
@@ -689,7 +851,7 @@ function importCSV(event) {
   reader.onload = (e) => {
     try {
       const rows = parseCSV(e.target.result);
-      if (!rows.length) throw new Error('Empty CSV');
+      if (!rows.length) throw new Error(t('e_empty_csv'));
       const headerKeys = rows[0].map(mapHeader);
       const hasHeader = headerKeys.some(k => k !== null);
       const dataRows = hasHeader ? rows.slice(1) : rows;
@@ -714,12 +876,12 @@ function importCSV(event) {
         });
         added++;
       }
-      if (!added) throw new Error('No valid rows found (need at least a name column)');
+      if (!added) throw new Error(t('e_no_rows'));
       leads = leads.concat(newLeads);
       persist();
       render();
-      alert(`Imported ${added} lead${added === 1 ? '' : 's'}.${hasHeader ? '' : ' (no header detected)'}`);
-    } catch (err) { alert('Could not import CSV: ' + err.message); }
+      alert(t('a_imported', added, !hasHeader));
+    } catch (err) { alert(t('a_bad_csv', err.message)); }
   };
   reader.readAsText(file);
   event.target.value = '';
@@ -775,8 +937,8 @@ function render() {
     banner.classList.add('active');
     const dn = terms().dueNoun;
     banner.textContent = callbackFilter
-      ? `Showing ${dueCount} ${dn}${dueCount === 1 ? '' : 's'} due, click to show all leads`
-      : `${dueCount} ${dn}${dueCount === 1 ? '' : 's'} due today or overdue, click to focus`;
+      ? t('banner_showing', dueCount, dn)
+      : t('banner_focus', dueCount, dn);
   } else {
     banner.classList.remove('active');
     if (callbackFilter) callbackFilter = false;
@@ -802,10 +964,10 @@ function render() {
       `<option value="${k}" ${l.status === k ? 'selected' : ''}>${v.label}</option>`
     ).join('');
     const siteOpts = [
-      ['unknown', '???'],
-      ['none', 'No website'],
-      ['bad', 'Bad / outdated'],
-      ['ok', 'Decent'],
+      ['unknown', MISSING],
+      ['none', t('site_none')],
+      ['bad', t('site_bad')],
+      ['ok', t('site_ok')],
     ].map(([k, lbl]) => `<option value="${k}" ${l.site === k ? 'selected' : ''}>${lbl}</option>`).join('');
 
     return `
@@ -813,23 +975,23 @@ function render() {
       <div>
         <div class="lead-name">${escapeHtml(l.name)}</div>
         <div class="meta-row">
-          ${mode === 'call' ? renderField(l, 'phone', 'phone', 'phone', 'Phone:') + '<span class="meta-sep">·</span>' : ''}
-          ${renderField(l, 'website', 'website', 'website', 'Link')}
+          ${mode === 'call' ? renderField(l, 'phone', 'phone', t('lbl_phone').toLowerCase(), t('meta_phone')) + '<span class="meta-sep">·</span>' : ''}
+          ${renderField(l, 'website', 'website', t('lbl_website').toLowerCase(), t('meta_link'))}
           <span class="meta-sep">·</span>
-          ${renderField(l, 'email', 'email', 'email', 'E-Mail:')}
+          ${renderField(l, 'email', 'email', t('lbl_email').toLowerCase(), t('meta_email'))}
           <span class="meta-sep">·</span>
-          <span class="meta-field"><span class="meta-label">Quality:</span><select onchange="setField(${l.id}, 'site', this.value); render()" class="inline-edit" style="font-size: 11px; height: 24px;">${siteOpts}</select></span>
+          <span class="meta-field"><span class="meta-label">${t('meta_quality')}</span><select onchange="setField(${l.id}, 'site', this.value); render()" class="inline-edit" style="font-size: 11px; height: 24px;">${siteOpts}</select></span>
         </div>
         <div class="meta-row">
-          ${renderField(l, 'address', 'address', 'address', 'Addr:')}
+          ${renderField(l, 'address', 'address', t('th_address').toLowerCase(), t('meta_addr'))}
         </div>
-        <textarea class="notes-input" placeholder="Notes — type freely, Cmd/Ctrl+Enter saves immediately" rows="3" oninput="updateNote(${l.id}, this.value)" onkeydown="if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();this.blur();}">${escapeHtml(l.note)}</textarea>
+        <textarea class="notes-input" placeholder="${escapeHtml(t('notes_ph'))}" rows="3" oninput="updateNote(${l.id}, this.value)" onkeydown="if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();this.blur();}">${escapeHtml(l.note)}</textarea>
         <div class="callback-row">
           <span class="meta-label">${terms().dateLabel}</span>
           <input type="date" class="callback-input" value="${escapeHtml(l.callback || '')}" onchange="setCallback(${l.id}, this.value)" />
-          ${l.callback ? `<button class="small" style="font-size:10px; padding:2px 8px; height:22px;" onclick="setCallback(${l.id}, '')">clear</button>` : ''}
-          ${cbState === 'overdue' ? '<span style="color: var(--danger); font-weight: 500;">overdue</span>' : ''}
-          ${cbState === 'today' ? '<span style="color: var(--warning); font-weight: 500;">today</span>' : ''}
+          ${l.callback ? `<button class="small" style="font-size:10px; padding:2px 8px; height:22px;" onclick="setCallback(${l.id}, '')">${t('clear')}</button>` : ''}
+          ${cbState === 'overdue' ? `<span style="color: var(--danger); font-weight: 500;">${t('overdue')}</span>` : ''}
+          ${cbState === 'today' ? `<span style="color: var(--warning); font-weight: 500;">${t('today')}</span>` : ''}
         </div>
       </div>
       <span class="status-badge badge-${l.status}">${sc[l.status].label}</span>
@@ -1145,6 +1307,34 @@ const US_CITIES = {
   "Wyoming":["Cheyenne","Casper","Laramie","Gillette","Rock Springs"]
 };
 
+// German federal states with their larger cities.
+const DE_CITIES = {
+  "Baden-Württemberg":["Stuttgart","Karlsruhe","Mannheim","Freiburg im Breisgau","Heidelberg","Heilbronn","Ulm","Pforzheim","Reutlingen","Tübingen","Konstanz","Esslingen am Neckar","Ludwigsburg","Göppingen","Offenburg","Ravensburg"],
+  "Bayern":["München","Nürnberg","Augsburg","Regensburg","Würzburg","Ingolstadt","Fürth","Erlangen","Bayreuth","Bamberg","Landshut","Rosenheim","Passau","Aschaffenburg","Kempten","Schweinfurt"],
+  "Berlin":["Berlin"],
+  "Brandenburg":["Potsdam","Cottbus","Brandenburg an der Havel","Frankfurt (Oder)","Oranienburg","Falkensee","Eberswalde","Bernau bei Berlin","Königs Wusterhausen","Rathenow"],
+  "Bremen":["Bremen","Bremerhaven"],
+  "Hamburg":["Hamburg"],
+  "Hessen":["Frankfurt am Main","Wiesbaden","Kassel","Darmstadt","Offenbach am Main","Hanau","Gießen","Marburg","Fulda","Rüsselsheim","Bad Homburg","Wetzlar"],
+  "Mecklenburg-Vorpommern":["Rostock","Schwerin","Neubrandenburg","Stralsund","Greifswald","Wismar","Güstrow"],
+  "Niedersachsen":["Hannover","Braunschweig","Oldenburg","Osnabrück","Wolfsburg","Göttingen","Salzgitter","Hildesheim","Delmenhorst","Lüneburg","Celle","Wilhelmshaven","Emden","Cuxhaven"],
+  "Nordrhein-Westfalen":["Köln","Düsseldorf","Dortmund","Essen","Duisburg","Bochum","Wuppertal","Bielefeld","Bonn","Münster","Mönchengladbach","Gelsenkirchen","Aachen","Krefeld","Oberhausen","Hagen","Hamm","Mülheim an der Ruhr","Leverkusen","Solingen","Herne","Neuss","Paderborn","Siegen","Recklinghausen","Bottrop","Witten","Gütersloh","Iserlohn","Detmold","Minden","Herford","Bocholt","Lippstadt"],
+  "Rheinland-Pfalz":["Mainz","Ludwigshafen am Rhein","Koblenz","Trier","Kaiserslautern","Worms","Neuwied","Neustadt an der Weinstraße","Speyer","Bad Kreuznach","Pirmasens"],
+  "Saarland":["Saarbrücken","Neunkirchen","Homburg","Völklingen","Sankt Ingbert","Saarlouis"],
+  "Sachsen":["Leipzig","Dresden","Chemnitz","Zwickau","Plauen","Görlitz","Freiberg","Bautzen","Pirna"],
+  "Sachsen-Anhalt":["Halle (Saale)","Magdeburg","Dessau-Roßlau","Lutherstadt Wittenberg","Halberstadt","Stendal","Weißenfels","Bitterfeld-Wolfen"],
+  "Schleswig-Holstein":["Kiel","Lübeck","Flensburg","Neumünster","Norderstedt","Elmshorn","Pinneberg","Itzehoe","Husum"],
+  "Thüringen":["Erfurt","Jena","Gera","Weimar","Gotha","Nordhausen","Eisenach","Suhl","Altenburg"]
+};
+
+// Country registry: which state list to use and how to phrase the geocoder query.
+const COUNTRIES = {
+  us: { states: US_CITIES, geoSuffix: 'USA',         stateKey: 'us' },
+  de: { states: DE_CITIES, geoSuffix: 'Deutschland', stateKey: 'de' },
+};
+let country = localStorage.getItem('call-tracker-country') || 'us';
+if (!COUNTRIES[country]) country = 'us';
+
 const OVERPASS_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
@@ -1152,7 +1342,19 @@ const OVERPASS_ENDPOINTS = [
 ];
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-function fnorm(s){ return (s||'').toLowerCase().trim().replace(/\s+/g,' '); }
+
+// Fold German spelling variants onto one form so "bäckerei", "baeckerei" and
+// "backerei" all compare equal, and drop the hyphens people write in compounds.
+function fnorm(s){
+  return (s||'')
+    .toLowerCase()
+    .normalize('NFC')
+    .replace(/ä/g,'a').replace(/ö/g,'o').replace(/ü/g,'u').replace(/ß/g,'ss')
+    .replace(/ae/g,'a').replace(/oe/g,'o').replace(/ue/g,'u')
+    .replace(/[.,/&]/g,' ')
+    .replace(/-/g,' ')
+    .trim().replace(/\s+/g,' ');
+}
 function stemEN(w){
   const lower = w.toLowerCase();
   if (lower.length <= 4) return lower;
@@ -1161,20 +1363,42 @@ function stemEN(w){
   }
   return lower;
 }
+// German plural/inflection endings, longest first.
+function stemDE(w){
+  const lower = w.toLowerCase();
+  if (lower.length <= 4) return lower;
+  for (const suf of ['innen','ungen','erei','chen','lein','ende','ung','end','ern','en','er','es','em','e','n','s']){
+    if (lower.endsWith(suf) && lower.length - suf.length >= 4) return lower.slice(0, -suf.length);
+  }
+  return lower;
+}
+function stems(w){ return [stemEN(w), stemDE(w)]; }
+
+// Precomputed folded names, so matching does not refold the catalog every search.
+const CAT_INDEX = CATEGORIES.map(c => ({ cat: c, names: c.names.map(fnorm) }));
+
 function resolveCategory(input){
   const q = fnorm(input);
   if (!q) return null;
-  for (const c of CATEGORIES){
-    for (const n of c.names){
-      if (q === n || q.includes(n) || n.includes(q)) return c;
+
+  // 1) exact match on a catalog term (either language)
+  for (const e of CAT_INDEX) for (const n of e.names) if (q === n) return e.cat;
+
+  // 2) whole-word containment, e.g. "zahnarzt praxis" or "best plumber"
+  for (const e of CAT_INDEX){
+    for (const n of e.names){
+      if (n.length < 4) continue;
+      if (q.includes(n) || (q.length >= 4 && n.includes(q))) return e.cat;
     }
   }
-  const qStems = q.split(/\s+/).filter(w => w.length > 3).map(stemEN);
+
+  // 3) stem overlap in either language, e.g. "bäckereien" -> "bäckerei"
+  const qStems = q.split(/\s+/).filter(w => w.length > 3).flatMap(stems);
   if (!qStems.length) return null;
-  for (const c of CATEGORIES){
-    for (const n of c.names){
-      const nStems = n.split(/\s+/).filter(w => w.length > 3).map(stemEN);
-      for (const a of qStems) for (const b of nStems){ if (a === b) return c; }
+  for (const e of CAT_INDEX){
+    for (const n of e.names){
+      const nStems = n.split(/\s+/).filter(w => w.length > 3).flatMap(stems);
+      for (const a of qStems) for (const b of nStems){ if (a === b && a.length > 3) return e.cat; }
     }
   }
   return null;
@@ -1189,9 +1413,13 @@ async function nominatimLookup(q){
   return data[0] || null;
 }
 async function findLocation(state, city){
-  const parts = [city.trim(), state.trim(), 'USA'].filter(Boolean);
+  const suffix = COUNTRIES[country].geoSuffix;
+  const parts = [city.trim(), state.trim(), suffix].filter(Boolean);
   if (parts.length <= 1) return null;
-  return await nominatimLookup(parts.join(', '));
+  // A state is optional: "Bielefeld, Deutschland" resolves fine on its own.
+  const hit = await nominatimLookup(parts.join(', '));
+  if (hit || !state.trim()) return hit;
+  return await nominatimLookup([city.trim(), suffix].join(', '));
 }
 function areaId(place){
   const id = Number(place.osm_id);
@@ -1291,7 +1519,7 @@ async function enrichAddresses(){
   const base = 'https://nominatim.openstreetmap.org/reverse';
   for (let i = 0; i < targets.length; i++){
     const r = targets[i];
-    fStatus(`Improving addresses ${i+1} of ${targets.length} ...`, '', true);
+    fStatus(t('f_addresses', i+1, targets.length), '', true);
     try {
       const url = `${base}?format=json&addressdetails=1&zoom=18&lat=${r.lat}&lon=${r.lon}`;
       const resp = await fetch(url, { headers:{'Accept':'application/json'} });
@@ -1333,7 +1561,7 @@ async function runFinderSearch(){
   const state = document.getElementById('f-state').value;
   const city  = document.getElementById('f-city').value.trim();
   const useRadius = Number(document.getElementById('f-radius').value);
-  if (!city){ fStatus('Enter a city.', 'err'); return; }
+  if (!city){ fStatus(t('f_need_city'), 'err'); return; }
 
   const go = document.getElementById('f-go');
   go.disabled = true;
@@ -1343,10 +1571,10 @@ async function runFinderSearch(){
     const cat = niche ? resolveCategory(niche) : null;
     const filters = cat ? cat.filters.slice() : ['office=*','shop=*','craft=*','amenity=restaurant','amenity=cafe'];
     const label = cat ? cat.label : (niche || 'All');
-    fStatus(`Looking up ${city}, ${state} ...`, '', true);
+    fStatus(t('f_looking_up', city, state || COUNTRIES[country].geoSuffix), '', true);
 
     const place = await findLocation(state, city);
-    if (!place){ fStatus('Could not find that location. Try another spelling.', 'err'); go.disabled = false; return; }
+    if (!place){ fStatus(t('f_no_place'), 'err'); go.disabled = false; return; }
     const aid = areaId(place);
     const lat = Number(place.lat), lon = Number(place.lon);
     const cityLike = ['city','town','village','suburb','hamlet','municipality','neighbourhood','quarter'];
@@ -1354,7 +1582,7 @@ async function runFinderSearch(){
     const radiusM = isCity ? useRadius : 0;
     const fallbackCity = place.address?.city || place.display_name.split(',')[0];
 
-    fStatus(`Searching for ${niche || 'businesses'} in ${city} ...`, '', true);
+    fStatus(t('f_searching', (cat ? cat.label : niche) || t('f_businesses'), city), '', true);
     let data = null;
     try { data = await overpass(buildCombinedQuery(aid, lat, lon, radiusM, filters)); }
     catch(e){ /* try tiling below */ }
@@ -1364,7 +1592,7 @@ async function runFinderSearch(){
     renderStaging();
 
     if (place.boundingbox && initial >= cap * 0.8){
-      fStatus('Large area, scanning in tiles ...', '', true);
+      fStatus(t('f_tiles'), '', true);
       const [s, n, w, e] = place.boundingbox.map(Number);
       await tileSearch(s, w, n, e, filters, label, fallbackCity);
       renderStaging();
@@ -1382,12 +1610,12 @@ async function runFinderSearch(){
 
     if (finderResults.length){
       await enrichAddresses();
-      fStatus(`Found ${finderResults.length} businesses. Edit or remove rows, then add them to your call list.`, 'ok');
+      fStatus(t('f_found', finderResults.length), 'ok');
     } else {
-      fStatus('No results. Try a bigger city, a different niche, or a larger radius.', 'err');
+      fStatus(t('f_none'), 'err');
     }
   } catch(e){
-    fStatus('Error: ' + e.message, 'err');
+    fStatus(t('f_error', e.message), 'err');
   } finally {
     go.disabled = false;
     persistStaging();
@@ -1401,16 +1629,16 @@ function renderStaging(){
   const count = document.getElementById('staging-count');
   if (!finderResults.length){ wrap.style.display = 'none'; body.innerHTML = ''; return; }
   wrap.style.display = 'block';
-  count.textContent = `${finderResults.length} business${finderResults.length === 1 ? '' : 'es'}`;
-  document.getElementById('f-addall').textContent = `Add ${finderResults.length} to ${terms().uncontacted}`;
+  count.textContent = t('count_biz', finderResults.length);
+  document.getElementById('f-addall').textContent = t('add_all', finderResults.length, terms().uncontacted);
   body.innerHTML = finderResults.map(r => {
-    const f = (field, ph) => `<input type="text" value="${escapeHtml(r[field] || '')}" placeholder="${ph}" oninput="stagingEdit(${r._sid}, '${field}', this.value)" />`;
+    const f = (field, ph) => `<input type="text" value="${escapeHtml(r[field] || '')}" placeholder="${escapeHtml(ph)}" oninput="stagingEdit(${r._sid}, '${field}', this.value)" />`;
     return `<tr>
-      <td>${f('name','name')}</td>
-      <td>${f('email','email')}</td>
-      <td>${f('address','address')}</td>
-      <td><div class="web-cell">${f('website','website')}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="Open website">🔗</a>` : ''}</div></td>
-      <td>${f('phone','phone')}</td>
+      <td>${f('name', t('th_name').toLowerCase())}</td>
+      <td>${f('email', t('th_email').toLowerCase())}</td>
+      <td>${f('address', t('th_address').toLowerCase())}</td>
+      <td><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">🔗</a>` : ''}</div></td>
+      <td>${f('phone', t('th_phone').toLowerCase())}</td>
       <td class="col-x"><button class="row-remove" title="Remove" onclick="stagingRemove(${r._sid})">&minus;</button></td>
     </tr>`;
   }).join('');
@@ -1463,7 +1691,7 @@ function addAllStaged(){
   persistStaging();
   renderStaging();
   render();
-  fStatus(`Added ${added} to ${terms().uncontacted}${skipped ? `, skipped ${skipped} already in your list` : ''}.`, 'ok');
+  fStatus(t('f_added', added, terms().uncontacted, skipped), 'ok');
 }
 
 // --- Finder init ----------------------------------------------------------
@@ -1473,23 +1701,47 @@ function toggleFinder(){
   f.style.display = open ? 'block' : 'none';
   if (open) document.getElementById('f-niche').focus();
 }
-(function initFinder(){
+// Niche suggestions for the datalist, one curated set per UI language.
+const NICHE_SUGGEST = {
+  en: ['dentist','plumber','electrician','roofer','painter','hvac','landscaper','restaurant','cafe','bar','hair salon','barber','gym','chiropractor','lawyer','accountant','real estate agent','insurance agent','auto repair','car dealer','veterinarian','pharmacy','florist','bakery','cleaning service','moving company','locksmith','photographer','catering','tattoo','nail salon','massage','optician','pet store','jeweler','hotel','contractor','tax advisor','marketing agency'],
+  de: ['Zahnarzt','Arztpraxis','Klempner','Sanitär','Elektriker','Dachdecker','Maler','Heizungsbauer','Gärtner','Restaurant','Café','Bar','Bäckerei','Metzgerei','Friseur','Barber','Fitnessstudio','Physiotherapie','Rechtsanwalt','Steuerberater','Immobilienmakler','Versicherungsmakler','Autowerkstatt','Autohaus','Tierarzt','Apotheke','Blumenladen','Gebäudereinigung','Umzugsunternehmen','Schlosser','Fotograf','Catering','Tattoo Studio','Nagelstudio','Massage','Optiker','Hotel','Bauunternehmen','Fahrschule','Werbeagentur','Kosmetikstudio','Eisdiele','Imbiss','Spielothek','Shisha Bar'],
+};
+
+// Repopulate the state dropdown, city hints and country-dependent labels.
+function applyCountryChrome(){
   const stateSel = document.getElementById('f-state');
-  stateSel.innerHTML = '<option value="">Select state</option>' +
-    Object.keys(US_CITIES).map(s => `<option value="${s}">${s}</option>`).join('');
-  const updateCities = () => {
-    const cities = US_CITIES[stateSel.value] || [];
-    document.getElementById('city-suggest').innerHTML = cities.map(c => `<option value="${c}"></option>`).join('');
-  };
-  stateSel.addEventListener('change', updateCities);
-  // Niche suggestions: a curated set of common English terms.
-  const nicheTerms = ['dentist','plumber','electrician','roofer','painter','hvac','landscaper','restaurant','cafe','bar','hair salon','barber','gym','chiropractor','lawyer','accountant','real estate agent','insurance agent','auto repair','car dealer','veterinarian','pharmacy','florist','bakery','cleaning service','moving company','locksmith','photographer','catering','tattoo','nail salon','massage','optician','pet store','jeweler','hotel','contractor','tax advisor','marketing agency'];
-  document.getElementById('niche-suggest').innerHTML = nicheTerms.map(t => `<option value="${t}"></option>`).join('');
+  const conf = COUNTRIES[country];
+  const prev = stateSel.value;
+  const names = Object.keys(conf.states);
+  stateSel.innerHTML = `<option value="">${t('sel_state_' + conf.stateKey)}</option>` +
+    names.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+  if (names.includes(prev)) stateSel.value = prev;
+  document.getElementById('lbl-state').textContent = t('lbl_state_' + conf.stateKey);
+  document.getElementById('f-city').placeholder = t('ph_city_' + conf.stateKey);
+  document.getElementById('f-country').value = country;
+  document.getElementById('niche-suggest').innerHTML =
+    NICHE_SUGGEST[lang].map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
+  updateCitySuggest();
+}
+function updateCitySuggest(){
+  const cities = COUNTRIES[country].states[document.getElementById('f-state').value] || [];
+  document.getElementById('city-suggest').innerHTML =
+    cities.map(c => `<option value="${escapeHtml(c)}"></option>`).join('');
+}
+function onCountryChange(){
+  country = document.getElementById('f-country').value;
+  localStorage.setItem('call-tracker-country', country);
+  applyCountryChrome();
+}
+
+(function initFinder(){
+  document.getElementById('f-state').addEventListener('change', updateCitySuggest);
   document.getElementById('f-niche').addEventListener('keydown', e => { if (e.key === 'Enter') runFinderSearch(); });
   document.getElementById('f-city').addEventListener('keydown', e => { if (e.key === 'Enter') runFinderSearch(); });
   loadStaging();
 })();
 
+applyLang();
 applyModeChrome();
 loadLeads();
 </script>
