@@ -7,7 +7,8 @@ A tiny, zero-backend tool for tracking cold outreach, by phone or by email. Add 
 ## Features
 
 - **Calls / Email mode switch** - one tool, two independent lists. Flip the toggle in the header between Call mode (Not called / No answer / Interested, callback dates) and Email mode (Not sent / No reply / Replied, follow-up dates). The active mode decides which list, labels, and stats you see; your choice is remembered.
-- **Find leads (OpenStreetMap)** - pick a niche and a US State + City, get a list of businesses (name, address, phone, website, email), edit or drop rows, then add the rest to the active list in one click. Runs fully in the browser, no server. Phone/website/address come from OpenStreetMap; email is often missing there and stays editable.
+- **Find leads (OpenStreetMap)** - pick a niche and a location (United States, Deutschland or Österreich, then state + city), get a list of businesses (name, address, phone, website, email), edit or drop rows, then add the rest to the active list in one click. Runs fully in the browser, no server. Phone/website/address come from OpenStreetMap; email is often missing there and stays editable.
+- **Auction houses** - the niche "Auktionshaus" / "auction house" also searches a prebuilt list from [Overture Maps](https://overturemaps.org) (`data/auctions-<country>.json`), because OpenStreetMap has almost no auction houses mapped. Duplicates of OSM hits are merged. Refresh the lists with `tools/build_auction_data.py` (needs `pip install duckdb`, takes a few minutes).
 - Track leads with name, phone (call mode), website, email, address, and site-quality tag
 - Status workflow per mode: Calls = Not called / No answer / Not interested / Interested / Closed; Email = Not sent / No reply / Not interested / Replied / Closed
 - Per-lead notes and callback / follow-up dates (auto-set on no-answer-or-no-reply / interested-or-replied)
@@ -37,10 +38,10 @@ Clearing your browser's site data for this domain will wipe your leads. Use **Ex
 
 ## Run locally
 
-It's a single `index.html` — open it in any browser. No build, no install.
+It's a single `index.html` plus the auction lists in `data/`. Serve the folder so the page can load them (opened as a plain file, everything works except the auction lists):
 
 ```sh
-open index.html
+python3 -m http.server 8190
 ```
 
 ## License
