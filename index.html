@@ -1355,15 +1355,22 @@ const COUNTRIES = {
 let country = localStorage.getItem('call-tracker-country') || 'us';
 if (!COUNTRIES[country]) country = 'us';
 
-// overpass-api.de answers 504 under load while its z/lz4 backends still work.
-const OVERPASS_ENDPOINTS = [
+// The overpass-api.de cluster (main, lz4, z) answers 504 within seconds when busy,
+// and is usually free again shortly after, so it gets a second round before the
+// mirrors. The mirrors were often unreachable (no answer at all), hence the short
+// timeout; the long one leaves room for heavy queries ([timeout:90] server side).
+const OVERPASS_MAIN = [
   'https://overpass-api.de/api/interpreter',
   'https://lz4.overpass-api.de/api/interpreter',
   'https://z.overpass-api.de/api/interpreter',
-  'https://overpass.kumi.systems/api/interpreter',
-  'https://overpass.private.coffee/api/interpreter'
 ];
-const OVERPASS_TIMEOUT_MS = 100000;
+const OVERPASS_ATTEMPTS = [
+  ...OVERPASS_MAIN.map(url => ({ url, ms: 100000 })),
+  { pause: 6000 },
+  ...OVERPASS_MAIN.map(url => ({ url, ms: 100000 })),
+  { url: 'https://overpass.kumi.systems/api/interpreter', ms: 30000 },
+  { url: 'https://overpass.private.coffee/api/interpreter', ms: 30000 },
+];
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -1456,12 +1463,13 @@ function areaId(place){
 }
 async function overpass(query){
   let lastErr;
-  for (const ep of OVERPASS_ENDPOINTS){
+  for (const step of OVERPASS_ATTEMPTS){
+    if (step.pause){ await sleep(step.pause); continue; }
     const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), OVERPASS_TIMEOUT_MS);
+    const timer = setTimeout(() => ctrl.abort(), step.ms);
     try {
-      const r = await fetch(ep, { method:'POST', body:'data=' + encodeURIComponent(query), signal: ctrl.signal });
-      if (!r.ok){ lastErr = new Error(ep + ' ' + r.status); continue; }
+      const r = await fetch(step.url, { method:'POST', body:'data=' + encodeURIComponent(query), signal: ctrl.signal });
+      if (!r.ok){ lastErr = new Error(step.url + ' ' + r.status); continue; }
       return await r.json();
     } catch(e){ lastErr = e; }
     finally { clearTimeout(timer); }
