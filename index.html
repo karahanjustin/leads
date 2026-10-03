@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Call Tracker</title>
+<link rel="icon" type="image/jpeg" href="logo.jpg" />
+<link rel="apple-touch-icon" href="logo.jpg" />
 <style>
   :root {
     --bg: #f4f3ef;
@@ -53,10 +55,7 @@
     display: flex; align-items: stretch; gap: 28px; min-height: 56px; flex-wrap: wrap;
   }
   .brand { display: flex; align-items: center; gap: 10px; }
-  .brand-mark {
-    width: 22px; height: 22px; border-radius: 3px; background: var(--accent);
-    color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; letter-spacing: -0.02em;
-  }
+  .brand-mark { width: 32px; height: 32px; border-radius: 4px; display: block; }
   h1 { font-size: 16px; font-weight: 650; margin: 0; letter-spacing: -0.005em; }
   .tabs { display: flex; align-items: stretch; gap: 4px; }
   .tab {
@@ -313,7 +312,7 @@
 <header class="topbar">
   <div class="topbar-inner">
     <div class="brand">
-      <span class="brand-mark" aria-hidden="true">P</span>
+      <img class="brand-mark" src="logo.jpg" alt="Potsdam Media" width="32" height="32" />
       <h1 id="app-title">Call Tracker</h1>
     </div>
     <nav class="tabs">
