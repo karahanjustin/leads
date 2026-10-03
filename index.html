@@ -6,469 +6,453 @@
 <title>Call Tracker</title>
 <style>
   :root {
-    --bg: #0b0b12;
-    --bg-2: #11111a;
-    --surface: #16161f;
-    --surface-2: #1d1d28;
-    --surface-hover: #232330;
-    --border: #2a2a38;
-    --border-strong: #3a3a4d;
-    --text: #ececf2;
-    --text-2: #a0a0ad;
-    --text-3: #6b6b7a;
+    --bg: #f4f3ef;
+    --surface: #ffffff;
+    --surface-2: #f9f8f5;
+    --border: #e2e0d9;
+    --border-strong: #cdcac1;
+    --text: #1e1e1b;
+    --text-2: #56544e;
+    --text-3: #8b8880;
 
-    --accent: #8b5cf6;
-    --accent-2: #a78bfa;
-    --accent-soft: rgba(139, 92, 246, 0.12);
+    --accent: #1b4f72;
+    --accent-hover: #153e5a;
+    --accent-soft: rgba(27, 79, 114, 0.14);
+    --link: #1d5c87;
 
-    --success: #4ade80;
-    --success-bg: rgba(74, 222, 128, 0.12);
-    --warning: #fbbf24;
-    --warning-bg: rgba(251, 191, 36, 0.12);
-    --danger: #f87171;
-    --danger-bg: rgba(248, 113, 113, 0.12);
-    --info: #60a5fa;
-    --info-bg: rgba(96, 165, 250, 0.12);
+    --success: #1f7a47;
+    --success-bg: #e7f3ec;
+    --warning: #9a5a06;
+    --warning-bg: #fbf1e0;
+    --danger: #b42318;
+    --danger-bg: #fbeceb;
+    --info: #1b4f72;
+    --info-bg: #e6eef4;
 
-    --r-sm: 6px;
-    --r-md: 10px;
-    --r-lg: 14px;
-    --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+    --r: 4px;
+    --r-panel: 6px;
   }
   * { box-sizing: border-box; }
   html, body { height: 100%; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", system-ui, sans-serif;
-    background:
-      radial-gradient(900px 500px at 80% -10%, rgba(139, 92, 246, 0.12), transparent 60%),
-      radial-gradient(700px 400px at -10% 10%, rgba(96, 165, 250, 0.08), transparent 60%),
-      var(--bg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    background: var(--bg);
     color: var(--text);
     margin: 0;
-    padding: 2.5rem 1.5rem 4rem;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }
-  .container { max-width: 1100px; margin: 0 auto; }
+  .container { max-width: 1160px; margin: 0 auto; padding: 24px 24px 64px; }
 
-  /* Header */
-  .header-row {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 2rem; flex-wrap: wrap; gap: 12px;
+  /* Top bar */
+  .topbar { background: var(--surface); border-bottom: 1px solid var(--border); }
+  .topbar-inner {
+    max-width: 1160px; margin: 0 auto; padding: 0 24px;
+    display: flex; align-items: stretch; gap: 28px; min-height: 56px; flex-wrap: wrap;
   }
-  h1 {
-    font-size: 28px; font-weight: 600; margin: 0;
-    background: linear-gradient(135deg, var(--text) 0%, var(--accent-2) 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    letter-spacing: -0.02em;
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-mark {
+    width: 22px; height: 22px; border-radius: 3px; background: var(--accent);
+    color: #fff; font-size: 12px; font-weight: 700; display: grid; place-items: center; letter-spacing: -0.02em;
   }
-  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  h1 { font-size: 16px; font-weight: 650; margin: 0; letter-spacing: -0.005em; }
+  .tabs { display: flex; align-items: stretch; gap: 4px; }
+  .tab {
+    border: none; border-bottom: 2px solid transparent; border-radius: 0; background: none;
+    color: var(--text-2); font-weight: 500; padding: 0 10px; font-size: 14px;
+  }
+  .tab:hover { color: var(--text); background: none; }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; padding: 10px 0; }
 
-  /* Form elements */
+  /* Controls */
   input, select, button, textarea {
     background: var(--surface);
     color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: var(--r-sm);
-    padding: 9px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r);
+    padding: 7px 10px;
     font-size: 14px;
     font-family: inherit;
-    transition: border-color 0.15s, background 0.15s, transform 0.1s;
+    line-height: 1.3;
   }
+  input::placeholder, textarea::placeholder { color: #a8a59d; }
   input:focus, select:focus, textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-soft);
+    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
   }
-  button { cursor: pointer; }
-  button:hover { background: var(--surface-hover); border-color: var(--border-strong); }
-  button:active { transform: translateY(1px); }
-  button.primary {
-    background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 100%);
-    border-color: transparent; color: white; font-weight: 500;
-  }
-  button.primary:hover { filter: brightness(1.1); }
-  button.danger { color: var(--danger); border-color: rgba(248,113,113,0.25); }
-  button.danger:hover { background: var(--danger-bg); border-color: var(--danger); }
-  button.small { font-size: 12px; padding: 6px 12px; }
+  button { cursor: pointer; font-weight: 500; color: var(--text); }
+  button:hover { background: var(--surface-2); border-color: #b9b6ac; }
+  button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  button.primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+  button.primary:disabled { opacity: 0.6; cursor: progress; }
+  button.danger { color: var(--danger); }
+  button.danger:hover { background: var(--danger-bg); border-color: #e7b9b4; }
+  button.small { font-size: 13px; padding: 5px 10px; }
+  button.link { border: none; background: none; padding: 0; color: var(--link); font-weight: 400; font-size: 12px; }
+  button.link:hover { text-decoration: underline; background: none; }
 
-  /* Mode switch (Calls / Email) */
-  .mode-switch {
-    display: inline-flex; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 999px; padding: 3px; gap: 2px;
-  }
-  .mode-btn {
-    border: none; background: transparent; color: var(--text-2);
-    padding: 6px 16px; border-radius: 999px; font-size: 13px; font-weight: 500;
-  }
-  .mode-btn:hover { background: var(--surface-hover); border-color: transparent; }
-  .mode-btn.active {
-    background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 100%);
-    color: #fff;
-  }
-  .mode-btn.active:hover { filter: brightness(1.1); background: linear-gradient(135deg, var(--accent) 0%, #6d28d9 100%); }
-  .lang-switch .mode-btn { padding: 6px 12px; font-size: 12px; letter-spacing: 0.04em; }
+  /* Language switch */
+  .lang-switch { display: inline-flex; border: 1px solid var(--border-strong); border-radius: var(--r); overflow: hidden; }
+  .lang-switch button { border: none; border-radius: 0; padding: 5px 8px; font-size: 12px; color: var(--text-3); background: var(--surface); }
+  .lang-switch button + button { border-left: 1px solid var(--border-strong); }
+  .lang-switch button.active { color: var(--text); background: var(--surface-2); font-weight: 600; }
 
-  /* Stats grid */
+  /* Import / export menu */
+  .menu { position: relative; }
+  .menu summary {
+    list-style: none; cursor: pointer; font-size: 13px; font-weight: 500; padding: 5px 10px;
+    border: 1px solid var(--border-strong); border-radius: var(--r); background: var(--surface); user-select: none;
+  }
+  .menu summary::-webkit-details-marker { display: none; }
+  .menu summary::after { content: ''; display: inline-block; margin-left: 7px; vertical-align: 2px;
+    border: 4px solid transparent; border-top-color: currentColor; border-bottom: 0; }
+  .menu summary:hover { background: var(--surface-2); }
+  .menu-list {
+    position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; min-width: 190px;
+    background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-panel);
+    box-shadow: 0 6px 18px rgba(30, 30, 27, 0.10); padding: 4px 0;
+  }
+  .menu-list button {
+    display: block; width: 100%; text-align: left; border: none; border-radius: 0;
+    padding: 7px 14px; font-size: 13px; font-weight: 400; background: none;
+  }
+  .menu-list button:hover { background: var(--surface-2); }
+  .menu-list hr { border: none; border-top: 1px solid var(--border); margin: 4px 0; }
+
+  /* Panels */
+  .panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-panel);
+    margin-bottom: 20px;
+  }
+  .panel-head {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    padding: 14px 18px 0; flex-wrap: wrap;
+  }
+  .panel-title { font-size: 15px; font-weight: 650; margin: 0; }
+  .panel-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; max-width: 760px; }
+  .panel-body { padding: 14px 18px 18px; }
+  .field-label { font-size: 12px; color: var(--text-2); font-weight: 500; margin-bottom: 5px; }
+
+  /* Summary strip */
   .stats {
     display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 12px; margin-bottom: 1.75rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-panel);
+    margin-bottom: 20px;
   }
-  .stat {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    padding: 1rem 1.1rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .stat::before {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-    background: var(--accent);
-    border-radius: var(--r-md) 0 0 var(--r-md);
-  }
-  .stat.s-success::before { background: var(--success); }
-  .stat.s-info::before { background: var(--info); }
-  .stat.s-warn::before { background: var(--warning); }
-  .stat-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
-  .stat-value { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+  .stat { padding: 14px 18px; }
+  .stat + .stat { border-left: 1px solid var(--border); }
+  .stat-label { font-size: 12px; color: var(--text-2); margin-bottom: 4px; }
+  .stat-value { font-size: 24px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
   .stat.s-success .stat-value { color: var(--success); }
   .stat.s-info .stat-value { color: var(--info); }
 
   /* Add form */
   .add-form {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    padding: 1rem;
-    margin-bottom: 1.25rem;
-    display: grid;
-    grid-template-columns: 1.3fr 1fr 1.2fr 1fr 0.9fr auto;
-    gap: 10px;
-    align-items: end;
+    display: grid; grid-template-columns: 1.4fr 1fr 1.2fr 1.1fr 0.9fr auto;
+    gap: 10px; align-items: end;
   }
-  .field-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
   .add-form input, .add-form select { width: 100%; }
 
-  /* Callback banner */
+  /* Due banner */
   .callback-banner {
-    background: linear-gradient(135deg, var(--warning-bg), rgba(251, 191, 36, 0.05));
-    color: var(--warning);
-    border: 1px solid rgba(251, 191, 36, 0.3);
-    padding: 10px 14px;
-    border-radius: var(--r-md);
-    margin-bottom: 1rem;
-    font-size: 13px;
-    display: none;
-    cursor: pointer;
-    transition: filter 0.15s;
+    background: var(--warning-bg); color: var(--warning); border: 1px solid #ecd3a6;
+    padding: 9px 14px; border-radius: var(--r-panel); margin-bottom: 14px;
+    font-size: 13px; font-weight: 500; display: none; cursor: pointer;
   }
-  .callback-banner:hover { filter: brightness(1.15); }
+  .callback-banner:hover { border-color: #d9b46f; }
   .callback-banner.active { display: block; }
 
   /* Lead list */
-  #lead-list { display: flex; flex-direction: column; gap: 10px; }
+  .list-head {
+    display: flex; align-items: baseline; justify-content: space-between; margin: 4px 2px 8px;
+  }
+  .list-title { font-size: 15px; font-weight: 650; margin: 0; }
+  #lead-list:not(:empty) {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-panel);
+  }
   .lead-row {
-    background: linear-gradient(180deg, var(--surface) 0%, var(--bg-2) 100%);
-    border: 1px solid var(--border);
-    border-radius: var(--r-lg);
-    padding: 14px 18px 14px 22px;
-    display: grid;
-    grid-template-columns: 1fr auto auto auto;
-    gap: 12px;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+    display: grid; grid-template-columns: 1fr 170px 34px;
+    gap: 16px; align-items: start; padding: 14px 18px;
   }
-  .lead-row:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); transform: translateY(-1px); }
-  .lead-row::before {
-    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
-    background: var(--text-3);
-  }
-  .lead-row.s-pending::before { background: var(--text-3); }
-  .lead-row.s-no_answer::before { background: var(--warning); }
-  .lead-row.s-not_int::before { background: var(--danger); }
-  .lead-row.s-interested::before { background: var(--success); }
-  .lead-row.s-closed::before { background: var(--info); }
-  .lead-row.overdue { border-color: rgba(248, 113, 113, 0.4); }
-  .lead-row.overdue::before { background: var(--danger); }
-
-  .lead-name { font-weight: 600; font-size: 15px; letter-spacing: -0.01em; }
+  .lead-row + .lead-row { border-top: 1px solid var(--border); }
+  .lead-row.overdue { box-shadow: inset 3px 0 0 var(--danger); }
+  .lead-name { font-weight: 600; font-size: 15px; }
 
   .meta-row {
-    font-size: 12px; color: var(--text-2); margin-top: 4px;
-    display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px;
+    font-size: 13px; color: var(--text-2); margin-top: 3px;
+    display: flex; flex-wrap: wrap; align-items: center; gap: 2px 14px;
   }
-  .meta-row a { color: var(--accent-2); text-decoration: none; }
-  .meta-row a:hover { text-decoration: underline; }
-  .meta-field { display: inline-flex; align-items: center; gap: 5px; }
-  .meta-sep { color: var(--text-3); }
-  .meta-label { color: var(--text-3); font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .meta-row a { color: var(--link); display: inline-flex; align-items: center; }
+  .meta-row a:hover { color: var(--accent-hover); }
+  .meta-field { display: inline-flex; align-items: center; gap: 4px; }
+  .meta-label { color: var(--text-3); font-size: 12px; }
+  .ico { width: 13px; height: 13px; flex: none; }
 
   .inline-edit {
-    background: transparent;
-    border: 1px solid transparent;
-    color: var(--text);
-    font-size: 12px;
-    padding: 2px 6px;
-    border-radius: 5px;
-    font-family: inherit;
-    min-width: 30px;
-    max-width: 100%;
-    transition: border-color 0.15s, background 0.15s;
+    background: transparent; border: 1px solid transparent; color: var(--text);
+    font-size: 13px; padding: 1px 5px; border-radius: 3px; min-width: 30px; max-width: 100%;
   }
-  .inline-edit:hover { background: var(--surface-2); }
-  .inline-edit:focus { background: var(--surface-2); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); outline: none; }
-  .inline-edit.empty { color: var(--text-3); font-style: italic; }
+  .inline-edit:hover { border-color: var(--border); background: var(--surface-2); }
+  .inline-edit:focus { background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  .inline-edit.empty { color: var(--text-3); }
+  select.inline-edit { padding: 1px 4px; height: 24px; }
 
-  .status-badge {
-    font-size: 11px; font-weight: 500; padding: 4px 10px;
-    border-radius: 999px; white-space: nowrap;
-    text-transform: uppercase; letter-spacing: 0.04em;
-  }
-  .badge-pending    { background: var(--surface-2); color: var(--text-3); }
-  .badge-no_answer  { background: var(--warning-bg); color: var(--warning); }
-  .badge-not_int    { background: var(--danger-bg); color: var(--danger); }
-  .badge-interested { background: var(--success-bg); color: var(--success); }
-  .badge-closed     { background: var(--info-bg); color: var(--info); }
+  .status-select { width: 100%; font-size: 13px; font-weight: 600; padding: 6px 8px; }
+  .status-select.st-pending    { color: var(--text-2); }
+  .status-select.st-no_answer  { color: var(--warning); background: var(--warning-bg); border-color: #ecd3a6; }
+  .status-select.st-not_int    { color: var(--danger); background: var(--danger-bg); border-color: #ebc3bf; }
+  .status-select.st-interested { color: var(--success); background: var(--success-bg); border-color: #bcdcc8; }
+  .status-select.st-closed     { color: var(--info); background: var(--info-bg); border-color: #bfd0de; }
 
   .notes-input {
-    margin-top: 8px; width: 100%; font-size: 12px; padding: 8px 10px;
-    min-height: 64px; resize: vertical;
-    background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--r-sm);
-    font-family: inherit; line-height: 1.5; color: var(--text);
-    transition: border-color 0.15s, box-shadow 0.15s;
+    margin-top: 10px; width: 100%; font-size: 13px; padding: 7px 10px;
+    min-height: 36px; resize: vertical; line-height: 1.5; field-sizing: content; max-height: 240px;
+    background: var(--surface-2); border: 1px solid var(--border);
   }
-  .notes-input:focus {
-    outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft);
-  }
+  .notes-input:focus { background: var(--surface); }
   .callback-row {
-    margin-top: 8px; font-size: 11px; color: var(--text-2);
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    margin-top: 8px; font-size: 12px; color: var(--text-2);
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
-  .callback-input { font-size: 11px; padding: 3px 6px; height: 26px; color-scheme: dark; }
+  .callback-input { font-size: 12px; padding: 3px 6px; height: 26px; color-scheme: light; }
+  .due-flag { font-weight: 600; }
+  .due-flag.overdue { color: var(--danger); }
+  .due-flag.today { color: var(--warning); }
   .icon-btn {
-    font-size: 12px; padding: 0 12px; height: 30px;
-    color: var(--text-2); background: transparent;
+    width: 34px; height: 32px; padding: 0; display: grid; place-items: center;
+    color: var(--text-3); background: none; border-color: transparent;
   }
-  .icon-btn.danger:hover { color: var(--danger); border-color: rgba(248,113,113,0.4); background: var(--danger-bg); }
+  .icon-btn:hover { color: var(--danger); background: var(--danger-bg); border-color: transparent; }
 
   .empty-state {
-    text-align: center; padding: 3rem 1rem;
-    color: var(--text-3); font-size: 14px;
-    border: 1px dashed var(--border); border-radius: var(--r-md);
-    background: rgba(255,255,255,0.01);
+    padding: 28px 18px; color: var(--text-2); font-size: 14px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-panel);
   }
 
-  .footer {
-    margin-top: 3rem; font-size: 11px; color: var(--text-3); text-align: center;
-    line-height: 1.6;
-  }
-  .footer code { background: var(--surface); padding: 1px 6px; border-radius: 4px; color: var(--text-2); }
+  .footer { margin-top: 32px; font-size: 12px; color: var(--text-3); line-height: 1.6; }
+  .footer code { background: var(--surface); border: 1px solid var(--border); padding: 0 5px; border-radius: 3px; color: var(--text-2); font-size: 11px; }
 
-  /* Lead finder panel */
-  #finder {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    padding: 1.1rem 1.2rem 1.2rem;
-    margin-bottom: 1.25rem;
-  }
-  #finder .finder-head {
-    display: flex; justify-content: space-between; align-items: center;
-    gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
-  }
-  #finder .finder-head .title { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
-  #finder .finder-head .sub { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+  /* Lead finder */
   .finder-form {
-    display: grid;
-    grid-template-columns: 1.3fr 0.9fr 1fr 1fr 0.7fr auto;
+    display: grid; grid-template-columns: 1.4fr 0.9fr 1fr 1fr 0.8fr auto;
     gap: 10px; align-items: end;
   }
   .finder-form input, .finder-form select { width: 100%; }
   .finder-status {
-    margin-top: 12px; font-size: 12px; color: var(--text-2);
+    margin-top: 12px; font-size: 13px; color: var(--text-2);
     min-height: 18px; display: flex; align-items: center; gap: 8px;
   }
+  .finder-status:empty { display: none; }
   .finder-status .spin {
-    width: 13px; height: 13px; border: 2px solid var(--accent-soft);
+    width: 12px; height: 12px; border: 2px solid var(--border-strong);
     border-top-color: var(--accent); border-radius: 50%;
-    animation: ct-spin 0.7s linear infinite; display: inline-block;
+    animation: ct-spin 0.8s linear infinite; display: inline-block; flex: none;
   }
   @keyframes ct-spin { to { transform: rotate(360deg); } }
   .finder-status.err { color: var(--danger); }
   .finder-status.ok { color: var(--success); }
 
-  .staging-wrap { margin-top: 14px; overflow-x: auto; }
-  table.staging { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .staging-wrap { margin-top: 14px; }
+  .staging-scroll { max-height: 62vh; overflow: auto; border: 1px solid var(--border); border-radius: var(--r); }
+  table.staging { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; min-width: 860px; }
+  table.staging th:nth-child(1) { width: 27%; }
+  table.staging th:nth-child(2) { width: 16%; }
+  table.staging th:nth-child(3) { width: 24%; }
+  table.staging th:nth-child(4) { width: 19%; }
+  table.staging th:nth-child(5) { width: 14%; }
   table.staging th {
-    text-align: left; padding: 8px 8px; font-size: 11px; color: var(--text-3);
-    text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;
-    border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 1;
+    text-align: left; padding: 8px 8px; font-size: 12px; color: var(--text-2); font-weight: 600;
+    background: var(--surface-2); border-bottom: 1px solid var(--border);
   }
-  table.staging td { padding: 4px 6px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  table.staging tr:hover td { background: var(--surface-2); }
+  table.staging td { padding: 2px 4px; border-bottom: 1px solid #eeece6; vertical-align: middle; }
+  table.staging tr:last-child td { border-bottom: none; }
+  table.staging tr:hover td { background: #fbfaf7; }
   table.staging input {
-    width: 100%; font-size: 12px; padding: 6px 8px; min-width: 90px;
-    background: transparent; border: 1px solid transparent; border-radius: 5px;
+    width: 100%; font-size: 13px; padding: 5px 6px; min-width: 90px;
+    background: transparent; border: 1px solid transparent; border-radius: 3px;
   }
-  table.staging input:hover { background: var(--surface); border-color: var(--border); }
-  table.staging input:focus { background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); outline: none; }
-  table.staging .col-x { width: 36px; text-align: center; }
-  table.staging td .web-cell { display: flex; align-items: center; gap: 6px; }
+  table.staging input:hover { border-color: var(--border); background: var(--surface); }
+  table.staging input:focus { background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+  table.staging .col-x { width: 40px; text-align: center; }
+  table.staging td .web-cell { display: flex; align-items: center; gap: 4px; }
   table.staging td .web-cell input { flex: 1 1 auto; min-width: 60px; width: auto; }
-  table.staging .web-link { flex: none; text-decoration: none; font-size: 13px; line-height: 1; }
-  table.staging .web-link:hover { opacity: 0.7; }
+  table.staging .web-link { flex: none; color: var(--link); display: grid; place-items: center; width: 22px; height: 22px; border-radius: 3px; }
+  table.staging .web-link:hover { background: var(--info-bg); }
   .row-remove {
-    width: 26px; height: 26px; padding: 0; line-height: 1; font-size: 14px;
-    color: var(--text-3); background: transparent; border: 1px solid var(--border);
-    border-radius: 50%;
+    width: 26px; height: 26px; padding: 0; display: grid; place-items: center; margin: auto;
+    color: var(--text-3); background: none; border-color: transparent;
   }
-  .row-remove:hover { color: var(--danger); border-color: var(--danger); background: var(--danger-bg); }
+  .row-remove:hover { color: var(--danger); background: var(--danger-bg); border-color: transparent; }
   .staging-actions { margin-top: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .staging-count { font-size: 12px; color: var(--text-3); margin-left: auto; }
+  .staging-count { font-size: 13px; color: var(--text-3); margin-left: auto; font-variant-numeric: tabular-nums; }
 
-  @media (max-width: 720px) {
-    body { padding: 1.5rem 1rem 3rem; }
-    h1 { font-size: 22px; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
-    .add-form { grid-template-columns: 1fr 1fr; }
-    .add-form > button { grid-column: 1 / -1; }
-    .lead-row { grid-template-columns: 1fr; }
+  @media (max-width: 860px) {
     .finder-form { grid-template-columns: 1fr 1fr; }
     .finder-form > button { grid-column: 1 / -1; }
+    .add-form { grid-template-columns: 1fr 1fr; }
+    .add-form > button { grid-column: 1 / -1; }
+  }
+  @media (max-width: 640px) {
+    .container { padding: 16px 16px 48px; }
+    .topbar-inner { padding: 0 16px; gap: 14px; }
+    .topbar-actions { margin-left: 0; width: 100%; padding-top: 0; }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat:nth-child(3) { border-left: none; }
+    .stat:nth-child(n+3) { border-top: 1px solid var(--border); }
+    .lead-row { grid-template-columns: 1fr 34px; }
+    .lead-row .status-select { grid-column: 1; grid-row: 2; }
   }
 </style>
 </head>
 <body>
 
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">P</span>
+      <h1 id="app-title">Call Tracker</h1>
+    </div>
+    <nav class="tabs">
+      <button id="mode-call" class="tab" onclick="setMode('call')" data-i18n="mode_calls">Calls</button>
+      <button id="mode-email" class="tab" onclick="setMode('email')" data-i18n="mode_email">Email</button>
+    </nav>
+    <div class="topbar-actions">
+      <button class="small primary" onclick="toggleFinder()" id="finder-toggle" data-i18n="btn_find">Find leads</button>
+      <details class="menu" id="data-menu">
+        <summary data-i18n="btn_data">Import / Export</summary>
+        <div class="menu-list" onclick="if (event.target.closest('button')) this.parentElement.open = false">
+          <button onclick="document.getElementById('csv-file').click()" data-i18n="btn_import_csv">Import CSV</button>
+          <button onclick="exportCSV()" data-i18n="btn_export_csv">Export CSV</button>
+          <hr />
+          <button onclick="document.getElementById('import-file').click()" data-i18n="btn_import_json">Import JSON</button>
+          <button onclick="exportData()" data-i18n="btn_export_json">Export JSON</button>
+          <hr />
+          <button class="danger" onclick="clearAll()" data-i18n="btn_clear_all">Clear all</button>
+        </div>
+      </details>
+      <input type="file" id="csv-file" accept=".csv,text/csv" style="display:none" onchange="importCSV(event)" />
+      <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)" />
+      <div class="lang-switch" title="Sprache / Language">
+        <button id="lang-de" onclick="setLang('de')">DE</button>
+        <button id="lang-en" onclick="setLang('en')">EN</button>
+      </div>
+    </div>
+  </div>
+</header>
+
 <div class="container">
 
-<div class="header-row">
-  <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-    <h1 id="app-title">Call Tracker</h1>
-    <div class="mode-switch">
-      <button id="mode-call" class="mode-btn" onclick="setMode('call')" data-i18n="mode_calls">Calls</button>
-      <button id="mode-email" class="mode-btn" onclick="setMode('email')" data-i18n="mode_email">Email</button>
-    </div>
-  </div>
-  <div class="header-actions">
-    <div class="mode-switch lang-switch" title="Language / Sprache">
-      <button id="lang-en" class="mode-btn" onclick="setLang('en')">EN</button>
-      <button id="lang-de" class="mode-btn" onclick="setLang('de')">DE</button>
-    </div>
-    <button class="small primary" onclick="toggleFinder()" id="finder-toggle" data-i18n="btn_find">Find leads</button>
-    <button class="small" onclick="document.getElementById('csv-file').click()" data-i18n="btn_import_csv">Import CSV</button>
-    <input type="file" id="csv-file" accept=".csv,text/csv" style="display:none" onchange="importCSV(event)" />
-    <button class="small" onclick="exportCSV()" data-i18n="btn_export_csv">Export CSV</button>
-    <button class="small" onclick="exportData()" data-i18n="btn_export_json">Export JSON</button>
-    <button class="small" onclick="document.getElementById('import-file').click()" data-i18n="btn_import_json">Import JSON</button>
-    <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)" />
-    <button class="small danger" onclick="clearAll()" data-i18n="btn_clear_all">Clear all</button>
-  </div>
-</div>
-
-<section id="finder" style="display:none">
-  <div class="finder-head">
+<section id="finder" class="panel" style="display:none">
+  <div class="panel-head">
     <div>
-      <div class="title" data-i18n="finder_title">Find leads</div>
-      <div class="sub" id="finder-sub" data-i18n="finder_sub">Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap, auction houses also from Overture Maps. Email is often missing and stays editable.</div>
+      <h2 class="panel-title" data-i18n="finder_title">Find leads</h2>
+      <div class="panel-sub" id="finder-sub" data-i18n="finder_sub">Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap and Overture Maps. Email is often missing and stays editable.</div>
     </div>
     <button class="small" onclick="toggleFinder()" data-i18n="btn_close">Close</button>
   </div>
-  <div class="finder-form">
-    <div>
-      <div class="field-label" data-i18n="lbl_niche">Niche</div>
-      <input type="text" id="f-niche" list="niche-suggest" data-i18n-ph="ph_niche" placeholder="e.g. dentist, plumber, restaurant" />
-      <datalist id="niche-suggest"></datalist>
+  <div class="panel-body">
+    <div class="finder-form">
+      <div>
+        <div class="field-label" data-i18n="lbl_niche">Niche</div>
+        <input type="text" id="f-niche" list="niche-suggest" data-i18n-ph="ph_niche" placeholder="e.g. dentist, plumber, restaurant" />
+        <datalist id="niche-suggest"></datalist>
+      </div>
+      <div>
+        <div class="field-label" data-i18n="lbl_country">Country</div>
+        <select id="f-country" onchange="onCountryChange()">
+          <option value="us">United States</option>
+          <option value="de">Deutschland</option>
+          <option value="at">Österreich</option>
+        </select>
+      </div>
+      <div>
+        <div class="field-label" id="lbl-state">State</div>
+        <select id="f-state"></select>
+      </div>
+      <div>
+        <div class="field-label" data-i18n="lbl_city">City</div>
+        <input type="text" id="f-city" list="city-suggest" placeholder="e.g. Austin" />
+        <datalist id="city-suggest"></datalist>
+      </div>
+      <div>
+        <div class="field-label" data-i18n="lbl_radius">Metro radius</div>
+        <select id="f-radius">
+          <option value="0" data-i18n="radius_city">City only</option>
+          <option value="25000" selected>+ 25 km</option>
+          <option value="50000">+ 50 km</option>
+        </select>
+      </div>
+      <button class="primary" id="f-go" onclick="runFinderSearch()" data-i18n="btn_search">Search</button>
     </div>
-    <div>
-      <div class="field-label" data-i18n="lbl_country">Country</div>
-      <select id="f-country" onchange="onCountryChange()">
-        <option value="us">United States</option>
-        <option value="de">Deutschland</option>
-        <option value="at">Österreich</option>
-      </select>
-    </div>
-    <div>
-      <div class="field-label" id="lbl-state">State</div>
-      <select id="f-state"></select>
-    </div>
-    <div>
-      <div class="field-label" data-i18n="lbl_city">City</div>
-      <input type="text" id="f-city" list="city-suggest" placeholder="e.g. Austin" />
-      <datalist id="city-suggest"></datalist>
-    </div>
-    <div>
-      <div class="field-label" data-i18n="lbl_radius">Metro radius</div>
-      <select id="f-radius">
-        <option value="0" data-i18n="radius_city">City only</option>
-        <option value="25000" selected>+ 25 km</option>
-        <option value="50000">+ 50 km</option>
-      </select>
-    </div>
-    <button class="primary" id="f-go" onclick="runFinderSearch()" style="height: 38px;" data-i18n="btn_search">Search</button>
-  </div>
-  <div class="finder-status" id="f-status"></div>
-  <div class="staging-wrap" id="staging-wrap" style="display:none">
-    <table class="staging" id="staging-table">
-      <thead>
-        <tr>
-          <th data-i18n="th_name">Name</th><th data-i18n="th_email">Email</th><th data-i18n="th_address">Address</th><th data-i18n="th_website">Website</th><th data-i18n="th_phone">Phone</th><th class="col-x"></th>
-        </tr>
-      </thead>
-      <tbody id="staging-body"></tbody>
-    </table>
-    <div class="staging-actions">
-      <button class="primary" id="f-addall" onclick="addAllStaged()">Add all to Un-called</button>
-      <button class="small danger" onclick="clearStaging()" data-i18n="btn_clear_results">Clear results</button>
-      <span class="staging-count" id="staging-count"></span>
+    <div class="finder-status" id="f-status"></div>
+    <div class="staging-wrap" id="staging-wrap" style="display:none">
+      <div class="staging-scroll">
+        <table class="staging" id="staging-table">
+          <thead>
+            <tr>
+              <th data-i18n="th_name">Name</th><th data-i18n="th_email">Email</th><th data-i18n="th_address">Address</th><th data-i18n="th_website">Website</th><th data-i18n="th_phone">Phone</th><th class="col-x"></th>
+            </tr>
+          </thead>
+          <tbody id="staging-body"></tbody>
+        </table>
+      </div>
+      <div class="staging-actions">
+        <button class="primary" id="f-addall" onclick="addAllStaged()">Add all to Un-called</button>
+        <button class="small danger" onclick="clearStaging()" data-i18n="btn_clear_results">Clear results</button>
+        <span class="staging-count" id="staging-count"></span>
+      </div>
     </div>
   </div>
 </section>
 
 <div class="stats">
   <div class="stat"><div class="stat-label" data-i18n="stat_total">Total</div><div class="stat-value" id="stat-total">0</div></div>
-  <div class="stat s-warn"><div class="stat-label" id="lbl-called">Called</div><div class="stat-value" id="stat-called">0</div></div>
+  <div class="stat"><div class="stat-label" id="lbl-called">Called</div><div class="stat-value" id="stat-called">0</div></div>
   <div class="stat s-success"><div class="stat-label" id="lbl-interested">Interested</div><div class="stat-value" id="stat-interested">0</div></div>
   <div class="stat s-info"><div class="stat-label" data-i18n="stat_closed">Closed</div><div class="stat-value" id="stat-closed">0</div></div>
 </div>
 
-<div class="add-form">
-  <div>
-    <div class="field-label" data-i18n="lbl_business">Business name</div>
-    <input type="text" id="input-name" data-i18n-ph="ph_bizname" placeholder="e.g. Austin Plumbing" />
+<section class="panel">
+  <div class="panel-head"><h2 class="panel-title" data-i18n="add_title">Add a lead</h2></div>
+  <div class="panel-body">
+    <div class="add-form">
+      <div>
+        <div class="field-label" data-i18n="lbl_business">Business name</div>
+        <input type="text" id="input-name" data-i18n-ph="ph_bizname" placeholder="e.g. Austin Plumbing" />
+      </div>
+      <div id="field-phone">
+        <div class="field-label" data-i18n="lbl_phone">Phone</div>
+        <input type="text" id="input-phone" data-i18n-ph="ph_optional" placeholder="optional" />
+      </div>
+      <div>
+        <div class="field-label" data-i18n="lbl_website">Website</div>
+        <input type="text" id="input-website" data-i18n-ph="ph_optional" placeholder="optional" />
+      </div>
+      <div>
+        <div class="field-label" data-i18n="lbl_email">Email</div>
+        <input type="text" id="input-email" data-i18n-ph="ph_optional" placeholder="optional" />
+      </div>
+      <div>
+        <div class="field-label" data-i18n="lbl_quality">Site quality</div>
+        <select id="input-site">
+          <option value="unknown">???</option>
+          <option value="none" data-i18n="site_none">No website</option>
+          <option value="bad" data-i18n="site_bad">Bad / outdated</option>
+          <option value="ok" data-i18n="site_ok">Decent</option>
+        </select>
+      </div>
+      <button class="primary" onclick="addLead()" data-i18n="btn_add">Add</button>
+    </div>
   </div>
-  <div id="field-phone">
-    <div class="field-label" data-i18n="lbl_phone">Phone</div>
-    <input type="text" id="input-phone" data-i18n-ph="ph_optional" placeholder="optional" />
-  </div>
-  <div>
-    <div class="field-label" data-i18n="lbl_website">Website</div>
-    <input type="text" id="input-website" data-i18n-ph="ph_optional" placeholder="optional" />
-  </div>
-  <div>
-    <div class="field-label" data-i18n="lbl_email">Email</div>
-    <input type="text" id="input-email" data-i18n-ph="ph_optional" placeholder="optional" />
-  </div>
-  <div>
-    <div class="field-label" data-i18n="lbl_quality">Site quality</div>
-    <select id="input-site">
-      <option value="unknown">???</option>
-      <option value="none" data-i18n="site_none">No website</option>
-      <option value="bad" data-i18n="site_bad">Bad / outdated</option>
-      <option value="ok" data-i18n="site_ok">Decent</option>
-    </select>
-  </div>
-  <button class="primary" onclick="addLead()" style="height: 38px;" data-i18n="btn_add">+ Add</button>
-</div>
+</section>
 
 <div id="callback-banner" class="callback-banner" onclick="toggleCallbackFilter()"></div>
 
+<div class="list-head"><h2 class="list-title" data-i18n="list_title">Leads</h2></div>
 <div id="lead-list"></div>
 
 <div id="empty-state" class="empty-state">
@@ -497,9 +481,10 @@ const I18N = {
     mode_calls:'Calls', mode_email:'Email',
     btn_find:'Find leads', btn_import_csv:'Import CSV', btn_export_csv:'Export CSV',
     btn_export_json:'Export JSON', btn_import_json:'Import JSON', btn_clear_all:'Clear all',
-    btn_close:'Close', btn_search:'Search', btn_add:'+ Add', btn_clear_results:'Clear results',
+    btn_close:'Close', btn_search:'Search', btn_add:'Add', btn_data:'Import / Export', remove:'Remove',
+    add_title:'Add a lead', list_title:'Leads', btn_clear_results:'Clear results',
     finder_title:'Find leads',
-    finder_sub:'Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap, auction houses also from Overture Maps. Email is often missing and stays editable.',
+    finder_sub:'Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap and Overture Maps. Email is often missing and stays editable.',
     lbl_niche:'Niche', lbl_country:'Country', lbl_city:'City', lbl_radius:'Metro radius',
     lbl_state_us:'State', lbl_state_de:'Federal state', lbl_state_at:'Federal state',
     sel_state_us:'Select state', sel_state_de:'Select federal state', sel_state_at:'Select federal state',
@@ -537,8 +522,9 @@ const I18N = {
     f_searching:(niche,city)=>`Searching for ${niche} in ${city} ...`,
     f_businesses:'businesses',
     f_tiles:'Large area, scanning in tiles ...',
-    f_addresses:(i,n)=>`Improving addresses ${i} of ${n} ...`,
+    f_overture:(i,n,mb)=>`Loading Overture Maps data, block ${i} of ${n} (${mb} MB) ...`,
     f_found:(n)=>`Found ${n} businesses. Edit or remove rows, then add them to your call list.`,
+    f_found_enriching:(n,i,k)=>`Found ${n} businesses. Completing missing addresses in the background, ${i} of ${k} ...`,
     f_none:'No results. Try a bigger city, a different niche, or a larger radius.',
     f_error:(m)=>'Error: ' + m,
     f_added:(n,target,skipped)=>`Added ${n} to ${target}${skipped?`, skipped ${skipped} already in your list`:''}.`,
@@ -547,9 +533,10 @@ const I18N = {
     mode_calls:'Anrufe', mode_email:'E-Mail',
     btn_find:'Leads finden', btn_import_csv:'CSV importieren', btn_export_csv:'CSV exportieren',
     btn_export_json:'JSON exportieren', btn_import_json:'JSON importieren', btn_clear_all:'Alle löschen',
-    btn_close:'Schließen', btn_search:'Suchen', btn_add:'+ Hinzufügen', btn_clear_results:'Ergebnisse löschen',
+    btn_close:'Schließen', btn_search:'Suchen', btn_add:'Hinzufügen', btn_data:'Import / Export', remove:'Entfernen',
+    add_title:'Lead manuell anlegen', list_title:'Leads', btn_clear_results:'Ergebnisse löschen',
     finder_title:'Leads finden',
-    finder_sub:'Branche und Ort wählen, dann die Treffer in die Liste übernehmen. Die Daten kommen von OpenStreetMap, Auktionshäuser zusätzlich von Overture Maps. E-Mail fehlt häufig und bleibt bearbeitbar.',
+    finder_sub:'Branche und Ort wählen, dann die Treffer in die Liste übernehmen. Die Daten kommen von OpenStreetMap und Overture Maps. E-Mail fehlt häufig und bleibt bearbeitbar.',
     lbl_niche:'Branche', lbl_country:'Land', lbl_city:'Stadt', lbl_radius:'Umkreis',
     lbl_state_us:'Bundesstaat', lbl_state_de:'Bundesland', lbl_state_at:'Bundesland',
     sel_state_us:'Bundesstaat wählen', sel_state_de:'Bundesland wählen', sel_state_at:'Bundesland wählen',
@@ -587,8 +574,9 @@ const I18N = {
     f_searching:(niche,city)=>`Suche ${niche} in ${city} ...`,
     f_businesses:'Betriebe',
     f_tiles:'Großes Gebiet, wird in Kacheln durchsucht ...',
-    f_addresses:(i,n)=>`Adressen werden ergänzt, ${i} von ${n} ...`,
+    f_overture:(i,n,mb)=>`Lade Overture-Maps-Daten, Paket ${i} von ${n} (${mb} MB) ...`,
     f_found:(n)=>`${n} Betriebe gefunden. Zeilen bearbeiten oder entfernen, dann in die Liste übernehmen.`,
+    f_found_enriching:(n,i,k)=>`${n} Betriebe gefunden. Fehlende Adressen werden im Hintergrund ergänzt, ${i} von ${k} ...`,
     f_none:'Keine Treffer. Größere Stadt, andere Branche oder größeren Umkreis probieren.',
     f_error:(m)=>'Fehler: ' + m,
     f_added:(n,target,skipped)=>`${n} zu ${target} hinzugefügt${skipped?`, ${skipped} bereits in der Liste übersprungen`:''}.`,
@@ -909,6 +897,13 @@ function escapeHtml(s) {
   return (s == null ? '' : String(s)).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+const ICON = {
+  phone: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M5.5 2.5h-2a1 1 0 0 0-1 1C2.5 9 7 13.5 12.5 13.5a1 1 0 0 0 1-1v-2l-2.5-1-1.25 1.25A7 7 0 0 1 5.75 6.75L7 5.5z"/></svg>',
+  mail: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="3.5" width="12" height="9" rx="1"/><path d="m2.5 4.5 5.5 4 5.5-4"/></svg>',
+  open: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7.5 8.5M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3"/></svg>',
+  remove: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8"/></svg>',
+};
+
 function isMissing(v) { return !v || v === MISSING; }
 function normalizeUrl(u) { return /^https?:\/\//i.test(u) ? u : 'https://' + u; }
 
@@ -918,9 +913,9 @@ function renderField(lead, field, type, placeholder, label) {
   const display = empty ? MISSING : val;
   let icon = '';
   if (!empty) {
-    if (type === 'phone') icon = ` <a href="tel:${escapeHtml(val)}" title="Call">📞</a>`;
-    else if (type === 'email') icon = ` <a href="mailto:${escapeHtml(val)}" title="Email">✉</a>`;
-    else if (type === 'website') icon = ` <a href="${escapeHtml(normalizeUrl(val))}" target="_blank" rel="noopener" title="Open">🔗</a>`;
+    if (type === 'phone') icon = `<a href="tel:${escapeHtml(val)}" title="${escapeHtml(t('lbl_phone'))}">${ICON.phone}</a>`;
+    else if (type === 'email') icon = `<a href="mailto:${escapeHtml(val)}" title="${escapeHtml(t('lbl_email'))}">${ICON.mail}</a>`;
+    else if (type === 'website') icon = `<a href="${escapeHtml(normalizeUrl(val))}" target="_blank" rel="noopener" title="${escapeHtml(t('lbl_website'))}">${ICON.open}</a>`;
   }
   const inputAttrs = `class="inline-edit${empty ? ' empty' : ''}" value="${escapeHtml(display)}" placeholder="${placeholder}" size="${Math.max(placeholder.length, display.length)}" onfocus="if(this.value==='${MISSING}')this.value=''" onblur="setField(${lead.id}, '${field}', this.value.trim())"`;
   return `<span class="meta-field"><span class="meta-label">${label}</span><input type="text" ${inputAttrs} />${icon}</span>`;
@@ -972,32 +967,29 @@ function render() {
     ].map(([k, lbl]) => `<option value="${k}" ${l.site === k ? 'selected' : ''}>${lbl}</option>`).join('');
 
     return `
-    <div class="lead-row s-${l.status}${overdueClass}">
+    <div class="lead-row${overdueClass}">
       <div>
         <div class="lead-name">${escapeHtml(l.name)}</div>
         <div class="meta-row">
-          ${mode === 'call' ? renderField(l, 'phone', 'phone', t('lbl_phone').toLowerCase(), t('meta_phone')) + '<span class="meta-sep">·</span>' : ''}
+          ${mode === 'call' ? renderField(l, 'phone', 'phone', t('lbl_phone').toLowerCase(), t('meta_phone')) : ''}
           ${renderField(l, 'website', 'website', t('lbl_website').toLowerCase(), t('meta_link'))}
-          <span class="meta-sep">·</span>
           ${renderField(l, 'email', 'email', t('lbl_email').toLowerCase(), t('meta_email'))}
-          <span class="meta-sep">·</span>
-          <span class="meta-field"><span class="meta-label">${t('meta_quality')}</span><select onchange="setField(${l.id}, 'site', this.value); render()" class="inline-edit" style="font-size: 11px; height: 24px;">${siteOpts}</select></span>
+          <span class="meta-field"><span class="meta-label">${t('meta_quality')}</span><select onchange="setField(${l.id}, 'site', this.value); render()" class="inline-edit">${siteOpts}</select></span>
         </div>
         <div class="meta-row">
           ${renderField(l, 'address', 'address', t('th_address').toLowerCase(), t('meta_addr'))}
         </div>
-        <textarea class="notes-input" placeholder="${escapeHtml(t('notes_ph'))}" rows="3" oninput="updateNote(${l.id}, this.value)" onkeydown="if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();this.blur();}">${escapeHtml(l.note)}</textarea>
+        <textarea class="notes-input" placeholder="${escapeHtml(t('notes_ph'))}" rows="1" oninput="updateNote(${l.id}, this.value)" onkeydown="if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();this.blur();}">${escapeHtml(l.note)}</textarea>
         <div class="callback-row">
           <span class="meta-label">${terms().dateLabel}</span>
           <input type="date" class="callback-input" value="${escapeHtml(l.callback || '')}" onchange="setCallback(${l.id}, this.value)" />
-          ${l.callback ? `<button class="small" style="font-size:10px; padding:2px 8px; height:22px;" onclick="setCallback(${l.id}, '')">${t('clear')}</button>` : ''}
-          ${cbState === 'overdue' ? `<span style="color: var(--danger); font-weight: 500;">${t('overdue')}</span>` : ''}
-          ${cbState === 'today' ? `<span style="color: var(--warning); font-weight: 500;">${t('today')}</span>` : ''}
+          ${l.callback ? `<button class="link" onclick="setCallback(${l.id}, '')">${t('clear')}</button>` : ''}
+          ${cbState === 'overdue' ? `<span class="due-flag overdue">${t('overdue')}</span>` : ''}
+          ${cbState === 'today' ? `<span class="due-flag today">${t('today')}</span>` : ''}
         </div>
       </div>
-      <span class="status-badge badge-${l.status}">${sc[l.status].label}</span>
-      <select onchange="setStatus(${l.id}, this.value)" style="font-size: 12px; padding: 4px 8px; height: 30px;">${statusOpts}</select>
-      <button class="icon-btn danger" onclick="removeLead(${l.id})" title="Remove">✕</button>
+      <select class="status-select st-${l.status}" onchange="setStatus(${l.id}, this.value)">${statusOpts}</select>
+      <button class="icon-btn" onclick="removeLead(${l.id})" title="${escapeHtml(t('remove'))}">${ICON.remove}</button>
     </div>`;
   }).join('');
 }
@@ -1017,246 +1009,246 @@ function render() {
 // regex over a city times out, so name matching for them happens in the dataset build.
 const CATEGORIES = [
   { names:["auktionshaus","auktionshäuser","auktionshaeuser","auktion","auktionen","versteigerung","versteigerungen","versteigerer","auktionator","auktionatoren","kunstauktion","kunstauktionen","auction house","auction houses","auction","auctions","auctioneer","auctioneers","art auction"],
-    label:"Auktionshaus", dataset:"auctions",
+    label:"Auktionshaus", ovt:['auction_house'], dataset:"auctions",
     filters:['shop=auction','craft=auctioneer','office=auctioneer','amenity=auction'] },
   { names:["marketing agentur","werbeagentur","marketing agency","advertising agency","marketing","advertising","ads agency","branding agency","creative agency","content agency","digital marketing","performance marketing","seo agency","sem agency","social media agency"],
-    label:"Marketing / Werbeagentur",
+    label:"Marketing / Werbeagentur", ovt:['advertising_agency','marketing_agency','internet_marketing_service','b2b_advertising_and_marketing_service','social_media_agency','media_agency','sign_making'],
     filters:['office=advertising_agency','office=marketing','craft=sign_maker','shop=advertising'] },
   { names:["pr agentur","kommunikationsagentur","public relations","pr agency","communications agency","pr firm","öffentlichkeitsarbeit","press agency","presseagentur"],
-    label:"PR / Kommunikation", filters:['office=newspaper','office=publisher','office=consulting'] },
+    label:"PR / Kommunikation", ovt:['public_relations','media_agency'], filters:['office=newspaper','office=publisher','office=consulting'] },
   { names:["softwarefirma","softwareentwicklung","software company","software development","software agency","software house","app entwicklung","app development","app developer","saas","tech company","it company","it firma","it dienstleister","it services"],
-    label:"Software / IT", filters:['office=it','office=software','craft=electronics_repair'] },
+    label:"Software / IT", ovt:['software_development','information_technology_company','it_consultant','it_service_and_computer_repair','web_hosting_service'], filters:['office=it','office=software','craft=electronics_repair'] },
   { names:["webdesign","webagentur","web agency","web design","webentwicklung","web development","web developer","frontend","backend","fullstack","ui design","ux design"],
-    label:"Web / Design", filters:['office=web_design','office=graphic_design','craft=photographer'] },
+    label:"Web / Design", ovt:['web_designer','graphic_designer','product_design'], filters:['office=web_design','office=graphic_design','craft=photographer'] },
   { names:["beratung","unternehmensberatung","consulting","consultancy","consultant","berater","strategieberatung","management consulting","business consulting"],
-    label:"Consulting", filters:['office=consulting','office=accountant','office=lawyer'] },
+    label:"Consulting", ovt:['business_consulting','b2b_business_management_service','b2b_marketing_consultant'], filters:['office=consulting','office=accountant','office=lawyer'] },
   { names:["fitnessstudio","gym","fitness center","fitness centre","fitness","crossfit","yoga studio","yoga","pilates","pilates studio","training","fitness club","health club","sportstudio","kraftraum"],
-    label:"Fitness", filters:['leisure=fitness_centre','leisure=sports_centre','leisure=fitness_station'] },
+    label:"Fitness", ovt:['gym','fitness_studio','fitness_trainer','pilates_studio'], filters:['leisure=fitness_centre','leisure=sports_centre','leisure=fitness_station'] },
   { names:["restaurant","restaurants","gaststätte","gaststaette","gasthaus","gasthof","wirtshaus","lokal","speiselokal","bistro","brasserie"],
-    label:"Restaurant", filters:['amenity=restaurant','amenity=fast_food','amenity=food_court'] },
+    label:"Restaurant", ovt:['restaurant','bistro','gastropub'], filters:['amenity=restaurant','amenity=fast_food','amenity=food_court'] },
   { names:["cafe","café","cafes","coffee shop","coffeeshop","coffeehouse","kaffeehaus","kaffee","coffee bar","espresso bar"],
-    label:"Café", filters:['amenity=cafe','shop=coffee'] },
+    label:"Café", ovt:['cafe','coffee_shop','tea_room'], filters:['amenity=cafe','shop=coffee'] },
   { names:["bar","bars","kneipe","kneipen","pub","pubs","beer garden","biergarten","cocktailbar","cocktail bar","weinbar","wine bar","sportsbar","sports bar"],
-    label:"Bar / Pub", filters:['amenity=bar','amenity=pub','amenity=biergarten'] },
+    label:"Bar / Pub", ovt:['bar','pub','cocktail_bar','beer_bar','beer_garden','wine_bar','sports_bar','lounge','speakeasy'], filters:['amenity=bar','amenity=pub','amenity=biergarten'] },
   { names:["bäckerei","baeckerei","backstube","bakery","bakeries","bread shop","brot","backshop"],
-    label:"Bäckerei", filters:['shop=bakery','craft=bakery'] },
+    label:"Bäckerei", ovt:['bakery'], filters:['shop=bakery','craft=bakery'] },
   { names:["friseur","friseursalon","frisör","hairdresser","hair salon","barber","barbershop","barber shop","haircuts","hair stylist","beauty salon","hair studio"],
-    label:"Friseur", filters:['shop=hairdresser','shop=beauty','craft=hairdresser'] },
+    label:"Friseur", ovt:['hair_salon','barber'], filters:['shop=hairdresser','shop=beauty','craft=hairdresser'] },
   { names:["zahnarzt","zahnärzte","dentist","dentists","dental","dental practice","dental clinic","dental office"],
-    label:"Zahnarzt", filters:['amenity=dentist','healthcare=dentist'] },
+    label:"Zahnarzt", ovt:['dentist','dental_clinic','general_dentistry','orthodontics','cosmetic_dentistry','oral_and_maxillofacial_surgery'], filters:['amenity=dentist','healthcare=dentist'] },
   { names:["arzt","ärzte","arztpraxis","praxis","doctor","doctors","physician","physicians","medical practice","medical office","general practitioner","gp","family doctor","hausarzt"],
-    label:"Arztpraxis", filters:['amenity=doctors','healthcare=doctor','healthcare=clinic'] },
+    label:"Arztpraxis", ovt:['doctors_office','primary_care_or_general_clinic','family_practice','internal_medicine','pediatric_clinic','dermatology','ophthalmology','obstetrics_and_gynecology','ear_nose_and_throat','orthopedics','urology','neurology','cardiology'], filters:['amenity=doctors','healthcare=doctor','healthcare=clinic'] },
   { names:["apotheke","apotheken","pharmacy","pharmacies","drugstore","chemist"],
-    label:"Apotheke", filters:['amenity=pharmacy','healthcare=pharmacy'] },
+    label:"Apotheke", ovt:['pharmacy'], filters:['amenity=pharmacy','healthcare=pharmacy'] },
   { names:["anwalt","rechtsanwalt","anwälte","kanzlei","lawyer","lawyers","attorney","attorneys","law firm","law office","legal","legal services","jurist","advocate"],
-    label:"Rechtsanwalt", filters:['office=lawyer','amenity=lawyer'] },
+    label:"Rechtsanwalt", ovt:['attorney_or_law_firm','lawyer','divorce_and_family_law','criminal_defense_law','bankruptcy_law','patent_law','appellate_practice_lawyer'], filters:['office=lawyer','amenity=lawyer'] },
   { names:["steuerberater","tax advisor","tax consultant","tax accountant","accountant","accounting","accountants","bookkeeper","bookkeeping","buchhaltung"],
-    label:"Steuerberater", filters:['office=tax_advisor','office=accountant'] },
+    label:"Steuerberater", ovt:['tax_service','accountant','bookkeeper'], filters:['office=tax_advisor','office=accountant'] },
   { names:["immobilien","immobilienmakler","makler","real estate","realtor","realtors","real estate agent","realty","property management","hausverwaltung"],
-    label:"Immobilien", filters:['office=estate_agent','shop=estate_agent'] },
+    label:"Immobilien", ovt:['real_estate_agent','property_management','commercial_real_estate','apartment_agent'], filters:['office=estate_agent','shop=estate_agent'] },
   { names:["versicherung","versicherungen","versicherungsmakler","insurance","insurance agent","insurance broker","insurance agency"],
-    label:"Versicherung", filters:['office=insurance'] },
+    label:"Versicherung", ovt:['insurance_agency','health_insurance_office'], filters:['office=insurance'] },
   { names:["architekt","architekten","architekturbüro","architect","architects","architecture firm","architectural"],
-    label:"Architekt", filters:['office=architect'] },
+    label:"Architekt", ovt:['architect','architectural_designer','landscape_architect'], filters:['office=architect'] },
   { names:["handwerker","tischler","schreiner","carpenter","carpenters","carpentry","woodworker","woodworking","cabinet maker","cabinetry","joiner","joinery"],
-    label:"Handwerk", filters:['craft=carpenter','craft=joiner','craft=cabinet_maker'] },
+    label:"Handwerk", ovt:['carpenter','handyman','turnery'], filters:['craft=carpenter','craft=joiner','craft=cabinet_maker'] },
   { names:["klempner","sanitär","sanitaer","plumber","plumbers","plumbing","pipefitter","heizung","heating","hvac","heizungsbauer","installateur"],
-    label:"Sanitär / Klempner", filters:['craft=plumber','craft=hvac'] },
+    label:"Sanitär / Klempner", ovt:['plumbing','hvac_service','bathroom_remodeling'], filters:['craft=plumber','craft=hvac'] },
   { names:["elektriker","elektroniker","electrician","electricians","electrical","electrical contractor","electric service","elektrobetrieb"],
-    label:"Elektriker", filters:['craft=electrician'] },
+    label:"Elektriker", ovt:['electrician'], filters:['craft=electrician'] },
   { names:["autowerkstatt","kfz","kfz werkstatt","werkstatt","car repair","auto repair","auto shop","mechanic","mechanics","garage","car service","autoservice","tire shop","reifenhandel","reifenservice"],
-    label:"Autowerkstatt", filters:['shop=car_repair','craft=car_repair','shop=car'] },
+    label:"Autowerkstatt", ovt:['automotive_repair','auto_body_shop','tire_dealer_and_repair','tire_shop','brake_service_and_repair','auto_glass_service','car_inspection'], filters:['shop=car_repair','craft=car_repair','shop=car'] },
   { names:["hotel","hotels","gästehaus","guest house","motel","motels","pension","b&b","bed and breakfast","boutique hotel","resort","hostel"],
-    label:"Hotel", filters:['tourism=hotel','tourism=guest_house','tourism=motel','tourism=hostel'] },
+    label:"Hotel", ovt:['hotel','guest_house','hostel','bed_and_breakfast','inn','resort','motel'], filters:['tourism=hotel','tourism=guest_house','tourism=motel','tourism=hostel'] },
   { names:["supermarkt","supermarkets","supermarket","grocery","grocery store","grocer","lebensmittel"],
-    label:"Supermarkt", filters:['shop=supermarket','shop=convenience'] },
+    label:"Supermarkt", ovt:['grocery_store','organic_grocery_store','convenience_store','warehouse_club_store'], filters:['shop=supermarket','shop=convenience'] },
   { names:["boutique","modegeschäft","mode","fashion","clothing","clothing store","fashion store","clothes shop","apparel","apparel store"],
-    label:"Mode / Boutique", filters:['shop=clothes','shop=boutique','shop=fashion'] },
+    label:"Mode / Boutique", ovt:['clothing_store','fashion_boutique','womens_clothing_store','mens_clothing_store','designer_clothing','childrens_clothing_store','bridal_shop'], filters:['shop=clothes','shop=boutique','shop=fashion'] },
   { names:["spielothek","spielhalle","spielhallen","casino","casinos","gambling","arcade","arcades","gaming centre","gaming center","slot hall","slot machines","spielbank"],
-    label:"Spielothek / Casino",
+    label:"Spielothek / Casino", ovt:['casino','gaming_venue','arcade','betting_center'],
     filters:['leisure=adult_gaming_centre','leisure=amusement_arcade','amenity=casino','amenity=gambling','shop=bookmaker','shop=lottery'] },
   { names:["wettbüro","wettbuero","wettannahme","lottoannahme","lotto","bookmaker","betting","betting shop","betting office","lottery","lottery shop","wettshop"],
-    label:"Wettbüro / Lotto", filters:['shop=bookmaker','shop=lottery','amenity=gambling'] },
-  { names:["kino","kinos","cinema","cinemas","movie theater","movie theatre","film","filmtheater","multiplex"], label:"Kino", filters:['amenity=cinema'] },
+    label:"Wettbüro / Lotto", ovt:['betting_center','lottery_vendor'], filters:['shop=bookmaker','shop=lottery','amenity=gambling'] },
+  { names:["kino","kinos","cinema","cinemas","movie theater","movie theatre","film","filmtheater","multiplex"], label:"Kino", ovt:['movie_theater'], filters:['amenity=cinema'] },
   { names:["theater","theatre","oper","opera","opernhaus","schauspielhaus","kabarett","comedy club","performing arts"],
-    label:"Theater", filters:['amenity=theatre','amenity=arts_centre'] },
+    label:"Theater", ovt:['theatre_venue','performing_arts_venue'], filters:['amenity=theatre','amenity=arts_centre'] },
   { names:["diskothek","disko","disco","club","clubs","nightclub","nachtclub","tanzclub","dance club","lounge"],
-    label:"Club / Diskothek", filters:['amenity=nightclub','amenity=stripclub'] },
+    label:"Club / Diskothek", ovt:['dance_club','nightlife_venue'], filters:['amenity=nightclub','amenity=stripclub'] },
   { names:["bowling","bowlingbahn","bowling alley","billard","billardsalon","billiards","pool hall","snooker","kegeln","kegelbahn"],
-    label:"Bowling / Billard", filters:['leisure=bowling_alley','sport=billiards','leisure=sports_centre'] },
+    label:"Bowling / Billard", ovt:['bowling_alley','pool_hall','pool_billiards'], filters:['leisure=bowling_alley','sport=billiards','leisure=sports_centre'] },
   { names:["escape room","escape rooms","lasertag","laser tag","paintball","paintball arena","indoor spielplatz","indoor playground","trampolinhalle","trampoline park","jump park","kletterhalle","climbing gym","boulderhalle","bouldering gym"],
-    label:"Freizeit-Halle", filters:['leisure=escape_game','sport=laser_tag','sport=paintball','leisure=trampoline_park','leisure=indoor_play','leisure=climbing'] },
+    label:"Freizeit-Halle", ovt:['escape_room','laser_tag','paintball','trampoline_park','kids_recreation_and_party','amusement_attraction'], filters:['leisure=escape_game','sport=laser_tag','sport=paintball','leisure=trampoline_park','leisure=indoor_play','leisure=climbing'] },
   { names:["shisha","shisha bar","shisha lounge","hookah","hookah lounge","hookah bar","wasserpfeife"],
-    label:"Shisha-Bar", filters:['amenity=hookah_lounge','amenity=shisha','amenity=bar'] },
+    label:"Shisha-Bar", ovt:['hookah_bar'], filters:['amenity=hookah_lounge','amenity=shisha','amenity=bar'] },
   { names:["eisdiele","eiscafe","eis café","eismanufaktur","gelateria","ice cream","ice cream parlor","ice cream shop","frozen yogurt","froyo"],
-    label:"Eisdiele", filters:['amenity=ice_cream','shop=ice_cream'] },
+    label:"Eisdiele", ovt:['ice_cream_shop','gelato_shop'], filters:['amenity=ice_cream','shop=ice_cream'] },
   { names:["imbiss","schnellimbiss","döner","doener","kebab","kebap","pommes","pizza","pizzeria","burger","burger joint","snack bar","fast food","food truck","sub shop","sandwich shop","bbq","grill"],
-    label:"Imbiss / Fast Food", filters:['amenity=fast_food','amenity=food_court'] },
+    label:"Imbiss / Fast Food", ovt:['fast_food_restaurant','doner_kebab_restaurant','burger_restaurant','falafel_restaurant','sandwich_shop','food_truck_stand','chicken_restaurant','pizza_delivery_service'], filters:['amenity=fast_food','amenity=food_court'] },
   { names:["metzgerei","fleischerei","fleischer","butcher","butcher shop","butchery","meat shop"],
-    label:"Metzgerei", filters:['shop=butcher','craft=butcher'] },
+    label:"Metzgerei", ovt:['butcher_shop'], filters:['shop=butcher','craft=butcher'] },
   { names:["konditorei","patisserie","pastry","pastry shop","confectionery","cake shop","cupcake shop","chocolatier"],
-    label:"Konditorei", filters:['shop=confectionery','shop=pastry','craft=confectioner'] },
+    label:"Konditorei", ovt:['dessert_shop','cupcake_shop','chocolatier','candy_store'], filters:['shop=confectionery','shop=pastry','craft=confectioner'] },
   { names:["weinhandlung","weingeschäft","weinhandel","wein","wine shop","wine store","wine merchant","winery","liquor store","liquor shop","spirituosen","spirits shop","bottle shop"],
-    label:"Weinhandlung", filters:['shop=wine','shop=alcohol','craft=winery'] },
+    label:"Weinhandlung", ovt:['beer_wine_spirits_store','liquor_store','wine_wholesaler','winery'], filters:['shop=wine','shop=alcohol','craft=winery'] },
   { names:["brauerei","brewery","breweries","craft brewery","microbrewery","brewpub","beer hall"],
-    label:"Brauerei", filters:['craft=brewery','industrial=brewery'] },
+    label:"Brauerei", ovt:['brewery'], filters:['craft=brewery','industrial=brewery'] },
   { names:["kosmetik","kosmetikstudio","kosmetikerin","beauty","beauty salon","beauty studio","cosmetics","cosmetic studio","facial","skincare","skin care","make up","makeup artist","permanent make up"],
-    label:"Kosmetik", filters:['shop=beauty','shop=cosmetics','leisure=spa'] },
+    label:"Kosmetik", ovt:['beauty_salon','skin_care_and_makeup','medical_skin_care','eyelash_service','waxing','hair_removal','makeup_artist'], filters:['shop=beauty','shop=cosmetics','leisure=spa'] },
   { names:["nagelstudio","nagelpflege","nail salon","nail studio","nails","manicure","pedicure","maniküre","pediküre"],
-    label:"Nagelstudio", filters:['shop=beauty','leisure=spa'] },
+    label:"Nagelstudio", ovt:['nail_salon'], filters:['shop=beauty','leisure=spa'] },
   { names:["tattoo","tattoo studio","tattoos","tätowierer","tätowieren","tätowierungen","piercing","piercings","piercer","ink shop","tattoo shop","body modification"],
-    label:"Tattoo / Piercing", filters:['shop=tattoo','craft=tattoo','shop=piercing'] },
+    label:"Tattoo / Piercing", ovt:['tattoo','tattoo_and_piercing','piercing'], filters:['shop=tattoo','craft=tattoo','shop=piercing'] },
   { names:["massage","massagepraxis","massage studio","massage therapy","massage therapist","masseur","masseuse","spa","spas","wellness","wellness center","wellness centre","day spa","sauna","saunaclub"],
-    label:"Massage / Spa", filters:['shop=massage','leisure=spa','leisure=sauna','amenity=spa'] },
+    label:"Massage / Spa", ovt:['massage_therapy','spa','health_spa','sauna'], filters:['shop=massage','leisure=spa','leisure=sauna','amenity=spa'] },
   { names:["sonnenstudio","solarium","tanning","tanning salon","tan studio","spray tan"],
-    label:"Sonnenstudio", filters:['leisure=tanning_salon','shop=tanning'] },
+    label:"Sonnenstudio", ovt:['tanning_salon'], filters:['leisure=tanning_salon','shop=tanning'] },
   { names:["physiotherapie","physiotherapeut","physio","physiotherapist","physical therapy","physical therapist","krankengymnastik","rehabilitation","rehab","sportphysio","osteopath","osteopathie","chiropractor","chiropraktiker","chiropraktik"],
-    label:"Physiotherapie", filters:['healthcare=physiotherapist','amenity=physiotherapist'] },
+    label:"Physiotherapie", ovt:['physical_therapy','occupational_therapy','speech_therapy'], filters:['healthcare=physiotherapist','amenity=physiotherapist'] },
   { names:["heilpraktiker","heilpraktikerin","alternative medizin","alternative medicine","naturheilkunde","akupunktur","acupuncture","homöopathie","homeopathy","naturopath"],
-    label:"Heilpraktiker", filters:['healthcare=alternative','healthcare=psychotherapist'] },
+    label:"Heilpraktiker", ovt:['naturopathic_medicine','complementary_and_alternative_medicine','homeopathy','acupuncture','osteopathic_medicine','reiki','hypnotherapy'], filters:['healthcare=alternative','healthcare=psychotherapist'] },
   { names:["optiker","optikerin","brille","brillen","optician","opticians","eyewear","eyeglasses","optometrist","optometry","eye care","sehtest"],
-    label:"Optiker", filters:['shop=optician','healthcare=optometrist'] },
+    label:"Optiker", ovt:['eyewear_store','optometry'], filters:['shop=optician','healthcare=optometrist'] },
   { names:["hörgeräte","hörgeräteakustiker","hoergeraete","hearing aid","hearing aids","audiologist","audiology","hearing center"],
-    label:"Hörgeräte", filters:['shop=hearing_aids','healthcare=audiologist'] },
+    label:"Hörgeräte", ovt:['hearing_aid_store'], filters:['shop=hearing_aids','healthcare=audiologist'] },
   { names:["tierarzt","tierärztin","veterinarian","vet","vets","veterinary","animal hospital","tierklinik","tierarztpraxis"],
-    label:"Tierarzt", filters:['amenity=veterinary','healthcare=veterinary'] },
+    label:"Tierarzt", ovt:['veterinarian','animal_hospital'], filters:['amenity=veterinary','healthcare=veterinary'] },
   { names:["krankenhaus","klinik","kliniken","hospital","hospitals","clinic","clinics","medical center","medical centre","urgent care","emergency room"],
-    label:"Krankenhaus", filters:['amenity=hospital','amenity=clinic','healthcare=hospital'] },
+    label:"Krankenhaus", ovt:['hospital','specialty_hospital'], filters:['amenity=hospital','amenity=clinic','healthcare=hospital'] },
   { names:["psychologe","psychologin","psychotherapeut","psychotherapeutin","psychologist","therapist","therapy","counselor","counseling","counsellor","mental health","therapie"],
-    label:"Psychologe", filters:['healthcare=psychotherapist','healthcare=psychologist'] },
-  { names:["hebamme","midwife","midwives","doula","geburtshilfe"], label:"Hebamme", filters:['healthcare=midwife'] },
+    label:"Psychologe", ovt:['psychotherapy','psychology','psychiatry','counseling'], filters:['healthcare=psychotherapist','healthcare=psychologist'] },
+  { names:["hebamme","midwife","midwives","doula","geburtshilfe"], label:"Hebamme", ovt:['midwifery'], filters:['healthcare=midwife'] },
   { names:["pflegedienst","ambulanter pflegedienst","pflege","altenpflege","caregiver","caregivers","nursing","nursing service","home care","home health","home health care","seniorenheim","altenheim","pflegeheim","retirement home","assisted living"],
-    label:"Pflegedienst", filters:['healthcare=nursing','amenity=nursing_home','amenity=social_facility'] },
+    label:"Pflegedienst", ovt:['home_health_care','nursing','senior_living_facility','assisted_living_facility','retirement_home'], filters:['healthcare=nursing','amenity=nursing_home','amenity=social_facility'] },
   { names:["buchhandlung","buchladen","bookstore","bookshop","bookstores","books","comic shop","manga shop"],
-    label:"Buchhandlung", filters:['shop=books'] },
+    label:"Buchhandlung", ovt:['bookstore'], filters:['shop=books'] },
   { names:["spielwaren","spielzeug","spielzeuggeschäft","toy store","toy shop","toys","game store","board games","kids store"],
-    label:"Spielwaren", filters:['shop=toys'] },
+    label:"Spielwaren", ovt:['toy_store','toys_and_games_store'], filters:['shop=toys'] },
   { names:["elektronik","elektronikmarkt","electronics","electronics store","consumer electronics","appliance store","appliances","hifi"],
-    label:"Elektronik", filters:['shop=electronics','shop=hifi','shop=computer'] },
+    label:"Elektronik", ovt:['electronics_store','computer_store','audio_visual_equipment_store','home_theater_systems_stores'], filters:['shop=electronics','shop=hifi','shop=computer'] },
   { names:["computer","computerladen","pc shop","computer store","computer repair","computer service","laptop repair","tech repair"],
-    label:"Computer / PC", filters:['shop=computer','shop=electronics'] },
+    label:"Computer / PC", ovt:['computer_store','it_service_and_computer_repair'], filters:['shop=computer','shop=electronics'] },
   { names:["handy","mobiltelefon","handyladen","handy shop","mobile phone","mobile phones","cell phone","cell phones","cellphone","smartphone","wireless store","phone repair","handy reparatur"],
-    label:"Handy-Shop", filters:['shop=mobile_phone'] },
+    label:"Handy-Shop", ovt:['mobile_phone_store','mobile_phone_repair','mobile_phone_accessory_store'], filters:['shop=mobile_phone'] },
   { names:["juwelier","schmuck","schmuckgeschäft","jeweler","jewelers","jeweller","jewellery","jewelry","jewelry store","gold","silver","goldschmied","goldsmith"],
-    label:"Juwelier", filters:['shop=jewelry'] },
+    label:"Juwelier", ovt:['jewelry_store','goldsmith'], filters:['shop=jewelry'] },
   { names:["uhrmacher","uhren","uhrengeschäft","watches","watchmaker","watch shop","watch store","watch repair"],
-    label:"Uhrmacher", filters:['shop=watches','craft=clockmaker'] },
+    label:"Uhrmacher", ovt:['watch_store','watch_repair_service'], filters:['shop=watches','craft=clockmaker'] },
   { names:["schuhgeschäft","schuhe","schuhladen","shoe store","shoe shop","shoes","footwear","sneaker shop","sneakers"],
-    label:"Schuhe", filters:['shop=shoes'] },
+    label:"Schuhe", ovt:['shoe_store'], filters:['shop=shoes'] },
   { names:["sportgeschäft","sportladen","sportartikel","sports shop","sports store","sporting goods","outdoor shop","outdoor store"],
-    label:"Sportgeschäft", filters:['shop=sports','shop=outdoor'] },
+    label:"Sportgeschäft", ovt:['sporting_goods_store','outdoor_store'], filters:['shop=sports','shop=outdoor'] },
   { names:["fahrrad","fahrradladen","fahrradgeschäft","bike shop","bike store","bicycle","bicycles","cycling shop","e-bike","ebike"],
-    label:"Fahrradgeschäft", filters:['shop=bicycle','craft=bicycle_repair'] },
+    label:"Fahrradgeschäft", ovt:['bike_store','bike_repair_maintenance'], filters:['shop=bicycle','craft=bicycle_repair'] },
   { names:["möbel","moebel","möbelhaus","furniture","furniture store","furniture shop","home decor","home furnishings","interior design","einrichtung"],
-    label:"Möbel", filters:['shop=furniture','shop=interior_decoration'] },
+    label:"Möbel", ovt:['furniture_store','home_decor_store','kitchen_and_bath_store','mattress_store'], filters:['shop=furniture','shop=interior_decoration'] },
   { names:["baumarkt","heimwerker","hardware","hardware store","diy","diy store","home improvement","builders merchant","tool shop"],
-    label:"Baumarkt", filters:['shop=doityourself','shop=hardware','shop=trade'] },
+    label:"Baumarkt", ovt:['hardware_store','home_improvement_store','building_supply_store'], filters:['shop=doityourself','shop=hardware','shop=trade'] },
   { names:["gartencenter","garten geschäft","garden center","garden centre","garden shop","plant nursery","plant store","gärtnerei"],
-    label:"Gartencenter", filters:['shop=garden_centre','shop=florist'] },
+    label:"Gartencenter", ovt:['nursery_and_gardening_store'], filters:['shop=garden_centre','shop=florist'] },
   { names:["blumen","blumenladen","blumengeschäft","florist","florists","flower shop","flowers","floristik","floristics"],
-    label:"Blumenladen", filters:['shop=florist'] },
+    label:"Blumenladen", ovt:['florist'], filters:['shop=florist'] },
   { names:["drogerie","drugstore","drug store","health and beauty","beauty supply"],
-    label:"Drogerie", filters:['shop=chemist','shop=cosmetics'] },
+    label:"Drogerie", ovt:['drugstore','cosmetics_and_fragrance_store','personal_care_and_beauty_store'], filters:['shop=chemist','shop=cosmetics'] },
   { names:["second hand","secondhand","second-hand","thrift","thrift store","vintage","vintage shop","antiques","antique store","antique shop","flea market","flohmarkt","consignment"],
-    label:"Second Hand", filters:['shop=second_hand','shop=charity','shop=antiques'] },
+    label:"Second Hand", ovt:['second_hand_store','second_hand_clothing_store','antique_store','flea_market'], filters:['shop=second_hand','shop=charity','shop=antiques'] },
   { names:["tierhandlung","zoohandlung","zoo geschäft","pet shop","pet store","pet supplies","pets","pet grooming","hundefriseur","dog grooming"],
-    label:"Tierhandlung", filters:['shop=pet','shop=pet_grooming'] },
+    label:"Tierhandlung", ovt:['pet_store','animal_and_pet_store','pet_groomer'], filters:['shop=pet','shop=pet_grooming'] },
   { names:["kiosk","späti","spaeti","spätkauf","spätis","convenience","convenience store","corner store","mini market","trafik"],
-    label:"Kiosk / Späti", filters:['shop=kiosk','shop=convenience','shop=newsagent'] },
+    label:"Kiosk / Späti", ovt:['kiosk','convenience_store','newspaper_and_magazines_store'], filters:['shop=kiosk','shop=convenience','shop=newsagent'] },
   { names:["tankstelle","tankstellen","gas station","gas stations","fuel","fuel station","filling station","petrol","petrol station","truck stop"],
-    label:"Tankstelle", filters:['amenity=fuel'] },
+    label:"Tankstelle", ovt:['gas_station','fueling_station'], filters:['amenity=fuel'] },
   { names:["autohändler","autohaus","autohaeuser","car dealer","car dealership","auto dealership","used cars","new cars","motorcycle dealer","motorrad","motorrad händler"],
-    label:"Autohändler", filters:['shop=car','shop=motorcycle'] },
+    label:"Autohändler", ovt:['auto_dealer','used_auto_dealer','motorcycle_dealer'], filters:['shop=car','shop=motorcycle'] },
   { names:["maler","malerbetrieb","malermeister","painter","painters","painting","painting contractor","house painter"],
-    label:"Maler", filters:['craft=painter'] },
+    label:"Maler", ovt:['painting'], filters:['craft=painter'] },
   { names:["dachdecker","roofer","roofers","roofing","roofing company","roofing contractor"],
-    label:"Dachdecker", filters:['craft=roofer'] },
+    label:"Dachdecker", ovt:['roofing','ceiling_and_roofing_repair_and_service'], filters:['craft=roofer'] },
   { names:["gärtner","gaertner","gärtnerei","landschaftsgärtner","gardener","gardeners","gardening","garden service","garden services","landscape","landscaper","landscapers","landscaping","lawn care","lawn maintenance","lawn service","yard service","tree service","arborist"],
-    label:"Gärtner", filters:['craft=gardener','shop=garden_centre'] },
+    label:"Gärtner", ovt:['gardener','landscaping','tree_service'], filters:['craft=gardener','shop=garden_centre'] },
   { names:["schlosser","schlossereien","metallbauer","metallbau","locksmith","locksmiths","lock service","key service","metal worker","welding","welder"],
-    label:"Schlosser", filters:['craft=locksmith','craft=metal_construction','shop=locksmith'] },
+    label:"Schlosser", ovt:['key_and_locksmith','metal_fabricator','welder'], filters:['craft=locksmith','craft=metal_construction','shop=locksmith'] },
   { names:["fliesenleger","fliesen","tiler","tilers","tiling","tile setter","tile installation","tile contractor"],
-    label:"Fliesenleger", filters:['craft=tiler'] },
+    label:"Fliesenleger", ovt:['tiling'], filters:['craft=tiler'] },
   { names:["bodenleger","parkettleger","flooring","flooring contractor","floor layer","floor installation","carpet installation","teppich"],
-    label:"Bodenleger", filters:['craft=floorer','craft=parquet_layer'] },
+    label:"Bodenleger", ovt:['flooring_contractor'], filters:['craft=floorer','craft=parquet_layer'] },
   { names:["schneider","schneiderei","änderungsschneiderei","tailor","tailoring","tailors","alterations","seamstress"],
-    label:"Schneider", filters:['craft=tailor','shop=tailor'] },
+    label:"Schneider", ovt:['tailor','sewing_and_alterations'], filters:['craft=tailor','shop=tailor'] },
   { names:["reinigung","gebäudereinigung","reinigungsfirma","putzfirma","cleaning","cleaners","cleaning service","cleaning services","cleaning company","janitorial","janitor","house cleaning","commercial cleaning","carpet cleaning","window cleaning","fensterputzer","reinigungsdienst"],
-    label:"Reinigung", filters:['office=cleaning','shop=dry_cleaning','craft=cleaning'] },
+    label:"Reinigung", ovt:['cleaning_service','home_cleaning','office_cleaning','janitorial_service','dry_cleaning','laundry_service','carpet_cleaning'], filters:['office=cleaning','shop=dry_cleaning','craft=cleaning'] },
   { names:["umzugsunternehmen","umzug","umzugsfirma","moving","moving company","movers","mover","moving service","relocation","relocation service"],
-    label:"Umzug", filters:['office=moving_company','shop=moving','craft=moving'] },
-  { names:["notar","notary","notaries","notary public","beglaubigung"], label:"Notar", filters:['office=notary'] },
-  { names:["bank","banken","sparkasse","bankfiliale","bank branch","credit union","savings bank"], label:"Bank", filters:['amenity=bank'] },
+    label:"Umzug", ovt:['mover'], filters:['office=moving_company','shop=moving','craft=moving'] },
+  { names:["notar","notary","notaries","notary public","beglaubigung"], label:"Notar", ovt:['notary_public'], filters:['office=notary'] },
+  { names:["bank","banken","sparkasse","bankfiliale","bank branch","credit union","savings bank"], label:"Bank", ovt:['bank_or_credit_union','bank','credit_union'], filters:['amenity=bank'] },
   { names:["druckerei","druckereien","copy shop","copyshop","print shop","printing","printer","printer shop","print services","drucken","sign shop"],
-    label:"Druckerei", filters:['shop=copyshop','craft=printer','industrial=printing'] },
+    label:"Druckerei", ovt:['printing_service','commercial_printer','screen_printing_service'], filters:['shop=copyshop','craft=printer','industrial=printing'] },
   { names:["fotograf","fotografin","fotostudio","photo studio","photographer","photographers","photography","photography studio","portrait studio"],
-    label:"Fotograf", filters:['shop=photo','craft=photographer','office=photographer'] },
+    label:"Fotograf", ovt:['photography_service','event_photography_service','session_photography_service'], filters:['shop=photo','craft=photographer','office=photographer'] },
   { names:["reisebüro","reisebuero","reisebüros","travel agency","travel agencies","travel agent","tour operator","tourismus"],
-    label:"Reisebüro", filters:['shop=travel_agency','office=travel_agent'] },
+    label:"Reisebüro", ovt:['travel_agent'], filters:['shop=travel_agency','office=travel_agent'] },
   { names:["fahrschule","fahrschulen","driving school","driving schools","driving instructor"],
-    label:"Fahrschule", filters:['amenity=driving_school','office=educational_institution'] },
+    label:"Fahrschule", ovt:['driving_school'], filters:['amenity=driving_school','office=educational_institution'] },
   { names:["kindergarten","kindergärten","kita","kitas","daycare","day care","childcare","child care","preschool","pre-school","nursery school","kindertagesstätte"],
-    label:"Kindergarten", filters:['amenity=kindergarten','amenity=childcare'] },
+    label:"Kindergarten", ovt:['child_care_and_day_care','day_care_preschool','preschool'], filters:['amenity=kindergarten','amenity=childcare'] },
   { names:["schule","schulen","school","schools","grundschule","gymnasium","realschule","high school","middle school","elementary school","private school"],
-    label:"Schule", filters:['amenity=school','amenity=college'] },
+    label:"Schule", ovt:['school'], filters:['amenity=school','amenity=college'] },
   { names:["universität","universitäten","university","universities","hochschule","fachhochschule","college","colleges"],
-    label:"Universität", filters:['amenity=university','amenity=college'] },
+    label:"Universität", ovt:['college_university'], filters:['amenity=university','amenity=college'] },
   { names:["coworking","co-working","coworking space","shared office","shared workspace","flex office","business center","business centre"],
-    label:"Coworking", filters:['office=coworking','amenity=coworking_space'] },
+    label:"Coworking", ovt:['coworking_space'], filters:['office=coworking','amenity=coworking_space'] },
   { names:["kirche","kirchen","church","churches","moschee","mosque","mosques","synagoge","synagogue","synagogues","tempel","temple","temples","gotteshaus","place of worship"],
-    label:"Religion", filters:['amenity=place_of_worship','building=church','building=mosque'] },
-  { names:["museum","museums","museen"], label:"Museum", filters:['tourism=museum'] },
+    label:"Religion", ovt:['place_of_worship'], filters:['amenity=place_of_worship','building=church','building=mosque'] },
+  { names:["museum","museums","museen"], label:"Museum", ovt:['museum'], filters:['tourism=museum'] },
   { names:["galerie","galerien","gallery","galleries","kunstgalerie","art gallery","art galleries","kunsthandel","art dealer"],
-    label:"Galerie", filters:['tourism=gallery','shop=art'] },
-  { names:["bibliothek","bibliotheken","library","libraries","stadtbibliothek","public library"], label:"Bibliothek", filters:['amenity=library'] },
+    label:"Galerie", ovt:['art_gallery'], filters:['tourism=gallery','shop=art'] },
+  { names:["bibliothek","bibliotheken","library","libraries","stadtbibliothek","public library"], label:"Bibliothek", ovt:['library'], filters:['amenity=library'] },
   { names:["catering","caterer","caterers","catering service","party service","event catering","food service","mobile küche"],
-    label:"Catering", filters:['shop=caterer','amenity=catering','office=catering'] },
+    label:"Catering", ovt:['caterer'], filters:['shop=caterer','amenity=catering','office=catering'] },
   { names:["event","eventagentur","event planner","event planning","event management","veranstalter","veranstaltungstechnik","wedding planner","hochzeitsplaner"],
-    label:"Event-Agentur", filters:['office=event_management','office=events','shop=event'] },
+    label:"Event-Agentur", ovt:['party_and_event_planning','event_technology_service','wedding_planning','dj_service'], filters:['office=event_management','office=events','shop=event'] },
   { names:["coach","coaching","life coach","business coach","executive coach","mental coach","mindset coach","career coach","mentor","leadership coach"],
-    label:"Coaching", filters:['office=coaching','office=consulting','office=educational_institution'] },
+    label:"Coaching", ovt:['life_coach','career_counseling','health_coaching'], filters:['office=coaching','office=consulting','office=educational_institution'] },
   { names:["personal trainer","personaltrainer","personal training","fitness trainer","gym trainer","strength training"],
-    label:"Personal Trainer", filters:['leisure=fitness_centre','office=personal_trainer','sport=fitness'] },
+    label:"Personal Trainer", ovt:['fitness_trainer'], filters:['leisure=fitness_centre','office=personal_trainer','sport=fitness'] },
   { names:["übersetzer","übersetzerin","übersetzungen","übersetzungsbüro","translator","translators","translation","translation service","translation agency","dolmetscher","interpreter","localization"],
-    label:"Übersetzer", filters:['office=translator','office=translation','craft=translator'] },
+    label:"Übersetzer", ovt:['translation_service','translating_and_interpreting_service'], filters:['office=translator','office=translation','craft=translator'] },
   { names:["abschleppdienst","abschlepper","towing","towing service","tow truck","tow service","road service","pannenhilfe","roadside assistance"],
-    label:"Abschleppdienst", filters:['shop=car_repair','craft=towing','amenity=towing'] },
+    label:"Abschleppdienst", ovt:['towing_service'], filters:['shop=car_repair','craft=towing','amenity=towing'] },
   { names:["taxi","taxiunternehmen","taxis","cab","cab company","cab service","taxistand","ride share","limousine","limousine service","limo","chauffeur","fahrdienst"],
-    label:"Taxi / Fahrdienst", filters:['amenity=taxi','office=taxi'] },
+    label:"Taxi / Fahrdienst", ovt:['taxi_service','taxi_or_ride_share_service','limo_service'], filters:['amenity=taxi','office=taxi'] },
   { names:["bestattung","bestatter","bestattungsinstitut","beerdigung","funeral home","funeral parlor","funeral parlour","funeral director","mortician","mortuary","cemetery","friedhof"],
-    label:"Bestattung", filters:['shop=funeral_directors','office=funeral_directors','amenity=funeral_hall','landuse=cemetery'] },
+    label:"Bestattung", ovt:['funeral_service'], filters:['shop=funeral_directors','office=funeral_directors','amenity=funeral_hall','landuse=cemetery'] },
   { names:["lager","selfstorage","self storage","self-storage","storage","storage facility","storage unit","mietlager","umzugslager"],
-    label:"Selfstorage", filters:['shop=storage_rental','amenity=storage_rental','building=storage'] },
+    label:"Selfstorage", ovt:['self_storage_facility','storage_facility'], filters:['shop=storage_rental','amenity=storage_rental','building=storage'] },
   { names:["vermietung","mietservice","rental","rental service","equipment rental","tool rental","car rental","autovermietung","fahrradverleih","ski rental","skiverleih","boat rental"],
-    label:"Vermietung", filters:['shop=rental','amenity=car_rental','amenity=bicycle_rental','amenity=boat_rental'] },
+    label:"Vermietung", ovt:['rental_service','car_rental_service','vehicle_rental_service','machine_and_tool_rental','party_equipment_rental'], filters:['shop=rental','amenity=car_rental','amenity=bicycle_rental','amenity=boat_rental'] },
   { names:["pfandhaus","pfandleihe","pawn","pawn shop","pawnshop","pawnbroker"],
-    label:"Pfandhaus", filters:['shop=pawnbroker'] },
+    label:"Pfandhaus", ovt:['pawn_shop'], filters:['shop=pawnbroker'] },
   { names:["vape","vape shop","e zigarette","e-zigarette","vaping","liquids","tabakwaren","tobacconist","tobacco shop","smoke shop","cbd shop","headshop","head shop"],
-    label:"Vape / Tobacco", filters:['shop=tobacco','shop=e-cigarette','shop=cbd'] },
+    label:"Vape / Tobacco", ovt:['smoke_and_vape_store','tobacco_shop'], filters:['shop=tobacco','shop=e-cigarette','shop=cbd'] },
   { names:["bäckerei café","cafe restaurant","food hall","markthalle","market hall","wochenmarkt","farmers market"],
-    label:"Markt / Markthalle", filters:['amenity=marketplace','shop=marketplace'] },
+    label:"Markt / Markthalle", ovt:['market','farmers_market'], filters:['amenity=marketplace','shop=marketplace'] },
   { names:["schreibwaren","schreibwarengeschäft","stationery","stationery store","papeterie","schulbedarf","office supplies"],
-    label:"Schreibwaren", filters:['shop=stationery'] },
+    label:"Schreibwaren", ovt:['office_supply_store','business_office_supplies_and_stationery'], filters:['shop=stationery'] },
   { names:["geschenke","geschenkartikel","gift shop","gifts","souvenir","souvenir shop","souvenirs"],
-    label:"Geschenke", filters:['shop=gift'] },
+    label:"Geschenke", ovt:['gift_shop','souvenir_store'], filters:['shop=gift'] },
   { names:["banket","verein","vereine","association","club","clubhouse","gemeindehaus","community center","community centre"],
-    label:"Verein", filters:['amenity=community_centre','office=association','office=non_profit'] },
+    label:"Verein", ovt:['social_club','civic_organization','community_center','sport_or_recreation_club'], filters:['amenity=community_centre','office=association','office=non_profit'] },
   { names:["tanzschule","tanzstudio","dance school","dance studio","ballet school","ballettschule"],
-    label:"Tanzschule", filters:['amenity=dance_school','leisure=dance'] },
+    label:"Tanzschule", ovt:['dance_studio'], filters:['amenity=dance_school','leisure=dance'] },
   { names:["musikschule","music school","music academy","gesangsschule","klavierunterricht","music lessons"],
-    label:"Musikschule", filters:['amenity=music_school','leisure=music'] },
+    label:"Musikschule", ovt:['music_school'], filters:['amenity=music_school','leisure=music'] },
   { names:["sprachschule","sprachkurs","language school","language academy","english school"],
-    label:"Sprachschule", filters:['amenity=language_school','office=educational_institution'] },
+    label:"Sprachschule", ovt:['language_school'], filters:['amenity=language_school','office=educational_institution'] },
   { names:["bauunternehmen","bauunternehmer","baufirma","construction","construction company","construction contractor","general contractor","building contractor","contractor"],
-    label:"Bauunternehmen", filters:['office=construction_company','craft=builder','craft=stonemason','craft=plasterer','craft=scaffolder'] },
+    label:"Bauunternehmen", ovt:['building_contractor','builder','contractor','building_or_construction_service','masonry_contractor','home_developer'], filters:['office=construction_company','craft=builder','craft=stonemason','craft=plasterer','craft=scaffolder'] },
   { names:["schreiben","copywriter","copywriting","texter","content writer","blog writer","ghostwriter"],
-    label:"Texter / Copywriter", filters:['office=copywriter','craft=writer','office=writer'] },
+    label:"Texter / Copywriter", ovt:['writing_service'], filters:['office=copywriter','craft=writer','office=writer'] },
   { names:["videoproduktion","video production","video producer","film production","filmproduktion","videografer","videographer","filmstudio"],
-    label:"Videoproduktion", filters:['craft=videographer','office=video_production','craft=photographer'] },
+    label:"Videoproduktion", ovt:['video_film_production','videographer','broadcasting_media_production'], filters:['craft=videographer','office=video_production','craft=photographer'] },
   { names:["yoga","yoga studio","meditation","meditation center","mindfulness","retreat","retreat center"],
-    label:"Yoga / Meditation", filters:['leisure=fitness_centre','sport=yoga','amenity=yoga'] },
+    label:"Yoga / Meditation", ovt:['yoga_studio','meditation_center','pilates_studio'], filters:['leisure=fitness_centre','sport=yoga','amenity=yoga'] },
   { names:["barber","barbershop","barber shop","barbier","herrenfriseur","männerfriseur"],
-    label:"Barber", filters:['shop=hairdresser','craft=hairdresser'] }
+    label:"Barber", ovt:['barber'], filters:['shop=hairdresser','craft=hairdresser'] }
 ];
 
 // US states with their major cities (for the dropdown + city autocomplete).
@@ -1437,7 +1429,7 @@ function resolveCategory(input){
 
 // --- Geocoding + Overpass -------------------------------------------------
 async function nominatimLookup(q){
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&countrycodes=${country}&q=${encodeURIComponent(q)}`;
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&polygon_geojson=1&polygon_threshold=0.001&countrycodes=${country}&q=${encodeURIComponent(q)}`;
   const r = await fetch(url, { headers:{'Accept':'application/json'} });
   if (!r.ok) throw new Error('Nominatim ' + r.status);
   const data = await r.json();
@@ -1579,49 +1571,331 @@ function findDuplicate(rec){
     return !(r.lat && rec.lat) || distM(r.lat, r.lon, rec.lat, rec.lon) < 300;
   });
 }
-// Adds dataset rows inside the place's bounding box or within radiusM of its center.
+// Ray casting over GeoJSON rings; the first ring of each polygon is the outline, the rest are holes.
+function inRings(lat, lon, rings){
+  const inRing = ring => {
+    let c = false;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++){
+      const [xi, yi] = ring[i], [xj, yj] = ring[j];
+      if ((yi > lat) !== (yj > lat) && lon < (xj - xi) * (lat - yi) / (yj - yi) + xi) c = !c;
+    }
+    return c;
+  };
+  return inRing(rings[0]) && !rings.slice(1).some(inRing);
+}
+// Inside the place's boundary (bounding box if Nominatim sent none) or within radiusM of its center.
+function areaTest(place, radiusM){
+  const lat = Number(place.lat), lon = Number(place.lon);
+  const g = place.geojson;
+  const polys = g?.type === 'Polygon' ? [g.coordinates] : g?.type === 'MultiPolygon' ? g.coordinates : null;
+  const box = place.boundingbox ? place.boundingbox.map(Number) : null;
+  return (plat, plon) => {
+    if (radiusM > 0 && distM(lat, lon, plat, plon) <= radiusM) return true;
+    if (polys) return polys.some(rings => inRings(plat, plon, rings));
+    return !!box && plat >= box[0] && plat <= box[1] && plon >= box[2] && plon <= box[3];
+  };
+}
+// Adds dataset rows inside the place or within radiusM of its center.
 // Rows that duplicate an OpenStreetMap hit only fill that hit's empty fields.
 function addDatasetRows(ds, place, radiusM){
   if (!ds) return 0;
   const col = Object.fromEntries(ds.fields.map((f, i) => [f, i]));
-  const lat = Number(place.lat), lon = Number(place.lon);
-  const box = place.boundingbox ? place.boundingbox.map(Number) : null;
+  const inArea = areaTest(place, radiusM);
   let added = 0;
   for (const row of ds.rows){
     const rlat = row[col.lat], rlon = row[col.lon];
-    const inBox = box && rlat >= box[0] && rlat <= box[1] && rlon >= box[2] && rlon <= box[3];
-    if (!inBox && !(radiusM > 0 && distM(lat, lon, rlat, rlon) <= radiusM)) continue;
+    if (!inArea(rlat, rlon)) continue;
     const oid = 'ds/' + row[col.name] + '|' + row[col.postcode] + '|' + row[col.street];
     if (finderSeen.has(oid)) continue;
     finderSeen.add(oid);
-    let website = row[col.website];
-    if (website && !/^https?:\/\//i.test(website)) website = 'https://' + website;
     const street = row[col.street];
-    const rec = {
+    if (mergeRecord({
       name: row[col.name],
       address: [street, [row[col.city], row[col.postcode]].filter(Boolean).join(' ')].filter(Boolean).join(', '),
-      phone: row[col.phone], email: row[col.email], website, lat: rlat, lon: rlon,
-    };
-    const dup = findDuplicate(rec);
-    if (dup){
-      for (const k of ['address', 'phone', 'email', 'website']) if (!dup[k] && rec[k]) dup[k] = rec[k];
-      if (street) dup._hasFullAddr = true;
-      continue;
-    }
-    finderResults.push({ _sid: ++sidCounter, ...rec, _hasFullAddr: !!street });
-    added++;
+      phone: row[col.phone], email: row[col.email], website: row[col.website], lat: rlat, lon: rlon,
+    }, !!street)) added++;
   }
   return added;
 }
+// Adds a record from a non-OSM source, or fills the empty fields of the hit it duplicates.
+function mergeRecord(rec, hasFullAddr){
+  if (rec.website && !/^https?:\/\//i.test(rec.website)) rec.website = 'https://' + rec.website;
+  const dup = findDuplicate(rec);
+  if (dup){
+    for (const k of ['address', 'phone', 'email', 'website']) if (!dup[k] && rec[k]) dup[k] = rec[k];
+    if (hasFullAddr) dup._hasFullAddr = true;
+    return false;
+  }
+  finderResults.push({ _sid: ++sidCounter, ...rec, _hasFullAddr: hasFullAddr });
+  return true;
+}
+
+// --- Overture Maps places, read live from its public PMTiles archive -------
+// OSM misses most small businesses (Bremen: 24 electricians in OSM, 269 here).
+// The archive allows ranged reads from any origin, so no server is needed. It
+// only has zoom 14 tiles carrying every field, which is why neighbouring tiles
+// are fetched together: 10 to 60 requests per city instead of hundreds.
+const OVT_STAC = 'https://stac.overturemaps.org';
+const OVT_FALLBACK_URL = 'https://tiles.overturemaps.org/2026-09-23.1/places.pmtiles';
+const OVT_ZOOM = 14;
+const OVT_MIN_CONFIDENCE = 0.5;
+const OVT_MERGE_GAP = 32768;
+let ovtArchivePromise = null;
+
+function readVarint(buf, pos){
+  let v = 0, mul = 1, b;
+  do { b = buf[pos.i++]; v += (b & 0x7f) * mul; mul *= 128; } while (b & 0x80);
+  return v;
+}
+async function inflate(bytes, compression){
+  if (compression !== 2) return bytes;
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function fetchBytes(url, offset, length){
+  const r = await fetch(url, { headers:{ Range:`bytes=${offset}-${offset + length - 1}` } });
+  if (r.status !== 206){ r.body?.cancel(); throw new Error('Overture ' + r.status); }
+  return new Uint8Array(await r.arrayBuffer());
+}
+// PMTiles v3 directory: delta-coded tile ids, then run lengths, lengths, offsets.
+function parseDirectory(buf){
+  const pos = { i:0 }, n = readVarint(buf, pos);
+  const entries = Array.from({ length:n }, () => ({}));
+  let id = 0;
+  for (const e of entries){ id += readVarint(buf, pos); e.id = id; }
+  for (const e of entries) e.run = readVarint(buf, pos);
+  for (const e of entries) e.len = readVarint(buf, pos);
+  entries.forEach((e, k) => {
+    const v = readVarint(buf, pos);
+    e.off = (v === 0 && k > 0) ? entries[k-1].off + entries[k-1].len : v - 1;
+  });
+  return entries;
+}
+// Hilbert curve position, as defined by the PMTiles spec.
+function pmTileId(z, x, y){
+  let id = (4 ** z - 1) / 3, d = 0;
+  for (let s = 2 ** (z - 1); s >= 1; s /= 2){
+    const rx = (x & s) > 0 ? 1 : 0, ry = (y & s) > 0 ? 1 : 0;
+    d += s * s * ((3 * rx) ^ ry);
+    if (ry === 0){
+      if (rx === 1){ x = s - 1 - x; y = s - 1 - y; }
+      [x, y] = [y, x];
+    }
+  }
+  return id + d;
+}
+async function ovtArchive(){
+  if (!ovtArchivePromise) ovtArchivePromise = (async () => {
+    let url = OVT_FALLBACK_URL;
+    try {
+      const latest = (await (await fetch(`${OVT_STAC}/catalog.json`)).json()).latest;
+      const places = await (await fetch(`${OVT_STAC}/${latest}/places/catalog.json`)).json();
+      url = places.links.find(l => l.rel === 'pmtiles')?.href || url;
+    } catch(e){ /* keep the fallback release */ }
+    const head = await fetchBytes(url, 0, 16384);
+    const dv = new DataView(head.buffer);
+    const u64 = o => Number(dv.getBigUint64(o, true));
+    const h = { rootOff:u64(8), rootLen:u64(16), leafOff:u64(40), dataOff:u64(56),
+                dirComp:head[97], tileComp:head[98] };
+    const root = parseDirectory(await inflate(head.slice(h.rootOff, h.rootOff + h.rootLen), h.dirComp));
+    return { url, h, root, leaves:new Map() };
+  })().catch(e => { ovtArchivePromise = null; throw e; });
+  return ovtArchivePromise;
+}
+async function findTileEntry(ar, tileId){
+  let dir = ar.root;
+  for (let depth = 0; depth < 4; depth++){
+    let lo = 0, hi = dir.length - 1, hit = null;
+    while (lo <= hi){
+      const mid = (lo + hi) >> 1;
+      if (dir[mid].id <= tileId){ hit = dir[mid]; lo = mid + 1; } else hi = mid - 1;
+    }
+    if (!hit) return null;
+    if (hit.run > 0) return tileId < hit.id + hit.run ? hit : null;
+    const key = hit.off;
+    if (!ar.leaves.has(key)) ar.leaves.set(key,
+      fetchBytes(ar.url, ar.h.leafOff + hit.off, hit.len).then(b => inflate(b, ar.h.dirComp)).then(parseDirectory));
+    dir = await ar.leaves.get(key);
+  }
+  return null;
+}
+
+// Minimal Mapbox Vector Tile reader: only point features and their tags.
+const utf8 = new TextDecoder();
+function decodeTile(buf){
+  const layers = [];
+  const pos = { i:0 };
+  while (pos.i < buf.length){
+    const tag = readVarint(buf, pos);
+    if (tag >> 3 === 3 && (tag & 7) === 2){
+      const len = readVarint(buf, pos);
+      layers.push(decodeLayer(buf, pos.i, pos.i + len));
+      pos.i += len;
+    } else skipField(buf, pos, tag & 7);
+  }
+  return layers;
+}
+function skipField(buf, pos, wire){
+  if (wire === 0) readVarint(buf, pos);
+  else if (wire === 1) pos.i += 8;
+  else if (wire === 2){ const l = readVarint(buf, pos); pos.i += l; }
+  else if (wire === 5) pos.i += 4;
+}
+function decodeLayer(buf, start, end){
+  const L = { name:'', keys:[], values:[], features:[], extent:4096 };
+  const pos = { i:start };
+  while (pos.i < end){
+    const tag = readVarint(buf, pos), field = tag >> 3;
+    if ((tag & 7) !== 2){
+      const v = readVarint(buf, pos);
+      if (field === 5) L.extent = v;
+      continue;
+    }
+    const len = readVarint(buf, pos), s = pos.i, e = s + len;
+    if (field === 1) L.name = utf8.decode(buf.subarray(s, e));
+    else if (field === 2) L.features.push([s, e]);
+    else if (field === 3) L.keys.push(utf8.decode(buf.subarray(s, e)));
+    else if (field === 4) L.values.push(decodeValue(buf, s, e));
+    pos.i = e;
+  }
+  return L;
+}
+function decodeValue(buf, start, end){
+  const pos = { i:start };
+  const tag = readVarint(buf, pos), field = tag >> 3;
+  if (field === 1){ const l = readVarint(buf, pos); return utf8.decode(buf.subarray(pos.i, pos.i + l)); }
+  if (field === 2) return new DataView(buf.buffer, buf.byteOffset + pos.i, 4).getFloat32(0, true);
+  if (field === 3) return new DataView(buf.buffer, buf.byteOffset + pos.i, 8).getFloat64(0, true);
+  if (field === 7) return readVarint(buf, pos) !== 0;
+  return readVarint(buf, pos);
+}
+function decodeFeature(buf, [start, end]){
+  const f = { tags:[], x:0, y:0 };
+  const pos = { i:start };
+  while (pos.i < end){
+    const tag = readVarint(buf, pos), field = tag >> 3;
+    if ((tag & 7) !== 2){ skipField(buf, pos, tag & 7); continue; }
+    const fe = readVarint(buf, pos) + pos.i;
+    if (field === 2) while (pos.i < fe) f.tags.push(readVarint(buf, pos));
+    else if (field === 4){
+      const cmd = readVarint(buf, pos);
+      if ((cmd & 7) === 1){
+        const zz = v => (v >>> 1) ^ -(v & 1);
+        f.x = zz(readVarint(buf, pos)); f.y = zz(readVarint(buf, pos));
+      }
+    }
+    pos.i = fe;
+  }
+  return f;
+}
+
+const parseJSON = s => { try { return typeof s === 'string' ? JSON.parse(s) : s; } catch(e){ return null; } };
+const PLACEHOLDER_MAIL = /johndoe|john\.doe|max\.?mustermann|@(domain|example|test|email)\.|^(test|email|mail)@/i;
+// Overture often drops the "+" ("494214585625") or adds a trunk zero ("049421351008").
+function cleanPhone(p){
+  p = (p || '').trim();
+  const dial = { de:'49', at:'43', us:'1' }[country];
+  const digits = p.replace(/\D/g, '');
+  if (!digits || p.startsWith('+')) return p;
+  if (digits.startsWith('00')) return '+' + digits.slice(2);
+  if (country !== 'us' && digits.startsWith(dial) && digits.length >= 11) return '+' + digits;
+  if (country !== 'us' && digits.startsWith('0' + dial) && digits.length >= 12) return '+' + digits.slice(1);
+  if (country === 'us' && digits.length === 11 && digits[0] === '1') return '+' + digits;
+  return p;
+}
+const lonToX = (lon, n) => (lon + 180) / 360 * n;
+const latToY = (lat, n) => (1 - Math.asinh(Math.tan(lat * Math.PI / 180)) / Math.PI) / 2 * n;
+const yToLat = (y, n) => Math.atan(Math.sinh(Math.PI * (1 - 2 * y / n))) * 180 / Math.PI;
+
+// Places in the tiles within radiusM of (lat, lon) that pass inArea and whose category
+// (or, for a free-text niche, name or category) matches.
+// Calls onProgress(blocksDone, blocksTotal, bytes).
+async function overturePlaces(lat, lon, radiusM, inArea, cat, nicheText, onProgress){
+  const ar = await ovtArchive();
+  const n = 2 ** OVT_ZOOM;
+  const dLat = radiusM / 111320, dLon = radiusM / (111320 * Math.cos(lat * Math.PI / 180));
+  const x0 = Math.floor(lonToX(lon - dLon, n)), x1 = Math.floor(lonToX(lon + dLon, n));
+  const y0 = Math.floor(latToY(lat + dLat, n)), y1 = Math.floor(latToY(lat - dLat, n));
+  const wanted = [];
+  for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) wanted.push({ x, y, id:pmTileId(OVT_ZOOM, x, y) });
+  const entries = await Promise.all(wanted.map(t => findTileEntry(ar, t.id)));
+  const tiles = wanted.map((t, k) => ({ ...t, e:entries[k] })).filter(t => t.e).sort((a, b) => a.e.off - b.e.off);
+
+  const blocks = [];
+  for (const t of tiles){
+    const last = blocks[blocks.length - 1];
+    if (last && t.e.off <= last.end + OVT_MERGE_GAP){ last.end = Math.max(last.end, t.e.off + t.e.len); last.tiles.push(t); }
+    else blocks.push({ start:t.e.off, end:t.e.off + t.e.len, tiles:[t] });
+  }
+
+  const keys = new Set(cat?.ovt || []);
+  const needle = cat ? '' : fnorm(nicheText || '');
+  const catMatch = new Map();
+  const matchesCategory = tax => {
+    if (!catMatch.has(tax)){
+      const t = parseJSON(tax) || {};
+      const path = [...(t.hierarchy || []), t.primary].filter(Boolean);
+      catMatch.set(tax, keys.size ? path.some(k => keys.has(k)) : !!needle && path.some(k => fnorm(k.replace(/_/g, ' ')).includes(needle)));
+    }
+    return catMatch.get(tax);
+  };
+
+  const out = [];
+  let done = 0, bytes = 0;
+  const work = blocks.slice();
+  const worker = async () => {
+    while (work.length){
+      const b = work.shift();
+      const data = await fetchBytes(ar.url, ar.h.dataOff + b.start, b.end - b.start);
+      bytes += data.length;
+      for (const t of b.tiles){
+        const raw = await inflate(data.subarray(t.e.off - b.start, t.e.off - b.start + t.e.len), ar.h.tileComp);
+        for (const L of decodeTile(raw)){
+          const ki = name => L.keys.indexOf(name);
+          const K = { name:ki('@name'), tax:ki('taxonomy'), conf:ki('confidence'), status:ki('operating_status'),
+                      addr:ki('addresses'), phones:ki('phones'), webs:ki('websites'), mails:ki('emails') };
+          for (const span of L.features){
+            const f = decodeFeature(raw, span);
+            const p = {};
+            for (let k = 0; k + 1 < f.tags.length; k += 2) p[f.tags[k]] = L.values[f.tags[k + 1]];
+            const name = p[K.name];
+            if (!name || (p[K.conf] ?? 1) < OVT_MIN_CONFIDENCE || p[K.status] === 'permanently_closed') continue;
+            const hit = matchesCategory(p[K.tax] || '') || (!cat && needle && fnorm(name).includes(needle));
+            if (!hit) continue;
+            const plat = yToLat(t.y + f.y / L.extent, n), plon = (t.x + f.x / L.extent) / n * 360 - 180;
+            if (!inArea(plat, plon)) continue;
+            const a = (parseJSON(p[K.addr]) || [])[0] || {};
+            const mail = (parseJSON(p[K.mails]) || [])[0] || '';
+            out.push({
+              name, lat:plat, lon:plon,
+              street: a.freeform || '',
+              address: [a.freeform, [a.locality, a.postcode].filter(Boolean).join(' ')].filter(Boolean).join(', '),
+              phone: cleanPhone((parseJSON(p[K.phones]) || [])[0]),
+              website: (parseJSON(p[K.webs]) || [])[0] || '',
+              email: PLACEHOLDER_MAIL.test(mail) ? '' : mail,
+            });
+          }
+        }
+      }
+      onProgress?.(++done, blocks.length, bytes);
+      await sleep(0);
+    }
+  };
+  await Promise.all([worker(), worker(), worker(), worker()]);
+  return out;
+}
 
 // Reverse-geocode rows without a full street address (Nominatim, 1 req/sec).
-async function enrichAddresses(){
+// Runs after the search has finished; a newer search stops it via searchGen.
+let searchGen = 0;
+async function enrichAddresses(gen){
   const targets = finderResults.filter(r => !r._hasFullAddr && r.lat && r.lon);
   if (!targets.length) return;
   const base = 'https://nominatim.openstreetmap.org/reverse';
   for (let i = 0; i < targets.length; i++){
+    if (gen !== searchGen) return;
     const r = targets[i];
-    fStatus(t('f_addresses', i+1, targets.length), '', true);
+    fStatus(t('f_found_enriching', finderResults.length, i+1, targets.length), 'ok', true);
     try {
       const url = `${base}?format=json&addressdetails=1&zoom=18&lat=${r.lat}&lon=${r.lon}`;
       const resp = await fetch(url, { headers:{'Accept':'application/json'} });
@@ -1632,13 +1906,17 @@ async function enrichAddresses(){
         const city = a.city || a.town || a.village || a.suburb || '';
         const post = a.postcode || '';
         const full = [street, [city, post].filter(Boolean).join(' ')].filter(Boolean).join(', ');
-        if (street && full.length > (r.address||'').length) r.address = full;
+        if (street && full.length > (r.address||'').length){
+          r.address = full;
+          // Update the one cell instead of re-rendering, so a cell being edited keeps focus.
+          const cell = document.querySelector(`#staging-body input[data-sid="${r._sid}"][data-field="address"]`);
+          if (cell && cell !== document.activeElement) cell.value = full;
+        }
       }
     } catch(e){ /* keep going */ }
     await sleep(1100);
-    if (i % 5 === 4) renderStaging();
   }
-  renderStaging();
+  if (gen === searchGen){ persistStaging(); fStatus(t('f_found', finderResults.length), 'ok'); }
 }
 
 // --- Status + persistence -------------------------------------------------
@@ -1667,6 +1945,7 @@ async function runFinderSearch(){
 
   const go = document.getElementById('f-go');
   go.disabled = true;
+  const gen = ++searchGen;
   finderResults = []; finderSeen.clear();
   renderStaging();
   try {
@@ -1686,6 +1965,20 @@ async function runFinderSearch(){
 
     fStatus(t('f_searching', (cat ? cat.label : niche) || t('f_businesses'), city), '', true);
     const dsPromise = cat?.dataset ? loadDataset(cat.dataset) : Promise.resolve(null);
+    // Tiles cover the city outline plus the radius. Outline points beyond 30 km are
+    // ignored, so a far exclave (Bremen owns a port strip in Bremerhaven, 55 km
+    // away) does not triple the download.
+    const g = place.geojson;
+    const outline = (g?.type === 'Polygon' ? [g.coordinates] : g?.type === 'MultiPolygon' ? g.coordinates : [])
+      .flatMap(p => p[0]).map(([x, y]) => distM(lat, lon, y, x)).filter(d => d <= 30000);
+    const bb = place.boundingbox?.map(Number);
+    const cityRadius = outline.length ? Math.max(3000, outline.reduce((a, b) => Math.max(a, b), 0))
+      : bb ? Math.min(30000, Math.max(3000, distM(bb[0], bb[2], bb[1], bb[3]) / 2)) : 5000;
+    const ovtPromise = niche
+      ? overturePlaces(lat, lon, Math.max(radiusM, cityRadius), areaTest(place, radiusM), cat, niche,
+          (done, total, bytes) => fStatus(t('f_overture', done, total, (bytes / 1e6).toFixed(1)), '', true))
+          .catch(e => { console.warn('Overture unavailable:', e); return []; })
+      : Promise.resolve([]);
     let data = null;
     try { data = await overpass(buildCombinedQuery(aid, lat, lon, radiusM, filters)); }
     catch(e){ /* try tiling below */ }
@@ -1702,6 +1995,10 @@ async function runFinderSearch(){
     }
     const ds = await dsPromise;
     addDatasetRows(ds, place, radiusM);
+    for (const rec of await ovtPromise){
+      const street = rec.street; delete rec.street;
+      mergeRecord(rec, !!street);
+    }
     renderStaging();
     if (radiusM && finderResults.length < 25){
       for (const rad of [50000, 100000]){
@@ -1719,8 +2016,8 @@ async function runFinderSearch(){
     renderStaging();
 
     if (finderResults.length){
-      await enrichAddresses();
       fStatus(t('f_found', finderResults.length), 'ok');
+      enrichAddresses(gen);
     } else {
       fStatus(t('f_none'), 'err');
     }
@@ -1742,14 +2039,14 @@ function renderStaging(){
   count.textContent = t('count_biz', finderResults.length);
   document.getElementById('f-addall').textContent = t('add_all', finderResults.length, terms().uncontacted);
   body.innerHTML = finderResults.map(r => {
-    const f = (field, ph) => `<input type="text" value="${escapeHtml(r[field] || '')}" placeholder="${escapeHtml(ph)}" oninput="stagingEdit(${r._sid}, '${field}', this.value)" />`;
+    const f = (field, ph) => `<input type="text" data-sid="${r._sid}" data-field="${field}" value="${escapeHtml(r[field] || '')}" placeholder="${escapeHtml(ph)}" oninput="stagingEdit(${r._sid}, '${field}', this.value)" />`;
     return `<tr>
       <td>${f('name', t('th_name').toLowerCase())}</td>
       <td>${f('email', t('th_email').toLowerCase())}</td>
       <td>${f('address', t('th_address').toLowerCase())}</td>
-      <td><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">🔗</a>` : ''}</div></td>
+      <td><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">${ICON.open}</a>` : ''}</div></td>
       <td>${f('phone', t('th_phone').toLowerCase())}</td>
-      <td class="col-x"><button class="row-remove" title="Remove" onclick="stagingRemove(${r._sid})">&minus;</button></td>
+      <td class="col-x"><button class="row-remove" title="${escapeHtml(t('remove'))}" onclick="stagingRemove(${r._sid})">${ICON.remove}</button></td>
     </tr>`;
   }).join('');
 }
@@ -1763,6 +2060,7 @@ function stagingRemove(sid){
   renderStaging();
 }
 function clearStaging(){
+  searchGen++;
   finderResults = []; finderSeen.clear();
   persistStaging();
   renderStaging();
@@ -1770,6 +2068,7 @@ function clearStaging(){
 }
 function addAllStaged(){
   if (!finderResults.length) return;
+  searchGen++;
   const digits = s => (s || '').replace(/\D/g, '');
   const phoneKeys = new Set(leads.map(l => digits(l.phone)).filter(p => p.length >= 7));
   const nameKeys = new Set(leads.map(l => (l.name||'').toLowerCase().trim() + '|' + (l.address||'').toLowerCase().trim()));
