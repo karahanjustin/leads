@@ -173,7 +173,7 @@
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-panel);
   }
   .lead-row {
-    display: grid; grid-template-columns: 1fr 170px 34px;
+    display: grid; grid-template-columns: minmax(0, 1fr) 170px 34px;
     gap: 16px; align-items: start; padding: 14px 18px;
   }
   .lead-row + .lead-row { border-top: 1px solid var(--border); }
@@ -296,14 +296,77 @@
     .add-form > button { grid-column: 1 / -1; }
   }
   @media (max-width: 640px) {
-    .container { padding: 16px 16px 48px; }
-    .topbar-inner { padding: 0 16px; gap: 14px; }
-    .topbar-actions { margin-left: 0; width: 100%; padding-top: 0; }
-    .stats { grid-template-columns: repeat(2, 1fr); }
+    /* 16px stops iOS Safari from zooming into a field on focus. */
+    input, select, textarea, .inline-edit, table.staging input, .notes-input, .status-select { font-size: 16px; }
+    .container { padding: 14px 14px 48px; }
+    .topbar-inner { padding: 0 14px; gap: 12px; min-height: 0; }
+    .brand { padding: 10px 0 0; }
+    .tabs { margin-left: auto; padding-top: 10px; }
+    .tab { padding: 6px 8px 8px; }
+    .topbar-actions { margin-left: 0; width: 100%; padding: 4px 0 10px; }
+    .topbar-actions .primary { flex: 1; }
+    .topbar-actions button, .menu summary { min-height: 38px; }
+    .lang-switch button { min-width: 40px; }
+    .menu-list { right: auto; left: 0; }
+    .menu-list button { padding: 11px 16px; font-size: 15px; }
+
+    .panel-head { padding: 14px 14px 0; }
+    .panel-body { padding: 12px 14px 16px; }
+    .finder-form { grid-template-columns: 1fr 1fr; }
+    .finder-form > div:nth-child(-n+4) { grid-column: 1 / -1; }
+    .finder-form > button { grid-column: auto; min-height: 40px; }
+    .add-form > div:first-child { grid-column: 1 / -1; }
+    .add-form > button { min-height: 42px; }
+
+    .stats { grid-template-columns: repeat(2, 1fr); margin-bottom: 14px; }
+    .stat { padding: 10px 14px; }
     .stat:nth-child(3) { border-left: none; }
     .stat:nth-child(n+3) { border-top: 1px solid var(--border); }
-    .lead-row { grid-template-columns: 1fr 34px; }
-    .lead-row .status-select { grid-column: 1; grid-row: 2; }
+    .stat-value { font-size: 21px; }
+
+    /* Lead rows: one field per line, the status select full width underneath. */
+    .lead-row { grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 14px; position: relative; }
+    .lead-row .status-select { min-height: 42px; }
+    .lead-row .icon-btn { position: absolute; top: 6px; right: 6px; width: 40px; height: 40px; }
+    .lead-name { font-size: 16px; padding-right: 40px; }
+    .meta-row { display: block; margin-top: 6px; }
+    .meta-field { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; align-items: center; gap: 6px; min-height: 40px; }
+    .meta-field .inline-edit { width: 100%; }
+    .meta-field select.inline-edit { height: 34px; }
+    .meta-row a { width: 40px; height: 40px; justify-content: center; border-radius: var(--r); }
+    .meta-row a:active { background: var(--info-bg); }
+    .meta-row a .ico { width: 18px; height: 18px; }
+    .callback-row { gap: 8px 12px; }
+    .callback-input { height: 38px; font-size: 16px; }
+    button.link { font-size: 14px; padding: 8px 0; }
+
+    /* Search results as cards instead of a wide table. */
+    .staging-scroll { max-height: none; overflow: visible; border: none; }
+    table.staging { min-width: 0; table-layout: auto; }
+    table.staging thead { display: none; }
+    table.staging, table.staging tbody { display: block; }
+    table.staging tr {
+      display: grid; grid-template-columns: minmax(0, 1fr) 40px;
+      grid-template-areas: "name x" "phone phone" "addr addr" "web web" "mail mail";
+      border: 1px solid var(--border); border-radius: var(--r-panel); padding: 8px 8px 10px; margin-bottom: 10px;
+    }
+    table.staging td { display: grid; grid-template-columns: 72px minmax(0, 1fr); align-items: center; padding: 1px 0; border: none; }
+    table.staging td::before { content: attr(data-label); font-size: 13px; color: var(--text-3); padding-left: 6px; }
+    table.staging td.c-name { grid-area: name; display: block; }
+    table.staging td.c-name::before { content: none; }
+    table.staging td.c-name input { font-weight: 600; }
+    table.staging td.c-phone { grid-area: phone; }
+    table.staging td.c-addr { grid-area: addr; }
+    table.staging td.c-web { grid-area: web; }
+    table.staging td.c-mail { grid-area: mail; }
+    table.staging td.col-x { grid-area: x; display: block; width: auto; align-self: center; }
+    table.staging td.c-name { align-self: center; }
+    table.staging .row-remove { margin: 0; }
+    table.staging tr:hover td { background: none; }
+    table.staging input { min-width: 0; padding: 7px 6px; }
+    table.staging .web-link { width: 36px; height: 36px; }
+    .row-remove { width: 36px; height: 36px; }
+    .staging-actions .primary { width: 100%; min-height: 44px; }
   }
 </style>
 </head>
@@ -2040,11 +2103,11 @@ function renderStaging(){
   body.innerHTML = finderResults.map(r => {
     const f = (field, ph) => `<input type="text" data-sid="${r._sid}" data-field="${field}" value="${escapeHtml(r[field] || '')}" placeholder="${escapeHtml(ph)}" oninput="stagingEdit(${r._sid}, '${field}', this.value)" />`;
     return `<tr>
-      <td>${f('name', t('th_name').toLowerCase())}</td>
-      <td>${f('email', t('th_email').toLowerCase())}</td>
-      <td>${f('address', t('th_address').toLowerCase())}</td>
-      <td><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">${ICON.open}</a>` : ''}</div></td>
-      <td>${f('phone', t('th_phone').toLowerCase())}</td>
+      <td class="c-name">${f('name', t('th_name').toLowerCase())}</td>
+      <td class="c-mail" data-label="${escapeHtml(t('th_email'))}">${f('email', t('th_email').toLowerCase())}</td>
+      <td class="c-addr" data-label="${escapeHtml(t('th_address'))}">${f('address', t('th_address').toLowerCase())}</td>
+      <td class="c-web" data-label="${escapeHtml(t('th_website'))}"><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">${ICON.open}</a>` : ''}</div></td>
+      <td class="c-phone" data-label="${escapeHtml(t('th_phone'))}">${f('phone', t('th_phone').toLowerCase())}</td>
       <td class="col-x"><button class="row-remove" title="${escapeHtml(t('remove'))}" onclick="stagingRemove(${r._sid})">${ICON.remove}</button></td>
     </tr>`;
   }).join('');
