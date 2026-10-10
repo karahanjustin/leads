@@ -137,7 +137,7 @@
 
   /* Summary strip */
   .stats {
-    display: grid; grid-template-columns: repeat(4, 1fr);
+    display: grid; grid-template-columns: repeat(5, 1fr);
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-panel);
     margin-bottom: 20px;
   }
@@ -289,6 +289,82 @@
   .staging-actions { margin-top: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .staging-count { font-size: 13px; color: var(--text-3); margin-left: auto; font-variant-numeric: tabular-nums; }
 
+  /* Result filters */
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; align-items: center; }
+  .chip {
+    font-size: 13px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--text-2); font-weight: 500;
+  }
+  .chip:hover { background: var(--surface-2); }
+  .chip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .chip-sep { width: 1px; height: 18px; background: var(--border-strong); margin: 0 4px; }
+  table.staging tr.dup td { opacity: 0.45; }
+  table.staging tr.dup td.c-name input { text-decoration: line-through; }
+  .dup-tag { font-size: 11px; color: var(--text-3); white-space: nowrap; margin-left: 4px; }
+
+  /* Guessed email */
+  .inline-edit.guess { border-bottom: 1px dashed var(--border-strong); border-radius: 0; color: var(--text-2); }
+  .guess-tag { font-size: 11px; color: var(--warning); font-weight: 600; }
+
+  /* Daily goal */
+  .stat.stat-goal { cursor: pointer; }
+  .stat-goal-of { font-size: 14px; color: var(--text-3); font-weight: 500; }
+  .goal-bar { height: 4px; background: var(--border); border-radius: 2px; margin-top: 8px; overflow: hidden; }
+  .goal-bar i { display: block; height: 100%; width: 0; background: var(--success); transition: width 0.3s; }
+  .goal-bar i.full { background: var(--success); }
+
+  /* Backup bar */
+  .backup-bar {
+    display: none; align-items: center; gap: 8px 14px; flex-wrap: wrap;
+    background: var(--warning-bg); border: 1px solid #ecd3a6; color: var(--warning);
+    padding: 9px 14px; border-radius: var(--r-panel); margin-bottom: 14px; font-size: 13px; font-weight: 500;
+  }
+  .backup-bar.active { display: flex; }
+  .backup-bar .spacer { flex: 1; }
+  .backup-info { font-size: 12px; color: var(--text-3); margin-top: 6px; }
+  .backup-info button.link { font-size: 12px; }
+
+  /* Move button */
+  .move-btn { font-size: 12px; padding: 4px 8px; color: var(--text-2); margin-top: 8px; }
+
+  /* Call mode */
+  .callmode {
+    position: fixed; inset: 0; z-index: 50; background: var(--bg); overflow: auto;
+    display: none; flex-direction: column;
+  }
+  .callmode.open { display: flex; }
+  .cm-top {
+    display: flex; align-items: center; gap: 12px; padding: 12px 20px;
+    background: var(--surface); border-bottom: 1px solid var(--border); font-size: 14px; color: var(--text-2);
+  }
+  .cm-top .spacer { flex: 1; }
+  .cm-wrap { max-width: 640px; width: 100%; margin: 0 auto; padding: 24px 20px 48px; }
+  .cm-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-panel); padding: 22px 22px 20px; }
+  .cm-name { font-size: 22px; font-weight: 650; margin: 0 0 4px; }
+  .cm-sub { font-size: 14px; color: var(--text-2); }
+  .cm-sub a { color: var(--link); }
+  .cm-contact {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin: 18px 0 14px; padding: 16px; border-radius: var(--r-panel);
+    background: var(--accent); color: #fff; font-size: 24px; font-weight: 650; text-decoration: none;
+    font-variant-numeric: tabular-nums; letter-spacing: 0.01em;
+  }
+  .cm-contact:hover { background: var(--accent-hover); }
+  .cm-contact.none { background: var(--surface-2); color: var(--text-3); font-size: 15px; font-weight: 500; }
+  .cm-contact .ico { width: 22px; height: 22px; }
+  .cm-meta { display: grid; grid-template-columns: 90px 1fr; gap: 6px 10px; font-size: 14px; margin-bottom: 12px; }
+  .cm-meta .k { color: var(--text-3); }
+  .cm-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 16px; }
+  .cm-actions button { min-height: 52px; font-size: 15px; font-weight: 600; }
+  .cm-actions .b-no { color: var(--warning); background: var(--warning-bg); border-color: #ecd3a6; }
+  .cm-actions .b-yes { color: #fff; background: var(--success); border-color: var(--success); }
+  .cm-actions .b-not { color: var(--danger); background: var(--danger-bg); border-color: #ebc3bf; }
+  .cm-actions2 { display: flex; gap: 10px; margin-top: 10px; }
+  .cm-actions2 button { flex: 1; min-height: 40px; }
+  .cm-hint { font-size: 12px; color: var(--text-3); margin-top: 14px; text-align: center; }
+  .cm-empty { text-align: center; padding: 48px 20px; color: var(--text-2); font-size: 15px; }
+  kbd { font-family: inherit; font-size: 11px; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 3px; padding: 0 5px; background: var(--surface); color: var(--text-2); }
+
   @media (max-width: 860px) {
     .finder-form { grid-template-columns: 1fr 1fr; }
     .finder-form > button { grid-column: 1 / -1; }
@@ -320,8 +396,12 @@
 
     .stats { grid-template-columns: repeat(2, 1fr); margin-bottom: 14px; }
     .stat { padding: 10px 14px; }
-    .stat:nth-child(3) { border-left: none; }
+    .stat:nth-child(odd) { border-left: none; }
     .stat:nth-child(n+3) { border-top: 1px solid var(--border); }
+    .cm-wrap { padding: 14px 14px 40px; }
+    .cm-card { padding: 16px 14px; }
+    .cm-actions { grid-template-columns: 1fr; }
+    .cm-hint { display: none; }
     .stat-value { font-size: 21px; }
 
     /* Lead rows: one field per line, the status select full width underneath. */
@@ -448,6 +528,7 @@
     </div>
     <div class="finder-status" id="f-status"></div>
     <div class="staging-wrap" id="staging-wrap" style="display:none">
+      <div class="chips" id="staging-filters"></div>
       <div class="staging-scroll">
         <table class="staging" id="staging-table">
           <thead>
@@ -472,7 +553,14 @@
   <div class="stat"><div class="stat-label" id="lbl-called">Called</div><div class="stat-value" id="stat-called">0</div></div>
   <div class="stat s-success"><div class="stat-label" id="lbl-interested">Interested</div><div class="stat-value" id="stat-interested">0</div></div>
   <div class="stat s-info"><div class="stat-label" data-i18n="stat_closed">Closed</div><div class="stat-value" id="stat-closed">0</div></div>
+  <div class="stat stat-goal" onclick="editGoal()" title="" id="stat-goal">
+    <div class="stat-label" data-i18n="stat_today">Today</div>
+    <div class="stat-value"><span id="stat-today">0</span><span class="stat-goal-of"> / <span id="goal-n">20</span></span></div>
+    <div class="goal-bar"><i id="goal-fill"></i></div>
+  </div>
 </div>
+
+<div id="backup-bar" class="backup-bar"></div>
 
 <section class="panel">
   <div class="panel-head"><h2 class="panel-title" data-i18n="add_title">Add a lead</h2></div>
@@ -510,7 +598,7 @@
 
 <div id="callback-banner" class="callback-banner" onclick="toggleCallbackFilter()"></div>
 
-<div class="list-head"><h2 class="list-title" data-i18n="list_title">Leads</h2></div>
+<div class="list-head"><h2 class="list-title" data-i18n="list_title">Leads</h2><button class="small primary" id="cm-start" onclick="openCallMode()">Start calling</button></div>
 <div id="lead-list"></div>
 
 <div id="empty-state" class="empty-state">
@@ -521,7 +609,18 @@
   Data is stored locally in your browser and never leaves this device.<br/>
   CSV format: header row recognized, <code>name, phone, website, email, address, quality, notes</code> (any subset). Missing fields show as <code>???</code> and can be edited later.
 </div>
+<div class="backup-info" id="backup-info"></div>
+<div class="backup-info" id="cache-info"></div>
 
+</div>
+
+<div id="callmode" class="callmode" role="dialog" aria-modal="true">
+  <div class="cm-top">
+    <strong id="cm-progress"></strong>
+    <span class="spacer"></span>
+    <button class="small" onclick="closeCallMode()" data-i18n="btn_close">Close</button>
+  </div>
+  <div class="cm-wrap"><div id="cm-body"></div></div>
 </div>
 
 <script>
@@ -587,6 +686,27 @@ const I18N = {
     f_none:'No results. Try a bigger city, a different niche, or a larger radius.',
     f_error:(m)=>'Error: ' + m,
     f_added:(n,target,skipped)=>`Added ${n} to ${target}${skipped?`, skipped ${skipped} already in your list`:''}.`,
+    f_added_mails:(n)=>` ${n} email address${n===1?'':'es'} guessed from the website.`,
+    flt_all:'All', flt_nosite:'No website', flt_social:'Social media only', flt_phone:'With phone', flt_new:'New only',
+    count_shown:(n,total)=>`${n} of ${total} businesses`,
+    in_list:'in your list',
+    email_guess:'Guessed from the website, not verified',
+    stat_today:'Today', goal_prompt:'Daily goal (contacts per day):', goal_title:'Click to change the daily goal',
+    cm_start_call:'Start calling', cm_start_email:'Start emailing',
+    cm_progress:(i,n)=>`${i} of ${n}`,
+    cm_empty:'Nothing to do right now. Every lead is contacted or has a future date.',
+    cm_done:'All done for now.',
+    cm_skip:'Skip', cm_no_contact:'No contact details',
+    cm_hint:'<kbd>1</kbd> no answer <kbd>2</kbd> interested <kbd>3</kbd> not interested <kbd>4</kbd> closed <kbd>Space</kbd> skip <kbd>Esc</kbd> close',
+    move_to_email:'Move to email list', move_to_call:'Move to call list',
+    bk_never:'Your leads only exist in this browser and were never exported.',
+    bk_old:(d)=>`Last backup ${d} day${d===1?'':'s'} ago.`,
+    bk_export:'Export now', bk_auto:'Set up automatic backup file', bk_later:'Remind me in a week',
+    bk_active:(name,when)=>`Automatic backup to ${name}${when?`, last saved ${when}`:''}.`,
+    bk_reconnect:'Re-enable automatic backup', bk_stop:'stop', bk_failed:'Backup file could not be written. Set it up again.',
+    bk_confirm_both:(a,b)=>`Replace your lists with this backup (${a} call leads, ${b} email leads)?`,
+    cache_info:(mb)=>`Map data cache: ${mb} MB.`, cache_clear:'Clear',
+    kb_hint:'Keys: <kbd>c</kbd> start calling, <kbd>f</kbd> find leads, <kbd>n</kbd> new lead, <kbd>Esc</kbd> close',
   },
   de: {
     mode_calls:'Anrufe', mode_email:'E-Mail',
@@ -640,6 +760,27 @@ const I18N = {
     f_none:'Keine Treffer. Größere Stadt, andere Branche oder größeren Umkreis probieren.',
     f_error:(m)=>'Fehler: ' + m,
     f_added:(n,target,skipped)=>`${n} zu ${target} hinzugefügt${skipped?`, ${skipped} bereits in der Liste übersprungen`:''}.`,
+    f_added_mails:(n)=>` ${n} E-Mail-Adresse${n===1?'':'n'} aus der Website vermutet.`,
+    flt_all:'Alle', flt_nosite:'Ohne Website', flt_social:'Nur Social Media', flt_phone:'Mit Telefon', flt_new:'Nur neue',
+    count_shown:(n,total)=>`${n} von ${total} Betrieben`,
+    in_list:'schon in der Liste',
+    email_guess:'Aus der Website vermutet, nicht geprüft',
+    stat_today:'Heute', goal_prompt:'Tagesziel (Kontakte pro Tag):', goal_title:'Klicken, um das Tagesziel zu ändern',
+    cm_start_call:'Anrufen starten', cm_start_email:'Mailen starten',
+    cm_progress:(i,n)=>`${i} von ${n}`,
+    cm_empty:'Gerade nichts zu tun. Alle Leads sind kontaktiert oder haben ein späteres Datum.',
+    cm_done:'Für jetzt alles erledigt.',
+    cm_skip:'Überspringen', cm_no_contact:'Keine Kontaktdaten',
+    cm_hint:'<kbd>1</kbd> nicht erreicht <kbd>2</kbd> interessiert <kbd>3</kbd> kein Interesse <kbd>4</kbd> abgeschlossen <kbd>Leertaste</kbd> überspringen <kbd>Esc</kbd> schließen',
+    move_to_email:'In die E-Mail-Liste verschieben', move_to_call:'In die Anruf-Liste verschieben',
+    bk_never:'Deine Leads liegen nur in diesem Browser und wurden noch nie exportiert.',
+    bk_old:(d)=>`Letzte Sicherung vor ${d} Tag${d===1?'':'en'}.`,
+    bk_export:'Jetzt exportieren', bk_auto:'Automatische Sicherungsdatei einrichten', bk_later:'In einer Woche erinnern',
+    bk_active:(name,when)=>`Automatische Sicherung in ${name}${when?`, zuletzt ${when}`:''}.`,
+    bk_reconnect:'Automatische Sicherung wieder aktivieren', bk_stop:'beenden', bk_failed:'Sicherungsdatei konnte nicht geschrieben werden. Bitte neu einrichten.',
+    bk_confirm_both:(a,b)=>`Deine Listen durch diese Sicherung ersetzen (${a} Anruf-Leads, ${b} E-Mail-Leads)?`,
+    cache_info:(mb)=>`Zwischenspeicher für Kartendaten: ${mb} MB.`, cache_clear:'Leeren',
+    kb_hint:'Tasten: <kbd>c</kbd> Anrufen starten, <kbd>f</kbd> Leads finden, <kbd>n</kbd> neuer Lead, <kbd>Esc</kbd> schließen',
   },
 };
 
@@ -667,7 +808,11 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
-  document.getElementById('footer-text').innerHTML = t('footer');
+  document.getElementById('footer-text').innerHTML = t('footer') + '<br/>' + t('kb_hint');
+  document.getElementById('stat-goal').title = t('goal_title');
+  renderStagingFilters();
+  renderBackupBar();
+  renderCacheInfo();
   document.getElementById('lang-en').classList.toggle('active', lang === 'en');
   document.getElementById('lang-de').classList.toggle('active', lang === 'de');
   applyCountryChrome();
@@ -710,12 +855,16 @@ function loadLeads() {
   try {
     const raw = localStorage.getItem(storageKey());
     leads = raw ? JSON.parse(raw) : [];
-    leads = leads.map(l => ({ website: '', email: '', address: '', callback: '', ...l }));
+    leads = leads.map(l => ({ website: '', email: '', address: '', callback: '', touched: '', emailGuess: false, ...l }));
   } catch (e) { leads = []; }
   render();
 }
 
-function persist() { localStorage.setItem(storageKey(), JSON.stringify(leads)); }
+function persist() {
+  localStorage.setItem(storageKey(), JSON.stringify(leads));
+  scheduleBackup();
+  renderBackupBar();
+}
 
 function setMode(m) {
   if (m === mode) return;
@@ -736,6 +885,7 @@ function applyModeChrome() {
   document.getElementById('lbl-called').textContent = t.called;
   document.getElementById('lbl-interested').textContent = t.interested;
   document.getElementById('field-phone').style.display = (mode === 'email') ? 'none' : '';
+  document.getElementById('cm-start').textContent = I18N[lang][mode === 'email' ? 'cm_start_email' : 'cm_start_call'];
   const empty = document.getElementById('empty-state');
   if (empty) empty.textContent = I18N[lang].empty_first(t.verb);
   const addAll = document.getElementById('f-addall');
@@ -765,8 +915,10 @@ function addLead() {
 function setStatus(id, status) {
   leads = leads.map(l => {
     if (l.id !== id) return l;
-    const updated = { ...l, status };
-    if ((status === 'no_answer' || status === 'interested') && !l.callback) {
+    const today = new Date().toISOString().slice(0, 10);
+    const updated = { ...l, status, touched: status === 'pending' ? l.touched : today };
+    // A due or overdue date moves forward too, otherwise a second "no answer" would keep the lead due.
+    if ((status === 'no_answer' || status === 'interested') && (!l.callback || l.callback <= today)) {
       const days = status === 'no_answer' ? 2 : 5;
       const d = new Date(); d.setDate(d.getDate() + days);
       updated.callback = d.toISOString().slice(0, 10);
@@ -778,9 +930,23 @@ function setStatus(id, status) {
 }
 
 function setField(id, field, val) {
-  leads = leads.map(l => l.id === id ? { ...l, [field]: val } : l);
+  leads = leads.map(l => l.id === id ? { ...l, [field]: val, ...(field === 'email' ? { emailGuess: false } : {}) } : l);
   persist();
   if (field === 'site') render();
+}
+
+// Moves a lead to the other list (calls <-> email) as a fresh, uncontacted entry; notes travel along.
+function moveLead(id) {
+  const l = leads.find(x => x.id === id);
+  if (!l) return;
+  const otherKey = mode === 'email' ? CALL_KEY : EMAIL_KEY;
+  let other = [];
+  try { other = JSON.parse(localStorage.getItem(otherKey) || '[]'); } catch (e) { other = []; }
+  other.push({ ...l, id: newId(), status: 'pending', callback: '', touched: '' });
+  localStorage.setItem(otherKey, JSON.stringify(other));
+  leads = leads.filter(x => x.id !== id);
+  persist();
+  render();
 }
 
 function setCallback(id, val) { setField(id, 'callback', val); render(); }
@@ -810,6 +976,7 @@ function exportData() {
   a.download = `call-tracker-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
+  markExported();
 }
 
 function exportCSV() {
@@ -840,6 +1007,14 @@ function importData(event) {
   reader.onload = (e) => {
     try {
       const imported = JSON.parse(e.target.result);
+      if (imported && !Array.isArray(imported) && Array.isArray(imported.call) && Array.isArray(imported.email)) {
+        // A backup file holds both lists.
+        if (!confirm(t('bk_confirm_both', imported.call.length, imported.email.length))) return;
+        localStorage.setItem(CALL_KEY, JSON.stringify(imported.call));
+        localStorage.setItem(EMAIL_KEY, JSON.stringify(imported.email));
+        loadLeads();
+        return;
+      }
       if (!Array.isArray(imported)) throw new Error(t('e_bad_format'));
       if (leads.length && !confirm(t('a_confirm_import', leads.length, imported.length))) return;
       leads = imported;
@@ -951,6 +1126,21 @@ function updateStats() {
   document.getElementById('stat-called').textContent = leads.filter(l => l.status !== 'pending').length;
   document.getElementById('stat-interested').textContent = leads.filter(l => l.status === 'interested').length;
   document.getElementById('stat-closed').textContent = leads.filter(l => l.status === 'closed').length;
+  const today = new Date().toISOString().slice(0, 10);
+  const done = leads.filter(l => l.touched === today).length;
+  const goal = dailyGoal();
+  document.getElementById('stat-today').textContent = done;
+  document.getElementById('goal-n').textContent = goal;
+  const fill = document.getElementById('goal-fill');
+  fill.style.width = Math.min(100, Math.round(done / goal * 100)) + '%';
+  fill.classList.toggle('full', done >= goal);
+}
+function dailyGoal() { return Math.max(1, Number(localStorage.getItem('call-tracker-goal')) || 20); }
+function editGoal() {
+  const v = prompt(t('goal_prompt'), dailyGoal());
+  if (v === null) return;
+  const n = parseInt(v, 10);
+  if (n > 0) { localStorage.setItem('call-tracker-goal', n); updateStats(); }
 }
 
 function escapeHtml(s) {
@@ -977,8 +1167,9 @@ function renderField(lead, field, type, placeholder, label) {
     else if (type === 'email') icon = `<a href="mailto:${escapeHtml(val)}" title="${escapeHtml(t('lbl_email'))}">${ICON.mail}</a>`;
     else if (type === 'website') icon = `<a href="${escapeHtml(normalizeUrl(val))}" target="_blank" rel="noopener" title="${escapeHtml(t('lbl_website'))}">${ICON.open}</a>`;
   }
-  const inputAttrs = `class="inline-edit${empty ? ' empty' : ''}" value="${escapeHtml(display)}" placeholder="${placeholder}" size="${Math.max(placeholder.length, display.length)}" onfocus="if(this.value==='${MISSING}')this.value=''" onblur="setField(${lead.id}, '${field}', this.value.trim())"`;
-  return `<span class="meta-field"><span class="meta-label">${label}</span><input type="text" ${inputAttrs} />${icon}</span>`;
+  const guess = type === 'email' && !empty && lead.emailGuess;
+  const inputAttrs = `class="inline-edit${empty ? ' empty' : ''}${guess ? ' guess' : ''}" value="${escapeHtml(display)}" placeholder="${placeholder}" size="${Math.max(placeholder.length, display.length)}" title="${guess ? escapeHtml(t('email_guess')) : ''}" onfocus="if(this.value==='${MISSING}')this.value=''" onblur="setField(${lead.id}, '${field}', this.value.trim())"`;
+  return `<span class="meta-field"><span class="meta-label">${label}</span><input type="text" ${inputAttrs} />${icon}${guess ? `<span class="guess-tag" title="${escapeHtml(t('email_guess'))}">?</span>` : ''}</span>`;
 }
 
 function render() {
@@ -1048,14 +1239,203 @@ function render() {
           ${cbState === 'today' ? `<span class="due-flag today">${t('today')}</span>` : ''}
         </div>
       </div>
-      <select class="status-select st-${l.status}" onchange="setStatus(${l.id}, this.value)">${statusOpts}</select>
+      <div>
+        <select class="status-select st-${l.status}" onchange="setStatus(${l.id}, this.value)">${statusOpts}</select>
+        <button class="small move-btn" onclick="moveLead(${l.id})">${mode === 'email' ? t('move_to_call') : t('move_to_email')}</button>
+      </div>
       <button class="icon-btn" onclick="removeLead(${l.id})" title="${escapeHtml(t('remove'))}">${ICON.remove}</button>
     </div>`;
   }).join('');
+  if (cmOpen) renderCallMode();
 }
 
 ['input-name','input-phone','input-website','input-email'].forEach(id => {
   document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') addLead(); });
+});
+
+/* ==================================================================
+   CALL MODE: one lead at a time, big contact button, three outcomes.
+================================================================== */
+let cmOpen = false, cmSkipped = new Set();
+// Leads worth contacting now: never contacted, or due for a callback.
+function callQueue() {
+  const today = new Date().toISOString().slice(0, 10);
+  const rank = l => l.callback && l.callback < today ? 0 : l.callback === today ? 1 : 2;
+  return leads
+    .filter(l => l.status !== 'closed' && l.status !== 'not_int' && !cmSkipped.has(l.id)
+      && (l.status === 'pending' || (l.callback && l.callback <= today)))
+    .sort((a, b) => rank(a) - rank(b) || a.id - b.id);
+}
+function openCallMode() {
+  cmOpen = true; cmSkipped = new Set();
+  document.getElementById('callmode').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderCallMode();
+}
+function closeCallMode() {
+  cmOpen = false;
+  document.getElementById('callmode').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function cmSkip() { const l = callQueue()[0]; if (l) cmSkipped.add(l.id); renderCallMode(); }
+function cmStatus(status) { const l = callQueue()[0]; if (l) setStatus(l.id, status); renderCallMode(); }
+function renderCallMode() {
+  if (!cmOpen) return;
+  const q = callQueue();
+  const total = q.length + cmSkipped.size;
+  document.getElementById('cm-progress').textContent = q.length ? t('cm_progress', cmSkipped.size + 1, total) : '';
+  const body = document.getElementById('cm-body');
+  const l = q[0];
+  if (!l) { body.innerHTML = `<div class="cm-empty">${total ? t('cm_done') : t('cm_empty')}</div>`; return; }
+  const sc = statusConfig();
+  const contact = mode === 'email'
+    ? (!isMissing(l.email) ? `<a class="cm-contact" href="mailto:${escapeHtml(l.email)}">${ICON.mail}${escapeHtml(l.email)}</a>` : `<div class="cm-contact none">${t('cm_no_contact')}</div>`)
+    : (!isMissing(l.phone) ? `<a class="cm-contact" href="tel:${escapeHtml(l.phone)}">${ICON.phone}${escapeHtml(l.phone)}</a>` : `<div class="cm-contact none">${t('cm_no_contact')}</div>`);
+  const site = isMissing(l.website) ? `<span class="inline-edit empty">${MISSING}</span>` : `<a href="${escapeHtml(normalizeUrl(l.website))}" target="_blank" rel="noopener">${escapeHtml(l.website)}</a>`;
+  const siteOpts = [['unknown', MISSING], ['none', t('site_none')], ['bad', t('site_bad')], ['ok', t('site_ok')]]
+    .map(([k, lbl]) => `<option value="${k}" ${l.site === k ? 'selected' : ''}>${lbl}</option>`).join('');
+  const cb = callbackState(l.callback);
+  body.innerHTML = `
+    <div class="cm-card">
+      <h2 class="cm-name">${escapeHtml(l.name)}</h2>
+      <div class="cm-sub">${escapeHtml(l.address || '')}${cb === 'overdue' ? ` <span class="due-flag overdue">${t('overdue')}</span>` : cb === 'today' ? ` <span class="due-flag today">${t('today')}</span>` : ''}</div>
+      ${contact}
+      <div class="cm-meta">
+        <span class="k">${t('meta_link')}</span><span>${site}</span>
+        ${mode === 'email' ? `<span class="k">${t('meta_phone')}</span><span>${escapeHtml(isMissing(l.phone) ? MISSING : l.phone)}</span>` : `<span class="k">${t('meta_email')}</span><span>${escapeHtml(isMissing(l.email) ? MISSING : l.email)}${l.emailGuess && !isMissing(l.email) ? ' <span class="guess-tag">?</span>' : ''}</span>`}
+        <span class="k">${t('meta_quality')}</span><span><select class="inline-edit" onchange="setField(${l.id}, 'site', this.value)">${siteOpts}</select></span>
+        <span class="k">${terms().dateLabel}</span><span><input type="date" class="callback-input" value="${escapeHtml(l.callback || '')}" onchange="setField(${l.id}, 'callback', this.value); render()" /></span>
+      </div>
+      <textarea class="notes-input" placeholder="${escapeHtml(t('notes_ph'))}" rows="2" oninput="updateNote(${l.id}, this.value)">${escapeHtml(l.note)}</textarea>
+      <div class="cm-actions">
+        <button class="b-no" onclick="cmStatus('no_answer')">${sc.no_answer.label}</button>
+        <button class="b-yes" onclick="cmStatus('interested')">${sc.interested.label}</button>
+        <button class="b-not" onclick="cmStatus('not_int')">${sc.not_int.label}</button>
+      </div>
+      <div class="cm-actions2">
+        <button onclick="cmStatus('closed')">${sc.closed.label}</button>
+        <button onclick="cmSkip()">${t('cm_skip')}</button>
+      </div>
+      <div class="cm-hint">${t('cm_hint')}</div>
+    </div>`;
+}
+
+/* ==================================================================
+   BACKUP: export reminder, plus an automatic backup file where the
+   browser supports the File System Access API (Chrome, Edge).
+================================================================== */
+const BK_LAST = 'call-tracker-last-export', BK_SNOOZE = 'call-tracker-backup-snooze';
+let bkHandle = null, bkGranted = false, bkTimer = null, bkLastWrite = '';
+function markExported() { localStorage.setItem(BK_LAST, String(Date.now())); renderBackupBar(); }
+function backupPayload() {
+  const read = k => { try { return JSON.parse(localStorage.getItem(k) || '[]'); } catch (e) { return []; } };
+  return { version: 1, exported: new Date().toISOString(), call: read(CALL_KEY), email: read(EMAIL_KEY) };
+}
+function bkDb() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open('call-tracker-backup', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+}
+async function bkStore(handle) {
+  const db = await bkDb();
+  await new Promise((res, rej) => { const tx = db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(handle, 'handle'); tx.oncomplete = res; tx.onerror = () => rej(tx.error); });
+}
+async function bkLoad() {
+  const db = await bkDb();
+  return new Promise((res) => { const tx = db.transaction('kv'); const q = tx.objectStore('kv').get('handle'); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); });
+}
+async function setupAutoBackup() {
+  try {
+    const h = await window.showSaveFilePicker({ suggestedName: 'call-tracker-backup.json', types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] });
+    await bkStore(h);
+    bkHandle = h; bkGranted = true;
+    await writeBackup();
+  } catch (e) { /* picker dismissed */ }
+  renderBackupBar();
+}
+async function reconnectBackup() {
+  if (!bkHandle) return;
+  try { bkGranted = (await bkHandle.requestPermission({ mode: 'readwrite' })) === 'granted'; } catch (e) { bkGranted = false; }
+  if (bkGranted) await writeBackup();
+  renderBackupBar();
+}
+async function stopAutoBackup() {
+  bkHandle = null; bkGranted = false;
+  try { await bkStore(null); } catch (e) {}
+  renderBackupBar();
+}
+async function writeBackup() {
+  if (!bkHandle || !bkGranted) return;
+  try {
+    const w = await bkHandle.createWritable();
+    await w.write(JSON.stringify(backupPayload(), null, 2));
+    await w.close();
+    bkLastWrite = new Date().toLocaleTimeString(lang === 'de' ? 'de-DE' : 'en-GB', { hour: '2-digit', minute: '2-digit' });
+    markExported();
+  } catch (e) {
+    bkGranted = false;
+    renderBackupBar(true);
+  }
+}
+function scheduleBackup() {
+  if (!bkHandle || !bkGranted) return;
+  clearTimeout(bkTimer);
+  bkTimer = setTimeout(writeBackup, 1500);
+}
+function renderBackupBar(failed) {
+  const bar = document.getElementById('backup-bar'), info = document.getElementById('backup-info');
+  if (!bar) return;
+  const canAuto = 'showSaveFilePicker' in window;
+  const last = Number(localStorage.getItem(BK_LAST)) || 0;
+  const days = last ? Math.floor((Date.now() - last) / 86400000) : null;
+  const snoozed = Number(localStorage.getItem(BK_SNOOZE)) > Date.now();
+  const total = backupPayload().call.length + backupPayload().email.length;
+  info.innerHTML = '';
+  if (bkHandle && bkGranted) {
+    info.innerHTML = `${escapeHtml(t('bk_active', bkHandle.name, bkLastWrite))} <button class="link" onclick="stopAutoBackup()">${t('bk_stop')}</button>`;
+  } else if (bkHandle && !bkGranted) {
+    info.innerHTML = `${failed ? escapeHtml(t('bk_failed')) + ' ' : ''}<button class="link" onclick="reconnectBackup()">${t('bk_reconnect')}</button> <button class="link" onclick="stopAutoBackup()">${t('bk_stop')}</button>`;
+  }
+  const warn = total >= 5 && !(bkHandle && bkGranted) && !snoozed && (days === null || days >= 7);
+  bar.classList.toggle('active', warn);
+  if (!warn) return;
+  bar.innerHTML = `<span>${escapeHtml(days === null ? t('bk_never') : t('bk_old', days))}</span><span class="spacer"></span>
+    <button class="small" onclick="exportData()">${t('bk_export')}</button>
+    ${canAuto ? `<button class="small primary" onclick="setupAutoBackup()">${t('bk_auto')}</button>` : ''}
+    <button class="link" onclick="localStorage.setItem('${BK_SNOOZE}', Date.now() + 7 * 86400000); renderBackupBar()">${t('bk_later')}</button>`;
+}
+(async function initBackup() {
+  try {
+    bkHandle = await bkLoad();
+    if (bkHandle) bkGranted = (await bkHandle.queryPermission({ mode: 'readwrite' })) === 'granted';
+  } catch (e) { bkHandle = null; }
+  renderBackupBar();
+})();
+
+/* ==================================================================
+   KEYBOARD SHORTCUTS (ignored while typing in a field)
+================================================================== */
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable;
+  if (e.key === 'Escape') {
+    if (typing) { e.target.blur(); return; }
+    if (cmOpen) closeCallMode();
+    else if (document.getElementById('finder').style.display !== 'none') toggleFinder();
+    return;
+  }
+  if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (cmOpen) {
+    const map = { '1': 'no_answer', '2': 'interested', '3': 'not_int', '4': 'closed' };
+    if (map[e.key]) { e.preventDefault(); cmStatus(map[e.key]); }
+    else if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); cmSkip(); }
+    return;
+  }
+  if (e.key === 'c') { e.preventDefault(); openCallMode(); }
+  else if (e.key === 'f') { e.preventDefault(); toggleFinder(); }
+  else if (e.key === 'n') { e.preventDefault(); document.getElementById('input-name').focus(); }
 });
 
 /* ==================================================================
@@ -1999,6 +2379,42 @@ const OVT_ZOOM = 14;
 const OVT_MIN_CONFIDENCE = 0.5;
 const OVT_MERGE_GAP = 32768;
 let ovtArchivePromise = null;
+// Tiles are kept in the Cache API, so a second niche in the same city costs no
+// download. One cache per archive release; older releases are dropped.
+let ovtCachePromise = null;
+function ovtCache(url){
+  if (!ovtCachePromise) ovtCachePromise = (async () => {
+    if (!('caches' in window)) return null;
+    const name = 'ct-ovt-' + url.replace(/[^a-z0-9.]/gi, '_');
+    for (const k of await caches.keys()) if (k.startsWith('ct-ovt-') && k !== name) await caches.delete(k);
+    return await caches.open(name);
+  })().catch(() => null);
+  return ovtCachePromise;
+}
+// A query string, not a fragment: Request URLs drop fragments, so all tiles would share one key.
+const tileKey = (url, e) => `${url}?tile=${e.off}-${e.len}`;
+async function clearTileCache(){
+  for (const k of await caches.keys()) if (k.startsWith('ct-ovt-')) await caches.delete(k);
+  ovtCachePromise = null;
+  renderCacheInfo();
+}
+async function renderCacheInfo(){
+  const el = document.getElementById('cache-info');
+  if (!el) return;
+  try {
+    const names = (await caches.keys()).filter(k => k.startsWith('ct-ovt-'));
+    if (!names.length){ el.innerHTML = ''; return; }
+    let bytes = 0;
+    for (const name of names){
+      const c = await caches.open(name);
+      for (const req of await c.keys()){
+        const r = await c.match(req);
+        bytes += Number(r?.headers.get('x-size')) || 0;
+      }
+    }
+    el.innerHTML = `${escapeHtml(t('cache_info', (bytes / 1e6).toFixed(1)))} <button class="link" onclick="clearTileCache()">${t('cache_clear')}</button>`;
+  } catch(e){ el.innerHTML = ''; }
+}
 
 function readVarint(buf, pos){
   let v = 0, mul = 1, b;
@@ -2177,7 +2593,11 @@ async function overturePlaces(lat, lon, radiusM, inArea, cat, nicheText, onProgr
   const wanted = [];
   for (let x = x0; x <= x1; x++) for (let y = y0; y <= y1; y++) wanted.push({ x, y, id:pmTileId(OVT_ZOOM, x, y) });
   const entries = await Promise.all(wanted.map(t => findTileEntry(ar, t.id)));
-  const tiles = wanted.map((t, k) => ({ ...t, e:entries[k] })).filter(t => t.e).sort((a, b) => a.e.off - b.e.off);
+  const allTiles = wanted.map((t, k) => ({ ...t, e:entries[k] })).filter(t => t.e).sort((a, b) => a.e.off - b.e.off);
+  const cache = await ovtCache(ar.url);
+  const cachedBytes = cache ? await Promise.all(allTiles.map(t => cache.match(tileKey(ar.url, t.e)).then(r => r ? r.arrayBuffer() : null).catch(() => null))) : [];
+  const cachedTiles = allTiles.filter((t, k) => cachedBytes[k]).map((t, k) => t);
+  const tiles = allTiles.filter((t, k) => !cachedBytes[k]);
 
   const blocks = [];
   for (const t of tiles){
@@ -2200,14 +2620,8 @@ async function overturePlaces(lat, lon, radiusM, inArea, cat, nicheText, onProgr
 
   const out = [];
   let done = 0, bytes = 0;
-  const work = blocks.slice();
-  const worker = async () => {
-    while (work.length){
-      const b = work.shift();
-      const data = await fetchBytes(ar.url, ar.h.dataOff + b.start, b.end - b.start);
-      bytes += data.length;
-      for (const t of b.tiles){
-        const raw = await inflate(data.subarray(t.e.off - b.start, t.e.off - b.start + t.e.len), ar.h.tileComp);
+  const collect = async (t, compressed) => {
+        const raw = await inflate(compressed, ar.h.tileComp);
         for (const L of decodeTile(raw)){
           const ki = name => L.keys.indexOf(name);
           const K = { name:ki('@name'), tax:ki('taxonomy'), conf:ki('confidence'), status:ki('operating_status'),
@@ -2234,12 +2648,28 @@ async function overturePlaces(lat, lon, radiusM, inArea, cat, nicheText, onProgr
             });
           }
         }
+  };
+  // Cached tiles first (no network), then the remaining blocks in parallel.
+  allTiles.forEach((t, k) => { if (cachedBytes[k]) t.cached = new Uint8Array(cachedBytes[k]); });
+  for (const t of cachedTiles){ await collect(t, t.cached); }
+  const work = blocks.slice(), puts = [];
+  const worker = async () => {
+    while (work.length){
+      const b = work.shift();
+      const data = await fetchBytes(ar.url, ar.h.dataOff + b.start, b.end - b.start);
+      bytes += data.length;
+      for (const t of b.tiles){
+        const compressed = data.slice(t.e.off - b.start, t.e.off - b.start + t.e.len);
+        if (cache) puts.push(cache.put(tileKey(ar.url, t.e), new Response(compressed, { headers:{ 'x-size': String(compressed.length) } })).catch(() => {}));
+        await collect(t, compressed);
       }
       onProgress?.(++done, blocks.length, bytes);
       await sleep(0);
     }
   };
   await Promise.all([worker(), worker(), worker(), worker()]);
+  if (blocks.length === 0) onProgress?.(0, 0, 0);
+  Promise.allSettled(puts).then(renderCacheInfo);
   return out;
 }
 
@@ -2387,6 +2817,71 @@ async function runFinderSearch(){
   }
 }
 
+// --- Website kind, email guess ---------------------------------------------
+// A link to a social profile or a map listing is not a website of their own.
+const SOCIAL_HOSTS = /(^|\.)(facebook|fb|instagram|tiktok|linkedin|twitter|x|youtube|yelp|google|goo|linktr|whatsapp|wa|pinterest|threads|foursquare|tripadvisor|nextdoor|m)\.(com|de|at|ch|me|ee|gl|net|co\.uk|fr|it|es|nl)$/i;
+const HOSTED_SITES = /(wixsite|wix|jimdosite|jimdofree|jimdo|weebly|wordpress|blogspot|godaddysites|square|webnode|strikingly|carrd|business)\.(com|site|co|de)$|sites\.google\.com$/i;
+function siteHost(url){
+  try { return new URL(normalizeUrl((url || '').trim())).hostname.replace(/^www\./i, '').toLowerCase(); }
+  catch(e){ return ''; }
+}
+function siteKind(url){
+  if (isMissing(url)) return 'none';
+  const h = siteHost(url);
+  if (!h) return 'none';
+  return SOCIAL_HOSTS.test(h) ? 'social' : 'site';
+}
+// "info@" at the business's own domain; skipped for social links and site builders.
+function guessEmail(url){
+  if (siteKind(url) !== 'site') return '';
+  const h = siteHost(url);
+  if (!h || !h.includes('.') || HOSTED_SITES.test(h)) return '';
+  return 'info@' + h;
+}
+// Keys that identify a business already in the list (same rule as addAllStaged).
+function listKeys(){
+  const digits = s => (s || '').replace(/\D/g, '');
+  return {
+    phones: new Set(leads.map(l => digits(l.phone)).filter(p => p.length >= 7)),
+    names: new Set(leads.map(l => (l.name||'').toLowerCase().trim() + '|' + (l.address||'').toLowerCase().trim())),
+    isIn(r){
+      const pk = digits(r.phone), nk = (r.name||'').toLowerCase().trim() + '|' + (r.address||'').toLowerCase().trim();
+      return (pk.length >= 7 && this.phones.has(pk)) || this.names.has(nk);
+    },
+  };
+}
+
+// --- Staging filters -------------------------------------------------------
+let stagingFilter = { site:'all', phone:false, fresh:false };
+function setStagingFilter(k, v){
+  if (k === 'site') stagingFilter.site = v; else stagingFilter[k] = !stagingFilter[k];
+  renderStaging();
+}
+function visibleStaging(){
+  const keys = listKeys();
+  return finderResults.filter(r => {
+    const kind = siteKind(r.website);
+    if (stagingFilter.site === 'none' && kind !== 'none') return false;
+    if (stagingFilter.site === 'social' && kind !== 'social') return false;
+    if (stagingFilter.site === 'nosite' && kind === 'site') return false;
+    if (stagingFilter.phone && !r.phone) return false;
+    if (stagingFilter.fresh && keys.isIn(r)) return false;
+    return true;
+  });
+}
+function renderStagingFilters(){
+  const el = document.getElementById('staging-filters');
+  if (!el) return;
+  const chip = (label, on, onclick) => `<button class="chip${on ? ' on' : ''}" onclick="${onclick}">${label}</button>`;
+  el.innerHTML =
+    chip(t('flt_all'), stagingFilter.site === 'all', "setStagingFilter('site','all')") +
+    chip(t('flt_nosite'), stagingFilter.site === 'nosite', "setStagingFilter('site','nosite')") +
+    chip(t('flt_social'), stagingFilter.site === 'social', "setStagingFilter('site','social')") +
+    '<span class="chip-sep"></span>' +
+    chip(t('flt_phone'), stagingFilter.phone, "setStagingFilter('phone')") +
+    chip(t('flt_new'), stagingFilter.fresh, "setStagingFilter('fresh')");
+}
+
 // --- Staging table render + edit ------------------------------------------
 function renderStaging(){
   const wrap = document.getElementById('staging-wrap');
@@ -2394,12 +2889,18 @@ function renderStaging(){
   const count = document.getElementById('staging-count');
   if (!finderResults.length){ wrap.style.display = 'none'; body.innerHTML = ''; return; }
   wrap.style.display = 'block';
-  count.textContent = t('count_biz', finderResults.length);
-  document.getElementById('f-addall').textContent = t('add_all', finderResults.length, terms().uncontacted);
-  body.innerHTML = finderResults.map(r => {
+  renderStagingFilters();
+  const keys = listKeys();
+  const visible = visibleStaging();
+  const fresh = visible.filter(r => !keys.isIn(r)).length;
+  count.textContent = visible.length === finderResults.length ? t('count_biz', finderResults.length) : t('count_shown', visible.length, finderResults.length);
+  document.getElementById('f-addall').textContent = t('add_all', fresh, terms().uncontacted);
+  document.getElementById('f-addall').disabled = !fresh;
+  body.innerHTML = visible.map(r => {
+    const dup = keys.isIn(r);
     const f = (field, ph) => `<input type="text" data-sid="${r._sid}" data-field="${field}" value="${escapeHtml(r[field] || '')}" placeholder="${escapeHtml(ph)}" oninput="stagingEdit(${r._sid}, '${field}', this.value)" />`;
-    return `<tr>
-      <td class="c-name">${f('name', t('th_name').toLowerCase())}</td>
+    return `<tr${dup ? ' class="dup"' : ''}>
+      <td class="c-name">${f('name', t('th_name').toLowerCase())}${dup ? `<span class="dup-tag">${t('in_list')}</span>` : ''}</td>
       <td class="c-mail" data-label="${escapeHtml(t('th_email'))}">${f('email', t('th_email').toLowerCase())}</td>
       <td class="c-addr" data-label="${escapeHtml(t('th_address'))}">${f('address', t('th_address').toLowerCase())}</td>
       <td class="c-web" data-label="${escapeHtml(t('th_website'))}"><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">${ICON.open}</a>` : ''}</div></td>
@@ -2424,41 +2925,48 @@ function clearStaging(){
   renderStaging();
   fStatus('', '');
 }
+// Adds the rows the filters show; the rest stays in the results for another pass.
 function addAllStaged(){
-  if (!finderResults.length) return;
+  const visible = visibleStaging();
+  if (!visible.length) return;
   searchGen++;
+  const keys = listKeys();
   const digits = s => (s || '').replace(/\D/g, '');
-  const phoneKeys = new Set(leads.map(l => digits(l.phone)).filter(p => p.length >= 7));
-  const nameKeys = new Set(leads.map(l => (l.name||'').toLowerCase().trim() + '|' + (l.address||'').toLowerCase().trim()));
-  let added = 0, skipped = 0, i = 0;
-  const toAdd = [];
-  for (const r of finderResults){
+  let added = 0, skipped = 0, guessed = 0, i = 0;
+  const toAdd = [], taken = new Set();
+  for (const r of visible){
+    taken.add(r._sid);
+    if (keys.isIn(r)){ skipped++; continue; }
     const pk = digits(r.phone);
-    const nk = (r.name||'').toLowerCase().trim() + '|' + (r.address||'').toLowerCase().trim();
-    if ((pk.length >= 7 && phoneKeys.has(pk)) || nameKeys.has(nk)){ skipped++; continue; }
-    if (pk.length >= 7) phoneKeys.add(pk);
-    nameKeys.add(nk);
+    if (pk.length >= 7) keys.phones.add(pk);
+    keys.names.add((r.name||'').toLowerCase().trim() + '|' + (r.address||'').toLowerCase().trim());
+    const kind = siteKind(r.website);
+    const guess = r.email ? '' : guessEmail(r.website);
+    if (guess) guessed++;
     toAdd.push({
       id: newId(i++),
       name: r.name,
       phone: r.phone || MISSING,
       website: r.website || MISSING,
-      email: r.email || MISSING,
+      email: r.email || guess || MISSING,
+      emailGuess: !!guess,
       address: r.address || '',
-      site: 'unknown',
+      site: kind === 'none' ? 'none' : kind === 'social' ? 'bad' : 'unknown',
       status: 'pending',
       note: '',
       callback: '',
+      touched: '',
     });
     added++;
   }
   leads = leads.concat(toAdd);
   persist();
-  finderResults = []; finderSeen.clear();
+  finderResults = finderResults.filter(r => !taken.has(r._sid));
+  if (!finderResults.length) finderSeen.clear();
   persistStaging();
   renderStaging();
   render();
-  fStatus(t('f_added', added, terms().uncontacted, skipped), 'ok');
+  fStatus(t('f_added', added, terms().uncontacted, skipped) + (guessed ? t('f_added_mails', guessed) : ''), 'ok');
 }
 
 // --- Finder init ----------------------------------------------------------
