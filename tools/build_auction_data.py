@@ -5,8 +5,9 @@ OpenStreetMap has almost no auction houses mapped (none at all in Bremen as of
 Overture places are CDLA-Permissive-2.0, so the extract may be republished.
 
     python3 -m venv .venv && .venv/bin/pip install duckdb
-    .venv/bin/python tools/build_auction_data.py                  # latest release, EU + US
+    .venv/bin/python tools/build_auction_data.py                  # latest release, all scans
     .venv/bin/python tools/build_auction_data.py 2026-09-23.1 eu  # all EU countries, one scan
+    .venv/bin/python tools/build_auction_data.py 2026-09-23.1 europe  # CH, NO, GB
     .venv/bin/python tools/build_auction_data.py 2026-09-23.1 us
 
 Writes data/auctions-<cc>.json per country. Each scan takes 10 to 25 minutes.
@@ -28,20 +29,22 @@ DIAL = {
     'at': '43', 'be': '32', 'bg': '359', 'cy': '357', 'cz': '420', 'de': '49', 'dk': '45', 'ee': '372',
     'es': '34', 'fi': '358', 'fr': '33', 'gr': '30', 'hr': '385', 'hu': '36', 'ie': '353', 'it': '39',
     'lt': '370', 'lu': '352', 'lv': '371', 'mt': '356', 'nl': '31', 'pl': '48', 'pt': '351', 'ro': '40',
-    'se': '46', 'si': '386', 'sk': '421', 'us': '1',
+    'se': '46', 'si': '386', 'sk': '421', 'ch': '41', 'no': '47', 'gb': '44', 'us': '1',
 }
-EU = [k for k in DIAL if k != 'us']
+NON_EU = ['ch', 'no', 'gb', 'us']
+EU = [k for k in DIAL if k not in NON_EU]
 # Coarse lon/lat boxes so DuckDB can skip row groups; the country code filter is exact.
 # The EU box spans the Azores, the Canaries and Cyprus.
 SCANS = {
     'eu': (EU, (-32.0, 27.0, 35.0, 71.5)),
+    'europe': (['ch', 'no', 'gb'], (-11.0, 45.5, 32.0, 71.5)),
     'us': (['us'], (-180.0, 15.0, -60.0, 72.0)),
 }
 
 # The taxonomy catches most auction houses; names catch the rest, in the local languages.
 NAME_RE = (r'auktion|versteiger|auction|dorotheum|ench[eè]res|h[oô]tel des ventes|commissaire.priseur|'
            r'casa d.aste|\baste\b|subasta|veiling|aukcj|aukcyj|aukcij|aukce|aukční|aukci[oó]|árverés|'
-           r'huutokauppa|leil[oõã]|licita[tț]ii')
+           r'huutokauppa|leil[oõã]|licita[tț]ii|auksjon')
 EXCLUDE_RE = r'gericht|court|tribunal|zwangsversteiger|foreclos|notar'
 FIELDS = ['name', 'street', 'postcode', 'city', 'region', 'lat', 'lon', 'phone', 'website', 'email']
 

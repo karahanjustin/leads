@@ -544,9 +544,9 @@ const I18N = {
     finder_title:'Find leads',
     finder_sub:'Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap and Overture Maps. Email is often missing and stays editable.',
     lbl_niche:'Niche', lbl_country:'Country', lbl_city:'City', lbl_radius:'Metro radius',
-    lbl_state_us:'State', lbl_state_de:'Federal state', lbl_state_at:'Federal state', lbl_state_region:'Region',
-    sel_state_us:'Select state', sel_state_de:'Select federal state', sel_state_at:'Select federal state', sel_state_region:'Select region',
-    grp_eu:'European Union', grp_other:'Other countries',
+    lbl_state_us:'State', lbl_state_de:'Federal state', lbl_state_at:'Federal state', lbl_state_region:'Region', lbl_state_ch:'Canton',
+    sel_state_us:'Select state', sel_state_de:'Select federal state', sel_state_at:'Select federal state', sel_state_region:'Select region', sel_state_ch:'Select canton',
+    grp_eu:'European Union', grp_europe:'Rest of Europe', grp_other:'Other countries',
     radius_city:'City only',
     ph_niche:'e.g. dentist, plumber, restaurant', ph_city:(c)=>`e.g. ${c}`,
     ph_bizname:'e.g. Austin Plumbing', ph_optional:'optional',
@@ -597,9 +597,9 @@ const I18N = {
     finder_title:'Leads finden',
     finder_sub:'Branche und Ort wählen, dann die Treffer in die Liste übernehmen. Die Daten kommen von OpenStreetMap und Overture Maps. E-Mail fehlt häufig und bleibt bearbeitbar.',
     lbl_niche:'Branche', lbl_country:'Land', lbl_city:'Stadt', lbl_radius:'Umkreis',
-    lbl_state_us:'Bundesstaat', lbl_state_de:'Bundesland', lbl_state_at:'Bundesland', lbl_state_region:'Region',
-    sel_state_us:'Bundesstaat wählen', sel_state_de:'Bundesland wählen', sel_state_at:'Bundesland wählen', sel_state_region:'Region wählen',
-    grp_eu:'Europäische Union', grp_other:'Weitere Länder',
+    lbl_state_us:'Bundesstaat', lbl_state_de:'Bundesland', lbl_state_at:'Bundesland', lbl_state_region:'Region', lbl_state_ch:'Kanton',
+    sel_state_us:'Bundesstaat wählen', sel_state_de:'Bundesland wählen', sel_state_at:'Bundesland wählen', sel_state_region:'Region wählen', sel_state_ch:'Kanton wählen',
+    grp_eu:'Europäische Union', grp_europe:'Weiteres Europa', grp_other:'Weitere Länder',
     radius_city:'Nur Stadt',
     ph_niche:'z.B. Zahnarzt, Klempner, Restaurant', ph_city:(c)=>`z.B. ${c}`,
     ph_bizname:'z.B. Müller Sanitär', ph_optional:'optional',
@@ -1639,14 +1639,55 @@ const EU_COUNTRIES = {
     "Cantabria":["Santander","Torrelavega"], "La Rioja":["Logroño","Calahorra"], "Ceuta":["Ceuta"], "Melilla":["Melilla"] }},
 };
 
+// European countries outside the EU, same format as EU_COUNTRIES.
+const MORE_EUROPE = {
+  ch: { dial:'41', geoSuffix:'Switzerland', stateKey:'ch', states:{
+    "Zürich":["Zürich","Winterthur","Uster","Dübendorf","Dietikon","Wädenswil"],
+    "Bern":["Bern","Biel","Thun","Köniz","Burgdorf","Langenthal"],
+    "Genève":["Genève","Vernier","Lancy","Carouge","Meyrin"],
+    "Vaud":["Lausanne","Yverdon-les-Bains","Montreux","Nyon","Vevey","Renens","Morges"],
+    "Basel-Stadt":["Basel","Riehen"], "Basel-Landschaft":["Liestal","Allschwil","Reinach","Muttenz","Pratteln"],
+    "Luzern":["Luzern","Emmen","Kriens","Sursee"], "St. Gallen":["St. Gallen","Rapperswil-Jona","Wil","Gossau","Buchs"],
+    "Aargau":["Aarau","Baden","Wettingen","Wohlen","Brugg"], "Ticino":["Lugano","Bellinzona","Locarno","Mendrisio","Chiasso"],
+    "Valais":["Sion","Sierre","Martigny","Monthey","Brig-Glis","Visp","Zermatt"],
+    "Fribourg":["Fribourg","Bulle","Murten"], "Neuchâtel":["Neuchâtel","La Chaux-de-Fonds","Le Locle"],
+    "Solothurn":["Solothurn","Olten","Grenchen"], "Thurgau":["Frauenfeld","Kreuzlingen","Arbon","Amriswil"],
+    "Graubünden":["Chur","Davos","St. Moritz","Landquart"], "Schwyz":["Schwyz","Freienbach","Einsiedeln","Küssnacht"],
+    "Zug":["Zug","Baar","Cham"], "Schaffhausen":["Schaffhausen","Neuhausen am Rheinfall"],
+    "Jura":["Delémont","Porrentruy"], "Appenzell Ausserrhoden":["Herisau"], "Appenzell Innerrhoden":["Appenzell"],
+    "Glarus":["Glarus"], "Nidwalden":["Stans"], "Obwalden":["Sarnen"], "Uri":["Altdorf"] }},
+  no: { dial:'47', geoSuffix:'Norway', states:{
+    "Oslo":["Oslo"], "Akershus":["Bærum","Asker","Lillestrøm","Lørenskog","Ski"],
+    "Vestland":["Bergen","Førde","Stord","Voss"], "Trøndelag":["Trondheim","Steinkjer","Stjørdal","Levanger"],
+    "Rogaland":["Stavanger","Sandnes","Haugesund","Egersund"], "Agder":["Kristiansand","Arendal","Grimstad","Mandal"],
+    "Vestfold":["Tønsberg","Sandefjord","Larvik","Horten"], "Telemark":["Skien","Porsgrunn","Notodden"],
+    "Buskerud":["Drammen","Kongsberg","Hønefoss"], "Østfold":["Fredrikstad","Sarpsborg","Moss","Halden"],
+    "Innlandet":["Hamar","Lillehammer","Gjøvik","Elverum","Kongsvinger"],
+    "Møre og Romsdal":["Ålesund","Molde","Kristiansund"], "Nordland":["Bodø","Narvik","Mo i Rana","Svolvær"],
+    "Troms":["Tromsø","Harstad","Finnsnes"], "Finnmark":["Alta","Hammerfest","Vadsø","Kirkenes"] }},
+  gb: { dial:'44', geoSuffix:'United Kingdom', states:{
+    "London":["London","Croydon","Barnet","Ealing","Bromley","Kingston upon Thames"],
+    "South East":["Brighton","Southampton","Portsmouth","Reading","Oxford","Milton Keynes","Canterbury","Guildford"],
+    "South West":["Bristol","Plymouth","Exeter","Bath","Bournemouth","Swindon","Gloucester","Cheltenham"],
+    "West Midlands":["Birmingham","Coventry","Wolverhampton","Stoke-on-Trent","Worcester","Hereford"],
+    "East Midlands":["Nottingham","Leicester","Derby","Northampton","Lincoln"],
+    "East of England":["Norwich","Cambridge","Ipswich","Peterborough","Luton","Chelmsford","Colchester"],
+    "North West":["Manchester","Liverpool","Preston","Blackpool","Bolton","Chester","Lancaster"],
+    "North East":["Newcastle upon Tyne","Sunderland","Middlesbrough","Durham"],
+    "Yorkshire and the Humber":["Leeds","Sheffield","Bradford","York","Kingston upon Hull","Huddersfield","Doncaster"],
+    "Scotland":["Glasgow","Edinburgh","Aberdeen","Dundee","Inverness","Stirling","Perth"],
+    "Wales":["Cardiff","Swansea","Newport","Wrexham","Bangor"],
+    "Northern Ireland":["Belfast","Derry","Lisburn","Newry"] }},
+};
+
 // Country registry: region list, geocoder suffix, label set and calling code.
 const COUNTRIES = {
   us: { states: US_CITIES, geoSuffix: 'USA',         stateKey: 'us', dial: '1',  example: 'Austin' },
   de: { states: DE_CITIES, geoSuffix: 'Deutschland', stateKey: 'de', dial: '49', example: 'Bielefeld' },
   at: { states: AT_CITIES, geoSuffix: 'Österreich',  stateKey: 'at', dial: '43', example: 'Graz' },
 };
-for (const [cc, c] of Object.entries(EU_COUNTRIES)){
-  COUNTRIES[cc] = { ...c, stateKey: 'region', example: Object.values(c.states)[0][0] };
+for (const [cc, c] of Object.entries({ ...EU_COUNTRIES, ...MORE_EUROPE })){
+  COUNTRIES[cc] = { stateKey: 'region', ...c, example: Object.values(c.states)[0][0] };
 }
 const EU_MEMBERS = ['de', 'at', ...Object.keys(EU_COUNTRIES)];
 let country = localStorage.getItem('call-tracker-country') || 'us';
@@ -2458,6 +2499,7 @@ function renderCountryOptions(){
     .map(([cc, n]) => `<option value="${cc}">${escapeHtml(n)}</option>`).join('');
   const sel = document.getElementById('f-country');
   sel.innerHTML = `<optgroup label="${escapeHtml(t('grp_eu'))}">${opts(EU_MEMBERS)}</optgroup>` +
+    `<optgroup label="${escapeHtml(t('grp_europe'))}">${opts(Object.keys(MORE_EUROPE))}</optgroup>` +
     `<optgroup label="${escapeHtml(t('grp_other'))}">${opts(['us'])}</optgroup>`;
   sel.value = country;
 }
