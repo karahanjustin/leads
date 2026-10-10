@@ -425,11 +425,7 @@
       </div>
       <div>
         <div class="field-label" data-i18n="lbl_country">Country</div>
-        <select id="f-country" onchange="onCountryChange()">
-          <option value="us">United States</option>
-          <option value="de">Deutschland</option>
-          <option value="at">Österreich</option>
-        </select>
+        <select id="f-country" onchange="onCountryChange()"></select>
       </div>
       <div>
         <div class="field-label" id="lbl-state">State</div>
@@ -548,10 +544,11 @@ const I18N = {
     finder_title:'Find leads',
     finder_sub:'Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap and Overture Maps. Email is often missing and stays editable.',
     lbl_niche:'Niche', lbl_country:'Country', lbl_city:'City', lbl_radius:'Metro radius',
-    lbl_state_us:'State', lbl_state_de:'Federal state', lbl_state_at:'Federal state',
-    sel_state_us:'Select state', sel_state_de:'Select federal state', sel_state_at:'Select federal state',
+    lbl_state_us:'State', lbl_state_de:'Federal state', lbl_state_at:'Federal state', lbl_state_region:'Region',
+    sel_state_us:'Select state', sel_state_de:'Select federal state', sel_state_at:'Select federal state', sel_state_region:'Select region',
+    grp_eu:'European Union', grp_other:'Other countries',
     radius_city:'City only',
-    ph_niche:'e.g. dentist, plumber, restaurant', ph_city_us:'e.g. Austin', ph_city_de:'e.g. Bielefeld', ph_city_at:'e.g. Graz',
+    ph_niche:'e.g. dentist, plumber, restaurant', ph_city:(c)=>`e.g. ${c}`,
     ph_bizname:'e.g. Austin Plumbing', ph_optional:'optional',
     th_name:'Name', th_email:'Email', th_address:'Address', th_website:'Website', th_phone:'Phone',
     stat_total:'Total', stat_closed:'Closed',
@@ -600,10 +597,11 @@ const I18N = {
     finder_title:'Leads finden',
     finder_sub:'Branche und Ort wählen, dann die Treffer in die Liste übernehmen. Die Daten kommen von OpenStreetMap und Overture Maps. E-Mail fehlt häufig und bleibt bearbeitbar.',
     lbl_niche:'Branche', lbl_country:'Land', lbl_city:'Stadt', lbl_radius:'Umkreis',
-    lbl_state_us:'Bundesstaat', lbl_state_de:'Bundesland', lbl_state_at:'Bundesland',
-    sel_state_us:'Bundesstaat wählen', sel_state_de:'Bundesland wählen', sel_state_at:'Bundesland wählen',
+    lbl_state_us:'Bundesstaat', lbl_state_de:'Bundesland', lbl_state_at:'Bundesland', lbl_state_region:'Region',
+    sel_state_us:'Bundesstaat wählen', sel_state_de:'Bundesland wählen', sel_state_at:'Bundesland wählen', sel_state_region:'Region wählen',
+    grp_eu:'Europäische Union', grp_other:'Weitere Länder',
     radius_city:'Nur Stadt',
-    ph_niche:'z.B. Zahnarzt, Klempner, Restaurant', ph_city_us:'z.B. Austin', ph_city_de:'z.B. Bielefeld', ph_city_at:'z.B. Graz',
+    ph_niche:'z.B. Zahnarzt, Klempner, Restaurant', ph_city:(c)=>`z.B. ${c}`,
     ph_bizname:'z.B. Müller Sanitär', ph_optional:'optional',
     th_name:'Name', th_email:'E-Mail', th_address:'Adresse', th_website:'Webseite', th_phone:'Telefon',
     stat_total:'Gesamt', stat_closed:'Abgeschlossen',
@@ -1400,12 +1398,257 @@ const AT_CITIES = {
   "Wien":["Wien"]
 };
 
-// Country registry: which state list to use and how to phrase the geocoder query.
-const COUNTRIES = {
-  us: { states: US_CITIES, geoSuffix: 'USA',         stateKey: 'us' },
-  de: { states: DE_CITIES, geoSuffix: 'Deutschland', stateKey: 'de' },
-  at: { states: AT_CITIES, geoSuffix: 'Österreich',  stateKey: 'at' },
+// The other EU member states: regions in the local spelling (as OpenStreetMap
+// names them, English for Greek and Cyrillic script) with their larger towns.
+const EU_COUNTRIES = {
+  be: { dial:'32', geoSuffix:'Belgium', states:{
+    "Vlaanderen":["Antwerpen","Gent","Brugge","Leuven","Mechelen","Aalst","Kortrijk","Hasselt","Oostende","Sint-Niklaas","Genk","Roeselare"],
+    "Wallonie":["Charleroi","Liège","Namur","Mons","La Louvière","Tournai","Seraing","Verviers","Mouscron","Arlon","Wavre"],
+    "Bruxelles-Capitale":["Bruxelles","Schaerbeek","Anderlecht","Ixelles","Uccle"] }},
+  bg: { dial:'359', geoSuffix:'Bulgaria', states:{
+    "Sofia City":["Sofia"], "Sofia Province":["Botevgrad","Samokov"],
+    "Plovdiv Province":["Plovdiv","Asenovgrad"], "Varna Province":["Varna"],
+    "Burgas Province":["Burgas","Nesebar","Sozopol","Pomorie"], "Ruse Province":["Ruse"],
+    "Stara Zagora Province":["Stara Zagora","Kazanlak"], "Pleven Province":["Pleven"],
+    "Sliven Province":["Sliven"], "Dobrich Province":["Dobrich","Balchik"], "Shumen Province":["Shumen"],
+    "Haskovo Province":["Haskovo","Dimitrovgrad"], "Blagoevgrad Province":["Blagoevgrad","Bansko","Sandanski"],
+    "Veliko Tarnovo Province":["Veliko Tarnovo","Gorna Oryahovitsa"], "Pazardzhik Province":["Pazardzhik","Velingrad"],
+    "Pernik Province":["Pernik"], "Vratsa Province":["Vratsa"], "Gabrovo Province":["Gabrovo","Sevlievo"],
+    "Yambol Province":["Yambol"], "Kardzhali Province":["Kardzhali"] }},
+  cy: { dial:'357', geoSuffix:'Cyprus', states:{
+    "Nicosia District":["Nicosia","Strovolos","Lakatamia"], "Limassol District":["Limassol","Germasogeia"],
+    "Larnaca District":["Larnaca","Aradippou"], "Paphos District":["Paphos","Peyia"],
+    "Famagusta District":["Ayia Napa","Paralimni"] }},
+  cz: { dial:'420', geoSuffix:'Czechia', states:{
+    "Praha":["Praha"],
+    "Středočeský kraj":["Kladno","Mladá Boleslav","Příbram","Kolín","Kutná Hora","Beroun","Mělník"],
+    "Jihomoravský kraj":["Brno","Znojmo","Hodonín","Břeclav","Blansko","Vyškov"],
+    "Moravskoslezský kraj":["Ostrava","Havířov","Opava","Frýdek-Místek","Karviná","Třinec","Nový Jičín"],
+    "Plzeňský kraj":["Plzeň","Klatovy","Rokycany"],
+    "Olomoucký kraj":["Olomouc","Prostějov","Přerov","Šumperk"],
+    "Ústecký kraj":["Ústí nad Labem","Most","Teplice","Děčín","Chomutov","Litoměřice"],
+    "Liberecký kraj":["Liberec","Jablonec nad Nisou","Česká Lípa"],
+    "Královéhradecký kraj":["Hradec Králové","Trutnov","Náchod","Jičín"],
+    "Pardubický kraj":["Pardubice","Chrudim","Svitavy","Ústí nad Orlicí"],
+    "Jihočeský kraj":["České Budějovice","Tábor","Písek","Strakonice","Český Krumlov","Jindřichův Hradec"],
+    "Kraj Vysočina":["Jihlava","Třebíč","Havlíčkův Brod","Žďár nad Sázavou"],
+    "Zlínský kraj":["Zlín","Uherské Hradiště","Kroměříž","Vsetín"],
+    "Karlovarský kraj":["Karlovy Vary","Cheb","Sokolov","Mariánské Lázně"] }},
+  dk: { dial:'45', geoSuffix:'Denmark', states:{
+    "Region Hovedstaden":["København","Frederiksberg","Hillerød","Helsingør","Kongens Lyngby"],
+    "Region Midtjylland":["Aarhus","Randers","Horsens","Silkeborg","Herning","Viborg","Skanderborg"],
+    "Region Syddanmark":["Odense","Esbjerg","Kolding","Vejle","Fredericia","Svendborg","Sønderborg","Aabenraa"],
+    "Region Nordjylland":["Aalborg","Hjørring","Frederikshavn","Thisted"],
+    "Region Sjælland":["Roskilde","Næstved","Køge","Slagelse","Holbæk","Nykøbing Falster"] }},
+  ee: { dial:'372', geoSuffix:'Estonia', states:{
+    "Harju maakond":["Tallinn","Maardu","Keila"], "Tartu maakond":["Tartu","Elva"],
+    "Ida-Viru maakond":["Narva","Kohtla-Järve","Jõhvi","Sillamäe"], "Pärnu maakond":["Pärnu"],
+    "Lääne-Viru maakond":["Rakvere"], "Viljandi maakond":["Viljandi"], "Saare maakond":["Kuressaare"],
+    "Võru maakond":["Võru"], "Valga maakond":["Valga"], "Järva maakond":["Paide"],
+    "Jõgeva maakond":["Jõgeva"], "Rapla maakond":["Rapla"], "Põlva maakond":["Põlva"],
+    "Lääne maakond":["Haapsalu"], "Hiiu maakond":["Kärdla"] }},
+  fi: { dial:'358', geoSuffix:'Finland', states:{
+    "Uusimaa":["Helsinki","Espoo","Vantaa","Porvoo","Lohja","Hyvinkää","Järvenpää","Kerava"],
+    "Pirkanmaa":["Tampere","Nokia","Ylöjärvi","Kangasala"], "Varsinais-Suomi":["Turku","Salo","Kaarina","Raisio"],
+    "Pohjois-Pohjanmaa":["Oulu","Raahe"], "Keski-Suomi":["Jyväskylä"], "Pohjois-Savo":["Kuopio","Iisalmi","Varkaus"],
+    "Päijät-Häme":["Lahti","Heinola"], "Satakunta":["Pori","Rauma"], "Kanta-Häme":["Hämeenlinna","Riihimäki","Forssa"],
+    "Kymenlaakso":["Kouvola","Kotka"], "Pohjois-Karjala":["Joensuu"], "Etelä-Karjala":["Lappeenranta","Imatra"],
+    "Pohjanmaa":["Vaasa","Pietarsaari"], "Etelä-Pohjanmaa":["Seinäjoki"], "Etelä-Savo":["Mikkeli","Savonlinna"],
+    "Lappi":["Rovaniemi","Kemi","Tornio"], "Kainuu":["Kajaani"], "Keski-Pohjanmaa":["Kokkola"],
+    "Ahvenanmaa":["Maarianhamina"] }},
+  fr: { dial:'33', geoSuffix:'France', states:{
+    "Île-de-France":["Paris","Boulogne-Billancourt","Saint-Denis","Argenteuil","Montreuil","Versailles","Nanterre","Créteil","Vitry-sur-Seine"],
+    "Auvergne-Rhône-Alpes":["Lyon","Grenoble","Saint-Étienne","Villeurbanne","Clermont-Ferrand","Annecy","Chambéry","Valence"],
+    "Provence-Alpes-Côte d'Azur":["Marseille","Nice","Toulon","Aix-en-Provence","Avignon","Cannes","Antibes"],
+    "Occitanie":["Toulouse","Montpellier","Nîmes","Perpignan","Béziers","Narbonne"],
+    "Nouvelle-Aquitaine":["Bordeaux","Limoges","Poitiers","Pau","La Rochelle","Bayonne","Mérignac"],
+    "Hauts-de-France":["Lille","Amiens","Roubaix","Tourcoing","Dunkerque","Calais","Beauvais"],
+    "Grand Est":["Strasbourg","Reims","Metz","Mulhouse","Nancy","Colmar","Troyes"],
+    "Pays de la Loire":["Nantes","Angers","Le Mans","Saint-Nazaire","La Roche-sur-Yon"],
+    "Bretagne":["Rennes","Brest","Quimper","Lorient","Vannes","Saint-Malo"],
+    "Normandie":["Le Havre","Rouen","Caen","Cherbourg-en-Cotentin","Évreux"],
+    "Bourgogne-Franche-Comté":["Dijon","Besançon","Belfort","Chalon-sur-Saône","Auxerre"],
+    "Centre-Val de Loire":["Tours","Orléans","Bourges","Blois","Chartres"],
+    "Corse":["Ajaccio","Bastia"] }},
+  gr: { dial:'30', geoSuffix:'Greece', states:{
+    "Attica":["Athens","Piraeus","Peristeri","Kallithea","Glyfada","Marousi"],
+    "Central Macedonia":["Thessaloniki","Serres","Katerini","Veria"],
+    "Thessaly":["Larissa","Volos","Trikala","Karditsa"], "Western Greece":["Patras","Agrinio","Pyrgos"],
+    "Crete":["Heraklion","Chania","Rethymno","Agios Nikolaos"], "Epirus":["Ioannina","Preveza"],
+    "Peloponnese":["Kalamata","Tripoli","Corinth","Nafplio","Sparti"], "Central Greece":["Lamia","Chalkida","Livadeia"],
+    "Eastern Macedonia and Thrace":["Kavala","Komotini","Xanthi","Alexandroupoli","Drama"],
+    "Western Macedonia":["Kozani","Kastoria","Florina"], "South Aegean":["Rhodes","Ermoupoli","Kos"],
+    "North Aegean":["Mytilene","Chios"], "Ionian Islands":["Corfu","Zakynthos","Argostoli"] }},
+  hr: { dial:'385', geoSuffix:'Croatia', states:{
+    "Grad Zagreb":["Zagreb"], "Zagrebačka županija":["Velika Gorica","Samobor","Zaprešić"],
+    "Splitsko-dalmatinska županija":["Split","Makarska","Kaštela","Trogir","Sinj"],
+    "Primorsko-goranska županija":["Rijeka","Opatija","Crikvenica","Krk"],
+    "Osječko-baranjska županija":["Osijek","Đakovo"], "Zadarska županija":["Zadar","Biograd na Moru"],
+    "Istarska županija":["Pula","Rovinj","Poreč","Umag","Pazin"],
+    "Dubrovačko-neretvanska županija":["Dubrovnik","Metković","Korčula"],
+    "Šibensko-kninska županija":["Šibenik","Knin","Vodice"], "Varaždinska županija":["Varaždin"],
+    "Brodsko-posavska županija":["Slavonski Brod"], "Karlovačka županija":["Karlovac"],
+    "Sisačko-moslavačka županija":["Sisak"], "Međimurska županija":["Čakovec"],
+    "Vukovarsko-srijemska županija":["Vukovar","Vinkovci"], "Koprivničko-križevačka županija":["Koprivnica"],
+    "Bjelovarsko-bilogorska županija":["Bjelovar"], "Požeško-slavonska županija":["Požega"],
+    "Virovitičko-podravska županija":["Virovitica"], "Ličko-senjska županija":["Gospić","Senj"],
+    "Krapinsko-zagorska županija":["Krapina","Zabok"] }},
+  hu: { dial:'36', geoSuffix:'Hungary', states:{
+    "Budapest":["Budapest"], "Pest vármegye":["Érd","Cegléd","Gödöllő","Vác","Szentendre"],
+    "Hajdú-Bihar vármegye":["Debrecen","Hajdúböszörmény"], "Csongrád-Csanád vármegye":["Szeged","Hódmezővásárhely"],
+    "Borsod-Abaúj-Zemplén vármegye":["Miskolc","Ózd"], "Baranya vármegye":["Pécs","Komló"],
+    "Győr-Moson-Sopron vármegye":["Győr","Sopron"], "Szabolcs-Szatmár-Bereg vármegye":["Nyíregyháza"],
+    "Bács-Kiskun vármegye":["Kecskemét","Baja","Kiskunfélegyháza"], "Fejér vármegye":["Székesfehérvár","Dunaújváros"],
+    "Vas vármegye":["Szombathely"], "Jász-Nagykun-Szolnok vármegye":["Szolnok"],
+    "Veszprém vármegye":["Veszprém","Pápa","Ajka"], "Zala vármegye":["Zalaegerszeg","Nagykanizsa"],
+    "Somogy vármegye":["Kaposvár","Siófok"], "Békés vármegye":["Békéscsaba"], "Heves vármegye":["Eger","Gyöngyös"],
+    "Komárom-Esztergom vármegye":["Tatabánya","Esztergom"], "Tolna vármegye":["Szekszárd"],
+    "Nógrád vármegye":["Salgótarján"] }},
+  ie: { dial:'353', geoSuffix:'Ireland', states:{
+    "County Dublin":["Dublin","Dún Laoghaire","Swords","Tallaght"], "County Cork":["Cork","Cobh","Mallow"],
+    "County Galway":["Galway","Tuam"], "County Limerick":["Limerick"], "County Waterford":["Waterford"],
+    "County Kildare":["Naas","Newbridge","Maynooth"], "County Meath":["Navan"], "County Louth":["Drogheda","Dundalk"],
+    "County Wicklow":["Bray","Wicklow"], "County Wexford":["Wexford"], "County Kilkenny":["Kilkenny"],
+    "County Kerry":["Tralee","Killarney"], "County Clare":["Ennis"], "County Tipperary":["Clonmel"],
+    "County Westmeath":["Athlone","Mullingar"], "County Sligo":["Sligo"], "County Donegal":["Letterkenny"],
+    "County Mayo":["Castlebar"], "County Carlow":["Carlow"], "County Offaly":["Tullamore"], "County Laois":["Portlaoise"] }},
+  it: { dial:'39', geoSuffix:'Italy', states:{
+    "Lombardia":["Milano","Bergamo","Brescia","Monza","Como","Varese","Pavia","Cremona"],
+    "Lazio":["Roma","Latina","Viterbo","Frosinone"],
+    "Campania":["Napoli","Salerno","Caserta","Torre del Greco","Avellino"],
+    "Sicilia":["Palermo","Catania","Messina","Siracusa","Trapani","Ragusa"],
+    "Veneto":["Venezia","Verona","Padova","Vicenza","Treviso"],
+    "Piemonte":["Torino","Novara","Alessandria","Asti","Cuneo"],
+    "Emilia-Romagna":["Bologna","Parma","Modena","Reggio Emilia","Rimini","Ferrara","Ravenna"],
+    "Toscana":["Firenze","Prato","Livorno","Pisa","Arezzo","Siena","Lucca"],
+    "Puglia":["Bari","Taranto","Foggia","Lecce","Brindisi"], "Liguria":["Genova","La Spezia","Savona","Sanremo"],
+    "Calabria":["Reggio Calabria","Catanzaro","Cosenza","Lamezia Terme"], "Sardegna":["Cagliari","Sassari","Olbia"],
+    "Marche":["Ancona","Pesaro","Fano","Macerata"], "Abruzzo":["Pescara","L'Aquila","Chieti","Teramo"],
+    "Friuli-Venezia Giulia":["Trieste","Udine","Pordenone"], "Trentino-Alto Adige":["Trento","Bolzano","Merano","Rovereto"],
+    "Umbria":["Perugia","Terni"], "Basilicata":["Potenza","Matera"], "Molise":["Campobasso"], "Valle d'Aosta":["Aosta"] }},
+  lt: { dial:'370', geoSuffix:'Lithuania', states:{
+    "Vilniaus apskritis":["Vilnius"], "Kauno apskritis":["Kaunas","Jonava"],
+    "Klaipėdos apskritis":["Klaipėda","Palanga","Kretinga"], "Šiaulių apskritis":["Šiauliai"],
+    "Panevėžio apskritis":["Panevėžys"], "Alytaus apskritis":["Alytus"], "Marijampolės apskritis":["Marijampolė"],
+    "Utenos apskritis":["Utena"], "Telšių apskritis":["Telšiai","Mažeikiai"], "Tauragės apskritis":["Tauragė"] }},
+  lu: { dial:'352', geoSuffix:'Luxembourg', states:{
+    "Canton Luxembourg":["Luxembourg","Strassen","Bertrange","Hesperange","Walferdange"],
+    "Canton Esch-sur-Alzette":["Esch-sur-Alzette","Differdange","Dudelange","Schifflange","Pétange","Sanem"],
+    "Canton Capellen":["Mamer","Steinfort"], "Canton Mersch":["Mersch"], "Canton Diekirch":["Diekirch","Ettelbruck"],
+    "Canton Clervaux":["Clervaux"], "Canton Wiltz":["Wiltz"], "Canton Echternach":["Echternach"],
+    "Canton Grevenmacher":["Grevenmacher"], "Canton Remich":["Remich","Mondorf-les-Bains"] }},
+  lv: { dial:'371', geoSuffix:'Latvia', states:{
+    "Rīga":["Rīga"], "Pierīga":["Jūrmala","Ogre","Salaspils","Sigulda"],
+    "Kurzeme":["Liepāja","Ventspils","Kuldīga","Talsi"], "Zemgale":["Jelgava","Jēkabpils","Bauska"],
+    "Vidzeme":["Valmiera","Cēsis"], "Latgale":["Daugavpils","Rēzekne","Ludza"] }},
+  mt: { dial:'356', geoSuffix:'Malta', states:{
+    "Malta":["Valletta","Birkirkara","Mosta","Qormi","Sliema","San Ġiljan","Żabbar","Naxxar","Żejtun","Rabat","Marsaskala"],
+    "Gozo":["Victoria","Xagħra","Nadur"] }},
+  nl: { dial:'31', geoSuffix:'Netherlands', states:{
+    "Noord-Holland":["Amsterdam","Haarlem","Zaanstad","Alkmaar","Hilversum","Amstelveen","Purmerend","Den Helder","Hoorn"],
+    "Zuid-Holland":["Rotterdam","Den Haag","Leiden","Dordrecht","Zoetermeer","Delft","Alphen aan den Rijn","Gouda","Schiedam"],
+    "Utrecht":["Utrecht","Amersfoort","Nieuwegein","Veenendaal","Zeist"],
+    "Noord-Brabant":["Eindhoven","Tilburg","Breda","'s-Hertogenbosch","Helmond","Oss","Roosendaal","Bergen op Zoom"],
+    "Gelderland":["Nijmegen","Apeldoorn","Arnhem","Ede","Doetinchem","Harderwijk"],
+    "Overijssel":["Enschede","Zwolle","Deventer","Almelo","Hengelo"],
+    "Limburg":["Maastricht","Venlo","Sittard","Heerlen","Roermond","Weert"],
+    "Groningen":["Groningen"], "Fryslân":["Leeuwarden","Sneek","Heerenveen","Drachten"],
+    "Drenthe":["Emmen","Assen","Hoogeveen","Meppel"], "Flevoland":["Almere","Lelystad"],
+    "Zeeland":["Middelburg","Vlissingen","Goes","Terneuzen"] }},
+  pl: { dial:'48', geoSuffix:'Poland', states:{
+    "Mazowieckie":["Warszawa","Radom","Płock","Siedlce","Pruszków","Legionowo"],
+    "Małopolskie":["Kraków","Tarnów","Nowy Sącz","Oświęcim","Zakopane"],
+    "Śląskie":["Katowice","Częstochowa","Sosnowiec","Gliwice","Zabrze","Bielsko-Biała","Bytom","Rybnik","Tychy"],
+    "Wielkopolskie":["Poznań","Kalisz","Konin","Piła","Leszno","Gniezno"],
+    "Dolnośląskie":["Wrocław","Wałbrzych","Legnica","Jelenia Góra","Lubin","Głogów"],
+    "Łódzkie":["Łódź","Piotrków Trybunalski","Pabianice","Tomaszów Mazowiecki","Skierniewice"],
+    "Pomorskie":["Gdańsk","Gdynia","Sopot","Słupsk","Tczew","Wejherowo"],
+    "Zachodniopomorskie":["Szczecin","Koszalin","Stargard","Kołobrzeg","Świnoujście"],
+    "Kujawsko-pomorskie":["Bydgoszcz","Toruń","Włocławek","Grudziądz","Inowrocław"],
+    "Lubelskie":["Lublin","Zamość","Chełm","Biała Podlaska","Puławy"],
+    "Podkarpackie":["Rzeszów","Przemyśl","Stalowa Wola","Mielec","Krosno"],
+    "Podlaskie":["Białystok","Suwałki","Łomża"], "Warmińsko-mazurskie":["Olsztyn","Elbląg","Ełk","Ostróda"],
+    "Świętokrzyskie":["Kielce","Ostrowiec Świętokrzyski","Starachowice"],
+    "Opolskie":["Opole","Kędzierzyn-Koźle","Nysa"], "Lubuskie":["Zielona Góra","Gorzów Wielkopolski","Nowa Sól"] }},
+  pt: { dial:'351', geoSuffix:'Portugal', states:{
+    "Lisboa":["Lisboa","Amadora","Sintra","Cascais","Oeiras","Loures","Odivelas"],
+    "Porto":["Porto","Vila Nova de Gaia","Matosinhos","Gondomar","Maia","Póvoa de Varzim"],
+    "Braga":["Braga","Guimarães","Barcelos","Vila Nova de Famalicão"], "Setúbal":["Setúbal","Almada","Seixal","Barreiro"],
+    "Aveiro":["Aveiro","Santa Maria da Feira","Ovar","Ílhavo"],
+    "Faro":["Faro","Portimão","Loulé","Albufeira","Lagos","Olhão","Tavira"],
+    "Coimbra":["Coimbra","Figueira da Foz"], "Leiria":["Leiria","Caldas da Rainha","Pombal"],
+    "Santarém":["Santarém","Tomar","Torres Novas"], "Viseu":["Viseu","Lamego"], "Viana do Castelo":["Viana do Castelo"],
+    "Vila Real":["Vila Real","Chaves"], "Bragança":["Bragança"], "Castelo Branco":["Castelo Branco","Covilhã"],
+    "Guarda":["Guarda"], "Évora":["Évora"], "Beja":["Beja"], "Portalegre":["Portalegre","Elvas"],
+    "Madeira":["Funchal"], "Açores":["Ponta Delgada","Angra do Heroísmo"] }},
+  ro: { dial:'40', geoSuffix:'Romania', states:{
+    "București":["București"], "Ilfov":["Voluntari","Otopeni","Popești-Leordeni"],
+    "Cluj":["Cluj-Napoca","Turda","Dej"], "Timiș":["Timișoara","Lugoj"], "Iași":["Iași","Pașcani"],
+    "Constanța":["Constanța","Mangalia","Medgidia"], "Brașov":["Brașov","Făgăraș"], "Dolj":["Craiova"],
+    "Galați":["Galați","Tecuci"], "Prahova":["Ploiești","Câmpina"], "Bihor":["Oradea"], "Brăila":["Brăila"],
+    "Argeș":["Pitești","Câmpulung"], "Arad":["Arad"], "Sibiu":["Sibiu","Mediaș"], "Bacău":["Bacău","Onești"],
+    "Mureș":["Târgu Mureș","Sighișoara"], "Maramureș":["Baia Mare","Sighetu Marmației"], "Buzău":["Buzău"],
+    "Botoșani":["Botoșani"], "Satu Mare":["Satu Mare"], "Suceava":["Suceava","Fălticeni"],
+    "Neamț":["Piatra Neamț","Roman"], "Alba":["Alba Iulia"], "Hunedoara":["Deva","Hunedoara","Petroșani"],
+    "Vâlcea":["Râmnicu Vâlcea"], "Mehedinți":["Drobeta-Turnu Severin"], "Dâmbovița":["Târgoviște"],
+    "Bistrița-Năsăud":["Bistrița"], "Vrancea":["Focșani"], "Covasna":["Sfântu Gheorghe"],
+    "Harghita":["Miercurea Ciuc","Odorheiu Secuiesc"], "Caraș-Severin":["Reșița","Caransebeș"], "Olt":["Slatina"],
+    "Teleorman":["Alexandria"], "Tulcea":["Tulcea"], "Gorj":["Târgu Jiu"], "Sălaj":["Zalău"],
+    "Vaslui":["Vaslui","Bârlad"], "Ialomița":["Slobozia"], "Călărași":["Călărași"], "Giurgiu":["Giurgiu"] }},
+  se: { dial:'46', geoSuffix:'Sweden', states:{
+    "Stockholms län":["Stockholm","Solna","Södertälje","Nacka","Sundbyberg","Täby","Huddinge"],
+    "Västra Götalands län":["Göteborg","Borås","Trollhättan","Uddevalla","Skövde","Mölndal"],
+    "Skåne län":["Malmö","Helsingborg","Lund","Kristianstad","Landskrona","Trelleborg"],
+    "Uppsala län":["Uppsala","Enköping"], "Östergötlands län":["Linköping","Norrköping","Motala"],
+    "Västmanlands län":["Västerås","Sala"], "Örebro län":["Örebro","Karlskoga"], "Jönköpings län":["Jönköping","Värnamo"],
+    "Hallands län":["Halmstad","Varberg","Kungsbacka","Falkenberg"], "Värmlands län":["Karlstad","Arvika"],
+    "Gävleborgs län":["Gävle","Sandviken","Hudiksvall"], "Västernorrlands län":["Sundsvall","Örnsköldsvik","Härnösand"],
+    "Dalarnas län":["Falun","Borlänge","Mora"], "Södermanlands län":["Eskilstuna","Nyköping","Katrineholm"],
+    "Kronobergs län":["Växjö","Ljungby"], "Kalmar län":["Kalmar","Västervik","Oskarshamn"],
+    "Blekinge län":["Karlskrona","Karlshamn"], "Västerbottens län":["Umeå","Skellefteå"],
+    "Norrbottens län":["Luleå","Piteå","Kiruna","Boden"], "Jämtlands län":["Östersund"], "Gotlands län":["Visby"] }},
+  si: { dial:'386', geoSuffix:'Slovenia', states:{
+    "Osrednjeslovenska":["Ljubljana","Domžale","Kamnik","Vrhnika"], "Podravska":["Maribor","Ptuj"],
+    "Savinjska":["Celje","Velenje","Žalec"], "Gorenjska":["Kranj","Jesenice","Škofja Loka","Bled"],
+    "Obalno-kraška":["Koper","Izola","Piran","Sežana"], "Goriška":["Nova Gorica","Ajdovščina","Tolmin"],
+    "Jugovzhodna Slovenija":["Novo mesto","Kočevje"], "Pomurska":["Murska Sobota","Lendava"],
+    "Koroška":["Slovenj Gradec","Ravne na Koroškem"], "Posavska":["Krško","Brežice"],
+    "Zasavska":["Trbovlje","Zagorje ob Savi"], "Primorsko-notranjska":["Postojna"] }},
+  sk: { dial:'421', geoSuffix:'Slovakia', states:{
+    "Bratislavský kraj":["Bratislava","Pezinok","Senec","Malacky"],
+    "Košický kraj":["Košice","Michalovce","Spišská Nová Ves","Trebišov"],
+    "Prešovský kraj":["Prešov","Poprad","Bardejov","Humenné"],
+    "Žilinský kraj":["Žilina","Martin","Ružomberok","Liptovský Mikuláš","Čadca"],
+    "Banskobystrický kraj":["Banská Bystrica","Zvolen","Lučenec","Rimavská Sobota"],
+    "Nitriansky kraj":["Nitra","Nové Zámky","Komárno","Levice"],
+    "Trnavský kraj":["Trnava","Piešťany","Dunajská Streda","Galanta"],
+    "Trenčiansky kraj":["Trenčín","Prievidza","Považská Bystrica","Partizánske"] }},
+  es: { dial:'34', geoSuffix:'Spain', states:{
+    "Comunidad de Madrid":["Madrid","Móstoles","Alcalá de Henares","Fuenlabrada","Leganés","Getafe","Alcorcón"],
+    "Cataluña":["Barcelona","L'Hospitalet de Llobregat","Badalona","Terrassa","Sabadell","Tarragona","Lleida","Girona","Mataró","Reus"],
+    "Andalucía":["Sevilla","Málaga","Córdoba","Granada","Almería","Huelva","Cádiz","Jaén","Marbella","Jerez de la Frontera","Algeciras"],
+    "Comunitat Valenciana":["Valencia","Alicante","Elche","Castellón de la Plana","Torrevieja","Benidorm"],
+    "Galicia":["Vigo","A Coruña","Ourense","Lugo","Santiago de Compostela","Pontevedra","Ferrol"],
+    "País Vasco":["Bilbao","Vitoria-Gasteiz","San Sebastián","Barakaldo","Getxo"],
+    "Castilla y León":["Valladolid","Burgos","Salamanca","León","Palencia","Zamora","Segovia","Ávila","Soria"],
+    "Castilla-La Mancha":["Albacete","Toledo","Guadalajara","Talavera de la Reina","Ciudad Real","Cuenca"],
+    "Canarias":["Las Palmas de Gran Canaria","Santa Cruz de Tenerife","San Cristóbal de La Laguna","Arrecife"],
+    "Región de Murcia":["Murcia","Cartagena","Lorca","Molina de Segura"], "Aragón":["Zaragoza","Huesca","Teruel"],
+    "Illes Balears":["Palma","Eivissa","Manacor","Maó"], "Extremadura":["Badajoz","Cáceres","Mérida","Plasencia"],
+    "Principado de Asturias":["Gijón","Oviedo","Avilés"], "Comunidad Foral de Navarra":["Pamplona","Tudela"],
+    "Cantabria":["Santander","Torrelavega"], "La Rioja":["Logroño","Calahorra"], "Ceuta":["Ceuta"], "Melilla":["Melilla"] }},
 };
+
+// Country registry: region list, geocoder suffix, label set and calling code.
+const COUNTRIES = {
+  us: { states: US_CITIES, geoSuffix: 'USA',         stateKey: 'us', dial: '1',  example: 'Austin' },
+  de: { states: DE_CITIES, geoSuffix: 'Deutschland', stateKey: 'de', dial: '49', example: 'Bielefeld' },
+  at: { states: AT_CITIES, geoSuffix: 'Österreich',  stateKey: 'at', dial: '43', example: 'Graz' },
+};
+for (const [cc, c] of Object.entries(EU_COUNTRIES)){
+  COUNTRIES[cc] = { ...c, stateKey: 'region', example: Object.values(c.states)[0][0] };
+}
+const EU_MEMBERS = ['de', 'at', ...Object.keys(EU_COUNTRIES)];
 let country = localStorage.getItem('call-tracker-country') || 'us';
 if (!COUNTRIES[country]) country = 'us';
 
@@ -1490,12 +1733,20 @@ function resolveCategory(input){
 }
 
 // --- Geocoding + Overpass -------------------------------------------------
+// The best match is often not a town: "Cork" is also a county, "Wien" a university's
+// name. Of the top five hits, the first town wins.
+const SETTLEMENT = ['city', 'town', 'village', 'municipality'];
 async function nominatimLookup(q){
-  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&addressdetails=1&polygon_geojson=1&polygon_threshold=0.001&countrycodes=${country}&q=${encodeURIComponent(q)}`;
-  const r = await fetch(url, { headers:{'Accept':'application/json'} });
+  const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&polygon_geojson=1&polygon_threshold=0.001&countrycodes=${country}&q=${encodeURIComponent(q)}`;
+  let r;
+  for (let attempt = 0; attempt < 3; attempt++){
+    r = await fetch(url, { headers:{'Accept':'application/json'} });
+    if (r.status !== 429) break;
+    await sleep(3000 * (attempt + 1));
+  }
   if (!r.ok) throw new Error('Nominatim ' + r.status);
   const data = await r.json();
-  return data[0] || null;
+  return data.find(p => SETTLEMENT.includes(p.addresstype)) || data[0] || null;
 }
 async function findLocation(state, city){
   const suffix = COUNTRIES[country].geoSuffix;
@@ -1504,10 +1755,14 @@ async function findLocation(state, city){
   if (fnorm(state) === fnorm(city)) state = '';
   const parts = [city.trim(), state.trim(), suffix].filter(Boolean);
   if (parts.length <= 1) return null;
-  // A state is optional: "Bielefeld, Deutschland" resolves fine on its own.
+  // A state is optional: "Bielefeld, Deutschland" resolves fine on its own. Some
+  // regions are no admin area in OSM (Latvia's Kurzeme, Slovenia's Goriška), and
+  // with them the query lands on a street such as "Goriška cesta" instead of a town.
+  const isTown = p => p && SETTLEMENT.includes(p.addresstype);
   const hit = await nominatimLookup(parts.join(', '));
-  if (hit || !state.trim()) return hit;
-  return await nominatimLookup([city.trim(), suffix].join(', '));
+  if (isTown(hit) || !state.trim()) return hit;
+  const plain = await nominatimLookup([city.trim(), suffix].join(', '));
+  return isTown(plain) ? plain : (hit || plain);
 }
 function areaId(place){
   const id = Number(place.osm_id);
@@ -1856,7 +2111,7 @@ const PLACEHOLDER_MAIL = /johndoe|john\.doe|max\.?mustermann|@(domain|example|te
 // Overture often drops the "+" ("494214585625") or adds a trunk zero ("049421351008").
 function cleanPhone(p){
   p = (p || '').trim();
-  const dial = { de:'49', at:'43', us:'1' }[country];
+  const dial = COUNTRIES[country].dial;
   const digits = p.replace(/\D/g, '');
   if (!digits || p.startsWith('+')) return p;
   if (digits.startsWith('00')) return '+' + digits.slice(2);
@@ -2188,11 +2443,23 @@ function applyCountryChrome(){
     names.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
   if (names.includes(prev)) stateSel.value = prev;
   document.getElementById('lbl-state').textContent = t('lbl_state_' + conf.stateKey);
-  document.getElementById('f-city').placeholder = t('ph_city_' + conf.stateKey);
-  document.getElementById('f-country').value = country;
+  document.getElementById('f-city').placeholder = t('ph_city', conf.example);
+  renderCountryOptions();
   document.getElementById('niche-suggest').innerHTML =
     NICHE_SUGGEST[lang].map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
   updateCitySuggest();
+}
+// Country names come from the browser in the UI language, sorted the way that language sorts.
+function renderCountryOptions(){
+  let names;
+  try { names = new Intl.DisplayNames([lang], { type: 'region' }); } catch(e){ names = null; }
+  const label = cc => names?.of(cc.toUpperCase()) || cc.toUpperCase();
+  const opts = list => list.map(cc => [cc, label(cc)]).sort((a, b) => a[1].localeCompare(b[1], lang))
+    .map(([cc, n]) => `<option value="${cc}">${escapeHtml(n)}</option>`).join('');
+  const sel = document.getElementById('f-country');
+  sel.innerHTML = `<optgroup label="${escapeHtml(t('grp_eu'))}">${opts(EU_MEMBERS)}</optgroup>` +
+    `<optgroup label="${escapeHtml(t('grp_other'))}">${opts(['us'])}</optgroup>`;
+  sel.value = country;
 }
 function updateCitySuggest(){
   const cities = COUNTRIES[country].states[document.getElementById('f-state').value] || [];
