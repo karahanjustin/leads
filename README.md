@@ -2,7 +2,7 @@
 
 A tiny, zero-backend tool for tracking cold outreach, by phone or by email. Add leads, mark status, jot notes, everything stays on your own device.
 
-**Live:** https://potsdam-media.de/leads/
+**Live:** https://westfalen-media.de/leads/
 
 ## Features
 
