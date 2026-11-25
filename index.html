@@ -261,6 +261,21 @@
     gap: 10px; align-items: end;
   }
   .finder-form input, .finder-form select { width: 100%; }
+  .label-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 5px; }
+  .label-row .field-label { margin-bottom: 0; }
+  button.dice {
+    width: 22px; height: 22px; padding: 0; display: grid; place-items: center; flex: none;
+    border: none; background: none; color: var(--text-3); border-radius: 5px; margin: -4px 0;
+  }
+  button.dice svg { width: 15px; height: 15px; }
+  button.dice:hover { color: var(--blue); background: var(--info-bg); }
+  button.dice:active svg, button.dice-all:active svg { transform: rotate(90deg); }
+  button.dice svg, button.dice-all svg { transition: transform 0.2s; }
+  .dice-all { display: inline-flex; align-items: center; gap: 6px; }
+  .dice-all svg { width: 14px; height: 14px; }
+  .head-actions { display: flex; gap: 8px; align-items: center; }
+  @keyframes ct-rolled { from { background-color: var(--info-bg); } to { background-color: var(--surface); } }
+  .finder-form .rolled { animation: ct-rolled 0.8s ease-out; }
   .finder-status {
     margin-top: 12px; font-size: 13px; color: var(--text-2);
     min-height: 18px; display: flex; align-items: center; gap: 8px;
@@ -324,6 +339,8 @@
   }
   .chip:hover { background: var(--surface); border-color: var(--ink); color: var(--ink); }
   .chip.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+  select.chip-select { padding: 4px 26px 4px 10px; cursor: pointer; max-width: 260px; }
+  select.chip-select.on { background-color: var(--ink); color: #fff; }
   .chip-sep { width: 1px; height: 18px; background: var(--border-strong); margin: 0 4px; }
   table.staging tr.dup td { opacity: 0.45; }
   table.staging tr.dup td.c-name input { text-decoration: line-through; }
@@ -560,12 +577,15 @@
       <h2 class="panel-title" data-i18n="finder_title">Find businesses</h2>
       <div class="panel-sub" id="finder-sub" data-i18n="finder_sub">Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap and Overture Maps. Email is often missing and stays editable.</div>
     </div>
-    <button class="small" onclick="toggleFinder()" data-i18n="btn_close">Close</button>
+    <div class="head-actions">
+      <button class="small dice-all" onclick="rollAll()" data-i18n-title="dice_all_tip" title="Random niche, region and city, then search"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="1.75" width="12.5" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.2" cy="5.2" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="10.8" cy="10.8" r="1.15" fill="currentColor"/></svg><span data-i18n="btn_roll_all">Random sample</span></button>
+      <button class="small" onclick="toggleFinder()" data-i18n="btn_close">Close</button>
+    </div>
   </div>
   <div class="panel-body">
     <div class="finder-form">
       <div>
-        <div class="field-label" data-i18n="lbl_niche">Niche</div>
+        <div class="label-row"><div class="field-label" data-i18n="lbl_niche">Niche</div><button type="button" class="dice" onclick="rollDice('niche')" data-i18n-title="dice_niche_tip" title="Random"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="1.75" width="12.5" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.2" cy="5.2" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="10.8" cy="10.8" r="1.15" fill="currentColor"/></svg></button></div>
         <input type="text" id="f-niche" list="niche-suggest" data-i18n-ph="ph_niche" placeholder="e.g. dentist, plumber, restaurant" />
         <datalist id="niche-suggest"></datalist>
       </div>
@@ -574,11 +594,11 @@
         <select id="f-country" onchange="onCountryChange()"></select>
       </div>
       <div>
-        <div class="field-label" id="lbl-state">State</div>
+        <div class="label-row"><div class="field-label" id="lbl-state">State</div><button type="button" class="dice" onclick="rollDice('state')" data-i18n-title="dice_state_tip" title="Random"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="1.75" width="12.5" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.2" cy="5.2" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="10.8" cy="10.8" r="1.15" fill="currentColor"/></svg></button></div>
         <select id="f-state"></select>
       </div>
       <div>
-        <div class="field-label" data-i18n="lbl_city">City</div>
+        <div class="label-row"><div class="field-label" data-i18n="lbl_city">City</div><button type="button" class="dice" onclick="rollDice('city')" data-i18n-title="dice_city_tip" title="Random"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="1.75" width="12.5" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.2" cy="5.2" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="10.8" cy="10.8" r="1.15" fill="currentColor"/></svg></button></div>
         <input type="text" id="f-city" list="city-suggest" placeholder="e.g. Austin" />
         <datalist id="city-suggest"></datalist>
       </div>
@@ -704,6 +724,8 @@ const I18N = {
     mode_calls:'Calls', mode_email:'Email',
     btn_find:'Find businesses', btn_import_csv:'Import CSV', btn_export_csv:'Export CSV',
     btn_export_json:'Export JSON', btn_import_json:'Import JSON', btn_clear_all:'Clear all',
+    btn_roll_all:'Random sample', dice_all_tip:'Random niche, region and city, then search right away',
+    dice_niche_tip:'Random niche', dice_state_tip:'Random region (with a city in it)', dice_city_tip:'Random city',
     btn_close:'Close', btn_search:'Search', btn_add:'Add', btn_data:'Import / Export', remove:'Remove',
     add_title:'Add a business', list_title:'Businesses', btn_clear_results:'Clear results',
     finder_title:'Find businesses',
@@ -718,7 +740,12 @@ const I18N = {
     wc_label:'Website check', wc_pending:'checking ...', wc_checked:(d)=>`checked ${d}`,
     wc_down:'Domain dead', wc_down_tip:'The domain does not resolve, the website is gone',
     wc_unreach:'Not reachable', wc_unreach_tip:'The domain exists but the site does not answer',
-    wc_parked:'Parked domain', wc_parked_tip:'Only a placeholder or for-sale page',
+    wc_parked:'Parked domain', wc_parked_tip:'Only a placeholder page, no real website',
+    wc_forsale:'Domain for sale', wc_forsale_tip:'The domain is offered for sale (parking service, marketplace or sales page), the website is gone',
+    flt_defect_all:'All defects', flt_defect_tip:'Show only results with this defect',
+    def_forsale:'Domain for sale', def_down:'Domain dead', def_unreach:'Not reachable', def_parked:'Parked domain', def_err:'Error page',
+    def_nohttps:'No HTTPS', def_nomobile:'Not mobile', def_year:'Old copyright (3+ years)', def_wp:'Outdated WordPress',
+    def_noredirect:'No HTTPS redirect', def_noform:'No contact form', def_nocheck:'Not checkable', def_fine:'No defects', def_builder:(b)=>`Builder: ${b}`,
     wc_err:(c)=>`Error ${c}`, wc_err_tip:'The start page returns an error code',
     wc_nohttps:'No HTTPS', wc_nohttps_tip:'No working HTTPS, browsers show the site as not secure',
     wc_nomobile:'Not mobile', wc_nomobile_tip:'No viewport tag, the site is not set up for phones',
@@ -799,6 +826,8 @@ const I18N = {
     mode_calls:'Anrufe', mode_email:'E-Mail',
     btn_find:'Unternehmen finden', btn_import_csv:'CSV importieren', btn_export_csv:'CSV exportieren',
     btn_export_json:'JSON exportieren', btn_import_json:'JSON importieren', btn_clear_all:'Alle löschen',
+    btn_roll_all:'Zufallsstichprobe', dice_all_tip:'Zufällige Branche, Region und Stadt, dann sofort suchen',
+    dice_niche_tip:'Zufällige Branche', dice_state_tip:'Zufällige Region (mit einer Stadt darin)', dice_city_tip:'Zufällige Stadt',
     btn_close:'Schließen', btn_search:'Suchen', btn_add:'Hinzufügen', btn_data:'Import / Export', remove:'Entfernen',
     add_title:'Unternehmen manuell anlegen', list_title:'Unternehmen', btn_clear_results:'Ergebnisse löschen',
     finder_title:'Unternehmen finden',
@@ -813,7 +842,12 @@ const I18N = {
     wc_label:'Website-Check', wc_pending:'wird geprüft ...', wc_checked:(d)=>`geprüft am ${d}`,
     wc_down:'Domain tot', wc_down_tip:'Die Domain löst nicht auf, die Website ist weg',
     wc_unreach:'Nicht erreichbar', wc_unreach_tip:'Die Domain existiert, aber die Seite antwortet nicht',
-    wc_parked:'Domain geparkt', wc_parked_tip:'Nur eine Platzhalter- oder Verkaufsseite',
+    wc_parked:'Domain geparkt', wc_parked_tip:'Nur eine Platzhalterseite, keine echte Website',
+    wc_forsale:'Domain zu verkaufen', wc_forsale_tip:'Die Domain wird zum Verkauf angeboten (Parkdienst, Domainbörse oder Verkaufsseite), die Website ist weg',
+    flt_defect_all:'Alle Mängel', flt_defect_tip:'Nur Treffer mit diesem Mangel zeigen',
+    def_forsale:'Domain zu verkaufen', def_down:'Domain tot', def_unreach:'Nicht erreichbar', def_parked:'Domain geparkt', def_err:'Fehlerseite',
+    def_nohttps:'Kein HTTPS', def_nomobile:'Nicht mobil', def_year:'Altes Copyright (3+ Jahre)', def_wp:'Veraltetes WordPress',
+    def_noredirect:'Keine HTTPS-Umleitung', def_noform:'Kein Kontaktformular', def_nocheck:'Nicht prüfbar', def_fine:'Keine Mängel', def_builder:(b)=>`Baukasten: ${b}`,
     wc_err:(c)=>`Fehler ${c}`, wc_err_tip:'Die Startseite liefert einen Fehlercode',
     wc_nohttps:'Kein HTTPS', wc_nohttps_tip:'Kein funktionierendes HTTPS, Browser zeigen die Seite als nicht sicher',
     wc_nomobile:'Nicht mobil', wc_nomobile_tip:'Kein Viewport-Tag, die Seite ist nicht für Handys eingerichtet',
@@ -916,6 +950,7 @@ function applyLang() {
   document.documentElement.lang = lang;
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); });
   document.getElementById('footer-text').innerHTML = t('footer') + '<br/>' + t('kb_hint');
   document.getElementById('stat-goal').title = t('goal_title');
   renderStagingFilters();
@@ -3047,7 +3082,12 @@ const WC_BUILDERS = [
   ['Site123', /site123\./i],
   ['Shopify', /cdn\.shopify\.com/i],
 ];
-const WC_PARKED = /domain (is )?(for sale|zu verkaufen|kaufen)|diese domain (steht zum verkauf|wurde registriert|ist geparkt)|this domain (is parked|may be for sale|has been registered)|sedo(parking)?\.com|parkingcrew|bodis\.com|dan\.com\/buy-domain|afternic|hugedomains|domain parking|website (coming soon|under construction)|hier entsteht (eine neue|unsere neue)? ?(website|internetseite|homepage)|baustelle/i;
+// A domain offered for sale: its name servers belong to a parking or sales service,
+// it forwards to a domain marketplace, or the page itself says so.
+const WC_SALE_NS = /(^|\.)(sedoparking\.com|parkingcrew\.net|bodis\.com|above\.com|dan\.com|afternic\.com|hugedomains\.com|uniregistrymarket\.link|parklogic\.com|domainmarket\.com|undeveloped\.com|smartname\.com|buydomains\.com)\.?$/i;
+const WC_SALE_HOSTS = /(^|\.)(sedo\.com|sedo\.de|domainmarkt\.de|united-domains\.de|dan\.com|afternic\.com|hugedomains\.com|atom\.com|squadhelp\.com|brandbucket\.com|undeveloped\.com|domainmarket\.com|buydomains\.com|sav\.com|uniregistry\.com|efty\.com|epik\.com)$/i;
+const WC_FORSALE = /(domain|domäne)\b[^.]{0,40}\b(for sale|zu verkaufen|zum verkauf|steht zum verkauf|kaufen|erwerben)|this domain (may be|is) for sale|buy this domain|make an offer|kaufen sie diese domain|preis anfragen|angebot (abgeben|machen)|sedo(parking)?\.com|parkingcrew|bodis\.com|\bdan\.com|afternic|hugedomains|undeveloped\.com/i;
+const WC_PARKED = /this domain (is parked|has been registered)|diese domain (wurde registriert|ist geparkt)|domain parking|website (coming soon|under construction)|hier entsteht (eine neue |unsere neue |die )?(website|internetseite|internetpräsenz|homepage)|testseite f(ü|&uuml;)r|baustelle|coming soon/i;
 
 let wcRunning = 0, wcLastStart = 0, wcPauseUntil = 0, wcLeadsOn = false;
 const wcBusy = new Set();
@@ -3080,6 +3120,19 @@ async function wcDnsDead(host){
   } catch(e){ /* unknown */ }
   return false;
 }
+// Name servers of the domain (or of its parent, for a subdomain such as praxis.example.de).
+async function wcNameservers(host){
+  let name = host.replace(/^www\./i, '');
+  for (let i = 0; i < 2 && name.split('.').length >= 2; i++){
+    try {
+      const j = await (await wcFetch('https://dns.google/resolve?name=' + encodeURIComponent(name) + '&type=NS', {}, 10000)).json();
+      const ns = (j.Answer || []).filter(a => a.type === 2).map(a => a.data);
+      if (ns.length) return ns;
+    } catch(e){ return []; }
+    name = name.split('.').slice(1).join('.');
+  }
+  return [];
+}
 function wcText(html){
   return html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ').replace(/&copy;|&#169;|&#xa9;/gi, '©').replace(/&nbsp;|&#160;/gi, ' ')
@@ -3104,7 +3157,11 @@ function wcAnalyse(html, finalUrl){
   for (const [name, re] of WC_BUILDERS) if (re.test(hay)){ res.builder = name; break; }
   res.form = /<form[\s>]/i.test(html) || /href=["'][^"']*(kontakt|contact)/i.test(html);
   const title = (html.match(/<title[^>]*>([^<]*)/i) || [])[1] || '';
-  if (WC_PARKED.test(title + ' ' + text.slice(0, 3000)) && text.length < 6000) res.parked = true;
+  const head = title + ' ' + text.slice(0, 3000);
+  let finalHost = '';
+  try { finalHost = new URL(finalUrl).hostname; } catch(e){}
+  if (WC_SALE_HOSTS.test(finalHost) || (text.length < 6000 && WC_FORSALE.test(head))) res.forsale = true;
+  else if (text.length < 6000 && WC_PARKED.test(head)) res.parked = true;
   return res;
 }
 async function checkWebsite(url){
@@ -3112,6 +3169,7 @@ async function checkWebsite(url){
   const full = new URL(normalizeUrl(url.trim())).hostname.toLowerCase();
   if (wcCache.has(host)) return wcCache.get(host);
   const wc = { d: wcToday() };
+  const nsPromise = wcNameservers(full);
   let r, j = null;
   try {
     r = await wcFetch(WC_READER + normalizeUrl(url.trim()), { headers: { 'X-Return-Format': 'html', 'Accept': 'application/json', 'X-Timeout': '20' } }, 35000);
@@ -3141,6 +3199,12 @@ async function checkWebsite(url){
     else if (await wcHttpsAnswers(full)) { wc.st = 'nocheck'; wc.https = true; }
     else wc.st = 'unreach';
   }
+  if ((await nsPromise).some(n => WC_SALE_NS.test(n))) wc.forsale = true;
+  if (wc.forsale || wc.parked){
+    // A placeholder or sales page says nothing about the business's own site.
+    for (const k of ['mobile', 'year', 'wp', 'builder', 'form', 'err']) delete wc[k];
+    if (wc.forsale){ delete wc.parked; if (wc.st !== 'ok') wc.st = 'ok'; }
+  }
   wc.hard = wcIsHard(wc);
   wcCache.set(host, wc);
   return wc;
@@ -3148,28 +3212,33 @@ async function checkWebsite(url){
 function wcIsHard(wc){
   if (!wc) return false;
   const now = new Date().getFullYear();
-  return wc.st === 'down' || wc.st === 'unreach' || !!wc.err || !!wc.parked || wc.https === false
+  return wc.st === 'down' || wc.st === 'unreach' || !!wc.err || !!wc.parked || !!wc.forsale || wc.https === false
     || wc.mobile === false || (wc.year && wc.year <= now - 5) || (wc.wp && parseFloat(wc.wp) < 6);
 }
-// Short labels, hard defects first.
+// Short labels, hard defects first. id is what the defect filter matches.
 function wcFlags(wc){
   if (!wc) return [];
   const now = new Date().getFullYear(), f = [];
-  if (wc.st === 'down') return [{ k: 'hard', s: t('wc_down'), tip: t('wc_down_tip') }];
-  if (wc.st === 'unreach') return [{ k: 'hard', s: t('wc_unreach'), tip: t('wc_unreach_tip') }];
-  if (wc.parked) f.push({ k: 'hard', s: t('wc_parked'), tip: t('wc_parked_tip') });
-  if (wc.err) f.push({ k: 'hard', s: t('wc_err', wc.err), tip: t('wc_err_tip') });
-  if (wc.https === false) f.push({ k: 'hard', s: t('wc_nohttps'), tip: t('wc_nohttps_tip') });
-  if (wc.mobile === false) f.push({ k: 'hard', s: t('wc_nomobile'), tip: t('wc_nomobile_tip') });
-  if (wc.year && wc.year <= now - 3) f.push({ k: wc.year <= now - 5 ? 'hard' : 'soft', s: '© ' + wc.year, tip: t('wc_year_tip') });
-  if (wc.wp && parseFloat(wc.wp) < 6) f.push({ k: 'hard', s: 'WordPress ' + wc.wp, tip: t('wc_wp_tip') });
-  if (wc.https === 'noredirect') f.push({ k: 'soft', s: t('wc_noredirect'), tip: t('wc_noredirect_tip') });
-  if (wc.builder) f.push({ k: 'info', s: wc.builder, tip: t('wc_builder_tip') });
-  if (wc.form === false) f.push({ k: 'soft', s: t('wc_noform'), tip: t('wc_noform_tip') });
-  if (wc.st === 'nocheck') f.push({ k: 'info', s: t('wc_nocheck'), tip: t('wc_nocheck_tip') });
-  if (!f.length) f.push({ k: 'ok', s: t('wc_fine'), tip: t('wc_fine_tip') });
+  if (wc.forsale) return [{ id: 'forsale', k: 'hard', s: t('wc_forsale'), tip: t('wc_forsale_tip') }];
+  if (wc.st === 'down') return [{ id: 'down', k: 'hard', s: t('wc_down'), tip: t('wc_down_tip') }];
+  if (wc.st === 'unreach') return [{ id: 'unreach', k: 'hard', s: t('wc_unreach'), tip: t('wc_unreach_tip') }];
+  if (wc.parked) f.push({ id: 'parked', k: 'hard', s: t('wc_parked'), tip: t('wc_parked_tip') });
+  if (wc.err) f.push({ id: 'err', k: 'hard', s: t('wc_err', wc.err), tip: t('wc_err_tip') });
+  if (wc.https === false) f.push({ id: 'nohttps', k: 'hard', s: t('wc_nohttps'), tip: t('wc_nohttps_tip') });
+  if (wc.mobile === false) f.push({ id: 'nomobile', k: 'hard', s: t('wc_nomobile'), tip: t('wc_nomobile_tip') });
+  if (wc.year && wc.year <= now - 3) f.push({ id: 'year', k: wc.year <= now - 5 ? 'hard' : 'soft', s: '© ' + wc.year, tip: t('wc_year_tip') });
+  if (wc.wp && parseFloat(wc.wp) < 6) f.push({ id: 'wp', k: 'hard', s: 'WordPress ' + wc.wp, tip: t('wc_wp_tip') });
+  if (wc.https === 'noredirect') f.push({ id: 'noredirect', k: 'soft', s: t('wc_noredirect'), tip: t('wc_noredirect_tip') });
+  if (wc.builder) f.push({ id: 'b:' + wc.builder, k: 'info', s: wc.builder, tip: t('wc_builder_tip') });
+  if (wc.form === false) f.push({ id: 'noform', k: 'soft', s: t('wc_noform'), tip: t('wc_noform_tip') });
+  if (wc.st === 'nocheck') f.push({ id: 'nocheck', k: 'info', s: t('wc_nocheck'), tip: t('wc_nocheck_tip') });
+  if (!f.length) f.push({ id: 'fine', k: 'ok', s: t('wc_fine'), tip: t('wc_fine_tip') });
   return f;
 }
+// Defect filter options in a fixed order; builders are listed one by one.
+const WC_DEFECT_ORDER = ['forsale', 'down', 'unreach', 'parked', 'err', 'nohttps', 'nomobile', 'year', 'wp', 'noredirect', 'noform', 'nocheck', 'fine'];
+function wcDefectLabel(id){ return id.startsWith('b:') ? t('def_builder', id.slice(2)) : t('def_' + id); }
+function setDefectFilter(v){ stagingFilter.defect = v; renderStaging(); }
 function wcDate(d){
   try { return new Date(d + 'T12:00:00').toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB'); } catch(e){ return d; }
 }
@@ -3238,7 +3307,8 @@ function wcApply(url, wc){
   });
   if (rowsChanged){
     persistStaging();
-    if (stagingFilter.hard) renderStaging(); else renderStagingFilters();
+    if (stagingFilter.hard || stagingFilter.defect) renderStaging();
+    else if (document.activeElement?.id !== 'defect-filter') renderStagingFilters();
   }
   if (leadsChanged){
     persist();
@@ -3279,7 +3349,7 @@ function listKeys(){
 }
 
 // --- Staging filters -------------------------------------------------------
-let stagingFilter = { site:'all', phone:false, fresh:false, nomobile:false, hard:false };
+let stagingFilter = { site:'all', phone:false, fresh:false, nomobile:false, hard:false, defect:'' };
 function setStagingFilter(k, v){
   if (k === 'site') stagingFilter.site = v; else stagingFilter[k] = !stagingFilter[k];
   renderStaging();
@@ -3295,8 +3365,22 @@ function visibleStaging(){
     if (stagingFilter.nomobile && phoneKind(r.phone) === 'mobile') return false;
     if (stagingFilter.fresh && keys.isIn(r)) return false;
     if (stagingFilter.hard && !(r.wc && r.wc.hard)) return false;
+    if (stagingFilter.defect && !wcFlags(r.wc).some(x => x.id === stagingFilter.defect)) return false;
     return true;
   });
+}
+function defectSelect(){
+  const counts = new Map();
+  for (const r of finderResults) for (const x of wcFlags(r.wc)) counts.set(x.id, (counts.get(x.id) || 0) + 1);
+  const builders = [...counts.keys()].filter(id => id.startsWith('b:')).sort();
+  const ids = [...WC_DEFECT_ORDER.slice(0, -2), ...builders, ...WC_DEFECT_ORDER.slice(-2)]
+    .filter(id => counts.get(id) || id === stagingFilter.defect);
+  if (!ids.length) return '';
+  const on = stagingFilter.defect ? ' on' : '';
+  return `<select class="chip chip-select${on}" id="defect-filter" onchange="setDefectFilter(this.value)" title="${escapeHtml(t('flt_defect_tip'))}">` +
+    `<option value="">${escapeHtml(t('flt_defect_all'))}</option>` +
+    ids.map(id => `<option value="${escapeHtml(id)}"${id === stagingFilter.defect ? ' selected' : ''}>${escapeHtml(wcDefectLabel(id) + ' (' + (counts.get(id) || 0) + ')')}</option>`).join('') +
+    `</select>`;
 }
 function renderStagingFilters(){
   const el = document.getElementById('staging-filters');
@@ -3312,6 +3396,7 @@ function renderStagingFilters(){
     chip(t('flt_new'), stagingFilter.fresh, "setStagingFilter('fresh')") +
     '<span class="chip-sep"></span>' +
     chip(t('flt_hard', finderResults.filter(r => r.wc && r.wc.hard).length), stagingFilter.hard, "setStagingFilter('hard')") +
+    defectSelect() +
     '<span class="wc-status" id="wc-status"></span>';
   wcRenderStatus();
 }
@@ -3403,6 +3488,38 @@ function addAllStaged(){
   renderStaging();
   render();
   fStatus(t('f_added', added, terms().uncontacted, skipped) + (guessed ? t('f_added_mails', guessed) : ''), 'ok');
+}
+
+// --- Dice: random niche, region and city for quick samples ----------------
+const pick = list => list[Math.floor(Math.random() * list.length)];
+function rollDice(kind){
+  const states = COUNTRIES[country].states;
+  const stateSel = document.getElementById('f-state');
+  const cityIn = document.getElementById('f-city');
+  if (kind === 'niche'){
+    const cur = document.getElementById('f-niche').value;
+    const opts = NICHE_SUGGEST[lang].filter(n => n !== cur);
+    document.getElementById('f-niche').value = pick(opts);
+  }
+  if (kind === 'state' || (kind === 'city' && !states[stateSel.value])){
+    const names = Object.keys(states).filter(n => (states[n] || []).length);
+    const others = names.filter(n => n !== stateSel.value);
+    stateSel.value = pick(others.length ? others : names);
+    updateCitySuggest();
+  }
+  if (kind === 'state' || kind === 'city'){
+    const cities = states[stateSel.value] || [];
+    const others = cities.filter(c => c !== cityIn.value);
+    cityIn.value = pick(others.length ? others : cities) || '';
+  }
+  const field = { niche: 'f-niche', state: 'f-state', city: 'f-city' }[kind];
+  const el = document.getElementById(field);
+  if (el){ el.classList.remove('rolled'); void el.offsetWidth; el.classList.add('rolled'); }
+}
+function rollAll(){
+  rollDice('niche');
+  rollDice('state');
+  runFinderSearch();
 }
 
 // --- Finder init ----------------------------------------------------------
