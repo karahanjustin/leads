@@ -2257,6 +2257,7 @@ const OVERPASS_MAIN = [
 ];
 const OVERPASS_ATTEMPTS = [
   ...OVERPASS_MAIN.map(url => ({ url, ms: 100000 })),
+  { url: 'https://maps.mail.ru/osm/tools/overpass/api/interpreter', ms: 45000 },
   { pause: 6000 },
   ...OVERPASS_MAIN.map(url => ({ url, ms: 100000 })),
   { url: 'https://overpass.kumi.systems/api/interpreter', ms: 30000 },
@@ -2330,7 +2331,36 @@ function resolveCategory(input){
 // The best match is often not a town: "Cork" is also a county, "Wien" a university's
 // name. Of the top five hits, the first town wins.
 const SETTLEMENT = ['city', 'town', 'village', 'municipality'];
+// Photon (komoot) is the fallback geocoder when Nominatim refuses this connection
+// (it blocks single addresses now and then). Its hits are shaped like Nominatim's;
+// it has no city outline, so the bounding box stands in for it.
+let nominatimDown = false;
+const PHOTON_TYPES = { R: 'relation', W: 'way', N: 'node' };
+function photonToPlace(f){
+  const p = f.properties || {}, [lon, lat] = f.geometry?.coordinates || [];
+  const ext = p.extent;   // [minLon, maxLat, maxLon, minLat]
+  return {
+    lat: String(lat), lon: String(lon),
+    osm_type: PHOTON_TYPES[p.osm_type] || 'node', osm_id: p.osm_id,
+    addresstype: p.type === 'city' ? (p.osm_value === 'town' || p.osm_value === 'village' ? p.osm_value : 'city') : (p.osm_value || p.type),
+    boundingbox: ext ? [ext[3], ext[1], ext[0], ext[2]].map(String) : null,
+    display_name: [p.name, p.state, p.country].filter(Boolean).join(', '),
+  };
+}
+async function photonLookup(q){
+  const url = `https://photon.komoot.io/api/?limit=8&q=${encodeURIComponent(q)}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('Photon ' + r.status);
+  const data = await r.json();
+  const hits = (data.features || []).filter(f => (f.properties?.countrycode || '').toLowerCase() === country).map(photonToPlace);
+  return hits.find(p => SETTLEMENT.includes(p.addresstype)) || hits[0] || null;
+}
 async function nominatimLookup(q){
+  if (nominatimDown) return photonLookup(q);
+  try { return await nominatimFetch(q); }
+  catch(e){ nominatimDown = true; return photonLookup(q); }
+}
+async function nominatimFetch(q){
   const url = `https://nominatim.openstreetmap.org/search?format=json&limit=5&addressdetails=1&polygon_geojson=1&polygon_threshold=0.001&countrycodes=${country}&q=${encodeURIComponent(q)}`;
   let r;
   for (let attempt = 0; attempt < 3; attempt++){
@@ -2364,7 +2394,10 @@ function areaId(place){
   if (place.osm_type === 'way') return 2400000000 + id;
   return null;
 }
+// When every endpoint failed, Overpass is skipped for a while; Overture still delivers.
+let overpassDownUntil = 0;
 async function overpass(query){
+  if (Date.now() < overpassDownUntil) throw new Error('Overpass unavailable');
   let lastErr;
   for (const step of OVERPASS_ATTEMPTS){
     if (step.pause){ await sleep(step.pause); continue; }
@@ -2377,6 +2410,7 @@ async function overpass(query){
     } catch(e){ lastErr = e; }
     finally { clearTimeout(timer); }
   }
+  overpassDownUntil = Date.now() + 10 * 60000;
   throw lastErr || new Error('All Overpass endpoints failed');
 }
 function selFor(f){ const [k,v] = f.split('='); return v === '*' ? `["${k}"]` : `["${k}"="${v}"]`; }
@@ -2906,11 +2940,19 @@ async function enrichAddresses(gen){
     const r = targets[i];
     fStatus(t('f_found_enriching', finderResults.length, i+1, targets.length), 'ok', true);
     try {
-      const url = `${base}?format=json&addressdetails=1&zoom=18&lat=${r.lat}&lon=${r.lon}`;
-      const resp = await fetch(url, { headers:{'Accept':'application/json'} });
-      if (resp.ok){
-        const j = await resp.json();
-        const a = j.address || {};
+      let a = null;
+      if (!nominatimDown){
+        try {
+          const resp = await fetch(`${base}?format=json&addressdetails=1&zoom=18&lat=${r.lat}&lon=${r.lon}`, { headers:{'Accept':'application/json'} });
+          if (resp.ok) a = (await resp.json()).address || {};
+        } catch(e){ nominatimDown = true; }
+      }
+      if (!a && nominatimDown){
+        const resp = await fetch(`https://photon.komoot.io/reverse?lat=${r.lat}&lon=${r.lon}&limit=1`);
+        const p = resp.ok ? ((await resp.json()).features || [])[0]?.properties : null;
+        if (p) a = { road: p.street, house_number: p.housenumber, city: p.city || p.locality || p.district, postcode: p.postcode };
+      }
+      if (a){
         const street = [a.road || a.pedestrian || a.footway, a.house_number].filter(Boolean).join(' ');
         const city = a.city || a.town || a.village || a.suburb || '';
         const post = a.postcode || '';
