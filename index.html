@@ -283,6 +283,12 @@
   table.staging th:nth-child(3) { width: 24%; }
   table.staging th:nth-child(4) { width: 19%; }
   table.staging th:nth-child(5) { width: 14%; }
+  table.staging.has-kind th:nth-child(1) { width: 23%; }
+  table.staging.has-kind th:nth-child(2) { width: 14%; }
+  table.staging.has-kind th:nth-child(3) { width: 22%; }
+  table.staging.has-kind th:nth-child(4) { width: 17%; }
+  table.staging.has-kind th:nth-child(5) { width: 24%; }
+  table.staging td .web-cell .ph-kind { margin-right: 2px; }
   table.staging th {
     position: sticky; top: 0; z-index: 1;
     text-align: left; padding: 9px 8px; font-size: 11px; color: var(--text-3); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase;
@@ -326,6 +332,34 @@
   /* Guessed email */
   .inline-edit.guess { border-bottom: 1px dashed var(--border-strong); border-radius: 0; color: var(--text-2); }
   .guess-tag { font-size: 11px; color: var(--warning); font-weight: 600; }
+  .ph-kind {
+    flex: none; font-size: 10.5px; font-weight: 600; letter-spacing: 0.02em; line-height: 1;
+    padding: 3px 6px; border-radius: 4px; border: 1px solid; white-space: nowrap; cursor: help;
+  }
+  .ph-landline, .ph-service { color: var(--success); background: var(--success-bg); border-color: var(--success-line); }
+  .ph-mobile { color: var(--warning); background: var(--warning-bg); border-color: var(--warning-line); }
+  .wc-line { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; align-items: center; }
+  .wc-line.wc-lead { margin-top: 6px; gap: 4px 6px; }
+  .wc-line.wc-lead .meta-label { margin-right: 4px; }
+  .wc-tag {
+    font-size: 10.5px; font-weight: 600; line-height: 1; padding: 3px 6px; border-radius: 4px;
+    border: 1px solid var(--border-strong); color: var(--text-2); background: var(--surface); white-space: nowrap; cursor: help;
+  }
+  .wc-hard { color: var(--danger); background: var(--danger-bg); border-color: var(--danger-line); }
+  .wc-soft { color: var(--warning); background: var(--warning-bg); border-color: var(--warning-line); }
+  .wc-info { color: var(--info); background: var(--info-bg); border-color: var(--info-line); }
+  .wc-ok { color: var(--success); background: var(--success-bg); border-color: var(--success-line); }
+  .wc-wait { color: var(--text-3); border-style: dashed; font-weight: 500; cursor: default; }
+  .wc-status { margin-left: auto; font-size: 12px; color: var(--text-3); display: inline-flex; align-items: center; gap: 6px; }
+  .wc-status .spin {
+    width: 10px; height: 10px; border: 2px solid var(--border-strong); border-top-color: var(--accent);
+    border-radius: 50%; animation: ct-spin 0.8s linear infinite; display: inline-block;
+  }
+  .list-actions { display: flex; gap: 8px; align-items: center; }
+  .cm-reason { display: grid; grid-template-columns: 110px 1fr; gap: 10px; align-items: center; font-size: 14px; margin: -4px 0 12px; }
+  .cm-reason .k { color: var(--text-3); }
+  .cm-reason .wc-tag { font-size: 12px; padding: 4px 8px; }
+  .cm-contact .ph-kind { font-size: 12px; padding: 4px 8px; margin-left: 4px; }
 
   /* Daily goal */
   .stat.stat-goal { cursor: pointer; }
@@ -373,7 +407,7 @@
   .cm-contact:hover { background: var(--accent-hover); }
   .cm-contact.none { background: var(--surface-2); color: var(--text-3); font-size: 15px; font-weight: 500; }
   .cm-contact .ico { width: 22px; height: 22px; }
-  .cm-meta { display: grid; grid-template-columns: 90px 1fr; gap: 6px 10px; font-size: 14px; margin-bottom: 12px; }
+  .cm-meta { display: grid; grid-template-columns: 110px 1fr; gap: 6px 10px; font-size: 14px; margin-bottom: 12px; }
   .cm-meta .k { color: var(--text-3); }
   .cm-meta a { color: var(--link); }
   .cm-meta a:hover { color: var(--ink); }
@@ -440,6 +474,7 @@
     .meta-row { display: block; margin-top: 6px; }
     .meta-field { display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; align-items: center; gap: 6px; min-height: 40px; }
     .meta-field .inline-edit { width: 100%; }
+    .meta-field:has(.ph-kind), .meta-field:has(.guess-tag) { grid-template-columns: 62px minmax(0, 1fr) auto auto; }
     .meta-field select.inline-edit { height: 34px; }
     .meta-row a { width: 40px; height: 40px; justify-content: center; border-radius: var(--r); }
     .meta-row a:active { background: var(--info-bg); }
@@ -466,6 +501,8 @@
     table.staging td.c-phone { grid-area: phone; }
     table.staging td.c-addr { grid-area: addr; }
     table.staging td.c-web { grid-area: web; }
+    table.staging td.c-web .wc-line { grid-column: 2; margin: 2px 0 4px 6px; }
+    .wc-status { margin-left: 0; width: 100%; }
     table.staging td.c-mail { grid-area: mail; }
     table.staging td.col-x { grid-area: x; display: block; width: auto; align-self: center; }
     table.staging td.c-name { align-self: center; }
@@ -627,7 +664,7 @@
 
 <div id="callback-banner" class="callback-banner" onclick="toggleCallbackFilter()"></div>
 
-<div class="list-head"><h2 class="list-title" data-i18n="list_title">Businesses</h2><button class="small primary" id="cm-start" onclick="openCallMode()">Start calling</button></div>
+<div class="list-head"><h2 class="list-title" data-i18n="list_title">Businesses</h2><span class="list-actions"><button class="small" id="wc-leads" onclick="checkLeadWebsites()" style="display:none"></button><button class="small primary" id="cm-start" onclick="openCallMode()">Start calling</button></span></div>
 <div id="lead-list"></div>
 
 <div id="empty-state" class="empty-state">
@@ -672,12 +709,33 @@ const I18N = {
     finder_title:'Find businesses',
     finder_sub:'Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap and Overture Maps. Email is often missing and stays editable.',
     lbl_niche:'Niche', lbl_country:'Country', lbl_city:'City', lbl_radius:'Metro radius',
-    lbl_state_us:'State', lbl_state_de:'Federal state', lbl_state_at:'Federal state', lbl_state_region:'Region', lbl_state_ch:'Canton',
-    sel_state_us:'Select state', sel_state_de:'Select federal state', sel_state_at:'Select federal state', sel_state_region:'Select region', sel_state_ch:'Select canton',
+    lbl_state_us:'State', lbl_state_de:'Federal state', lbl_state_at:'Federal state', lbl_state_region:'Region', lbl_state_ch:'Canton', lbl_state_au:'State / territory',
+    sel_state_us:'Select state', sel_state_de:'Select federal state', sel_state_at:'Select federal state', sel_state_region:'Select region', sel_state_ch:'Select canton', sel_state_au:'Select state or territory',
     grp_eu:'European Union', grp_europe:'Rest of Europe', grp_other:'Other countries',
     radius_city:'City only',
     ph_niche:'e.g. dentist, plumber, restaurant', ph_city:(c)=>`e.g. ${c}`,
     ph_bizname:'e.g. Austin Plumbing', ph_optional:'optional',
+    wc_label:'Website check', wc_pending:'checking ...', wc_checked:(d)=>`checked ${d}`,
+    wc_down:'Domain dead', wc_down_tip:'The domain does not resolve, the website is gone',
+    wc_unreach:'Not reachable', wc_unreach_tip:'The domain exists but the site does not answer',
+    wc_parked:'Parked domain', wc_parked_tip:'Only a placeholder or for-sale page',
+    wc_err:(c)=>`Error ${c}`, wc_err_tip:'The start page returns an error code',
+    wc_nohttps:'No HTTPS', wc_nohttps_tip:'No working HTTPS, browsers show the site as not secure',
+    wc_nomobile:'Not mobile', wc_nomobile_tip:'No viewport tag, the site is not set up for phones',
+    wc_year_tip:'Latest copyright year in the footer, a sign of an old site',
+    wc_wp_tip:'Outdated WordPress version in the page source',
+    wc_noredirect:'No HTTPS redirect', wc_noredirect_tip:'HTTPS exists, but the plain address does not forward to it',
+    wc_builder_tip:'Built with a website builder',
+    wc_noform:'No contact form', wc_noform_tip:'No form and no contact link on the start page',
+    wc_nocheck:'Content not checked', wc_nocheck_tip:'The site answers, but its content could not be read',
+    wc_fine:'No defects found', wc_fine_tip:'None of the checks found a problem',
+    wc_progress:(d,n)=>`Website check ${d} of ${n} ...`, wc_paused:(d,n)=>`Website check ${d} of ${n}, short pause (rate limit) ...`,
+    wc_done:(n,h)=>`${n} websites checked, ${h} with a hard defect`,
+    wc_leads_btn:(n)=>`Check websites (${n})`, wc_leads_running:(n)=>`Checking websites, ${n} left ...`,
+    flt_hard:(n)=>`Hard defect (${n})`,
+    ph_mobile:'Mobile', ph_landline:'Landline', ph_service:'Business line',
+    ph_mobile_tip:'Mobile number, may be on the Do Not Call Register. Prefer landline or business numbers.',
+    ph_landline_tip:'Landline', ph_service_tip:'Business number (13, 1300, 1800, 0800)',
     th_name:'Name', th_email:'Email', th_address:'Address', th_website:'Website', th_phone:'Phone',
     stat_total:'Total', stat_closed:'Closed',
     lbl_business:'Business name', lbl_phone:'Phone', lbl_website:'Website', lbl_email:'Email',
@@ -716,7 +774,7 @@ const I18N = {
     f_error:(m)=>'Error: ' + m,
     f_added:(n,target,skipped)=>`Added ${n} to ${target}${skipped?`, skipped ${skipped} already in your list`:''}.`,
     f_added_mails:(n)=>` ${n} email address${n===1?'':'es'} guessed from the website.`,
-    flt_all:'All', flt_nosite:'No website', flt_social:'Social media only', flt_phone:'With phone', flt_new:'New only',
+    flt_all:'All', flt_nosite:'No website', flt_social:'Social media only', flt_phone:'With phone', flt_nomobile:'No mobile numbers', flt_new:'New only',
     count_shown:(n,total)=>`${n} of ${total} businesses`,
     in_list:'in your list',
     email_guess:'Guessed from the website, not verified',
@@ -746,12 +804,33 @@ const I18N = {
     finder_title:'Unternehmen finden',
     finder_sub:'Branche und Ort wählen, dann die Treffer in die Liste übernehmen. Die Daten kommen von OpenStreetMap und Overture Maps. E-Mail fehlt häufig und bleibt bearbeitbar.',
     lbl_niche:'Branche', lbl_country:'Land', lbl_city:'Stadt', lbl_radius:'Umkreis',
-    lbl_state_us:'Bundesstaat', lbl_state_de:'Bundesland', lbl_state_at:'Bundesland', lbl_state_region:'Region', lbl_state_ch:'Kanton',
-    sel_state_us:'Bundesstaat wählen', sel_state_de:'Bundesland wählen', sel_state_at:'Bundesland wählen', sel_state_region:'Region wählen', sel_state_ch:'Kanton wählen',
+    lbl_state_us:'Bundesstaat', lbl_state_de:'Bundesland', lbl_state_at:'Bundesland', lbl_state_region:'Region', lbl_state_ch:'Kanton', lbl_state_au:'Bundesstaat / Territorium',
+    sel_state_us:'Bundesstaat wählen', sel_state_de:'Bundesland wählen', sel_state_at:'Bundesland wählen', sel_state_region:'Region wählen', sel_state_ch:'Kanton wählen', sel_state_au:'Bundesstaat oder Territorium wählen',
     grp_eu:'Europäische Union', grp_europe:'Weiteres Europa', grp_other:'Weitere Länder',
     radius_city:'Nur Stadt',
     ph_niche:'z.B. Zahnarzt, Klempner, Restaurant', ph_city:(c)=>`z.B. ${c}`,
     ph_bizname:'z.B. Müller Sanitär', ph_optional:'optional',
+    wc_label:'Website-Check', wc_pending:'wird geprüft ...', wc_checked:(d)=>`geprüft am ${d}`,
+    wc_down:'Domain tot', wc_down_tip:'Die Domain löst nicht auf, die Website ist weg',
+    wc_unreach:'Nicht erreichbar', wc_unreach_tip:'Die Domain existiert, aber die Seite antwortet nicht',
+    wc_parked:'Domain geparkt', wc_parked_tip:'Nur eine Platzhalter- oder Verkaufsseite',
+    wc_err:(c)=>`Fehler ${c}`, wc_err_tip:'Die Startseite liefert einen Fehlercode',
+    wc_nohttps:'Kein HTTPS', wc_nohttps_tip:'Kein funktionierendes HTTPS, Browser zeigen die Seite als nicht sicher',
+    wc_nomobile:'Nicht mobil', wc_nomobile_tip:'Kein Viewport-Tag, die Seite ist nicht für Handys eingerichtet',
+    wc_year_tip:'Neuestes Copyright-Jahr im Fußbereich, Hinweis auf eine alte Seite',
+    wc_wp_tip:'Veraltete WordPress-Version im Quelltext',
+    wc_noredirect:'Keine HTTPS-Umleitung', wc_noredirect_tip:'HTTPS gibt es, aber die normale Adresse leitet nicht dorthin um',
+    wc_builder_tip:'Mit einem Baukasten erstellt',
+    wc_noform:'Kein Kontaktformular', wc_noform_tip:'Weder Formular noch Kontakt-Link auf der Startseite',
+    wc_nocheck:'Inhalt nicht prüfbar', wc_nocheck_tip:'Die Seite antwortet, ihr Inhalt ließ sich aber nicht lesen',
+    wc_fine:'Keine Mängel gefunden', wc_fine_tip:'Keine der Prüfungen hat ein Problem gefunden',
+    wc_progress:(d,n)=>`Website-Check ${d} von ${n} ...`, wc_paused:(d,n)=>`Website-Check ${d} von ${n}, kurze Pause (Anfragelimit) ...`,
+    wc_done:(n,h)=>`${n} Websites geprüft, ${h} mit hartem Mangel`,
+    wc_leads_btn:(n)=>`Websites prüfen (${n})`, wc_leads_running:(n)=>`Websites werden geprüft, noch ${n} ...`,
+    flt_hard:(n)=>`Harter Mangel (${n})`,
+    ph_mobile:'Mobil', ph_landline:'Festnetz', ph_service:'Firmennummer',
+    ph_mobile_tip:'Mobilnummer, kann auf der Do-Not-Call-Liste stehen. Festnetz- und Firmennummern bevorzugen.',
+    ph_landline_tip:'Festnetz', ph_service_tip:'Firmennummer (13, 1300, 1800, 0800)',
     th_name:'Name', th_email:'E-Mail', th_address:'Adresse', th_website:'Webseite', th_phone:'Telefon',
     stat_total:'Gesamt', stat_closed:'Abgeschlossen',
     lbl_business:'Firmenname', lbl_phone:'Telefon', lbl_website:'Webseite', lbl_email:'E-Mail',
@@ -790,7 +869,7 @@ const I18N = {
     f_error:(m)=>'Fehler: ' + m,
     f_added:(n,target,skipped)=>`${n} zu ${target} hinzugefügt${skipped?`, ${skipped} bereits in der Liste übersprungen`:''}.`,
     f_added_mails:(n)=>` ${n} E-Mail-Adresse${n===1?'':'n'} aus der Website vermutet.`,
-    flt_all:'Alle', flt_nosite:'Ohne Website', flt_social:'Nur Social Media', flt_phone:'Mit Telefon', flt_new:'Nur neue',
+    flt_all:'Alle', flt_nosite:'Ohne Website', flt_social:'Nur Social Media', flt_phone:'Mit Telefon', flt_nomobile:'Ohne Mobilnummern', flt_new:'Nur neue',
     count_shown:(n,total)=>`${n} von ${total} Betrieben`,
     in_list:'schon in der Liste',
     email_guess:'Aus der Website vermutet, nicht geprüft',
@@ -959,7 +1038,7 @@ function setStatus(id, status) {
 }
 
 function setField(id, field, val) {
-  leads = leads.map(l => l.id === id ? { ...l, [field]: val, ...(field === 'email' ? { emailGuess: false } : {}) } : l);
+  leads = leads.map(l => l.id === id ? { ...l, [field]: val, ...(field === 'email' ? { emailGuess: false } : {}), ...(field === 'website' ? { wc: undefined } : {}) } : l);
   persist();
   if (field === 'site') render();
 }
@@ -1198,11 +1277,12 @@ function renderField(lead, field, type, placeholder, label) {
   }
   const guess = type === 'email' && !empty && lead.emailGuess;
   const inputAttrs = `class="inline-edit${empty ? ' empty' : ''}${guess ? ' guess' : ''}" value="${escapeHtml(display)}" placeholder="${placeholder}" size="${Math.max(placeholder.length, display.length)}" title="${guess ? escapeHtml(t('email_guess')) : ''}" onfocus="if(this.value==='${MISSING}')this.value=''" onblur="setField(${lead.id}, '${field}', this.value.trim())"`;
-  return `<span class="meta-field"><span class="meta-label">${label}</span><input type="text" ${inputAttrs} />${icon}${guess ? `<span class="guess-tag" title="${escapeHtml(t('email_guess'))}">?</span>` : ''}</span>`;
+  return `<span class="meta-field"><span class="meta-label">${label}</span><input type="text" ${inputAttrs} />${icon}${type === 'phone' && !empty ? phoneTag(val) : ''}${guess ? `<span class="guess-tag" title="${escapeHtml(t('email_guess'))}">?</span>` : ''}</span>`;
 }
 
 function render() {
   updateStats();
+  wcRenderStatus();
   const list = document.getElementById('lead-list');
   const empty = document.getElementById('empty-state');
 
@@ -1259,6 +1339,7 @@ function render() {
         <div class="meta-row">
           ${renderField(l, 'address', 'address', t('th_address').toLowerCase(), t('meta_addr'))}
         </div>
+        ${l.wc || (wcLeadsOn && wcNeeds(l)) ? `<div class="wc-line wc-lead"><span class="meta-label">${t('wc_label')}</span>${wcTags(l.wc, true)}</div>` : ''}
         <textarea class="notes-input" placeholder="${escapeHtml(t('notes_ph'))}" rows="1" oninput="updateNote(${l.id}, this.value)" onkeydown="if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();this.blur();}">${escapeHtml(l.note)}</textarea>
         <div class="callback-row">
           <span class="meta-label">${terms().dateLabel}</span>
@@ -1319,7 +1400,7 @@ function renderCallMode() {
   const sc = statusConfig();
   const contact = mode === 'email'
     ? (!isMissing(l.email) ? `<a class="cm-contact" href="mailto:${escapeHtml(l.email)}">${ICON.mail}${escapeHtml(l.email)}</a>` : `<div class="cm-contact none">${t('cm_no_contact')}</div>`)
-    : (!isMissing(l.phone) ? `<a class="cm-contact" href="tel:${escapeHtml(l.phone)}">${ICON.phone}${escapeHtml(l.phone)}</a>` : `<div class="cm-contact none">${t('cm_no_contact')}</div>`);
+    : (!isMissing(l.phone) ? `<a class="cm-contact" href="tel:${escapeHtml(l.phone)}">${ICON.phone}${escapeHtml(l.phone)}${phoneTag(l.phone)}</a>` : `<div class="cm-contact none">${t('cm_no_contact')}</div>`);
   const site = isMissing(l.website) ? `<span class="inline-edit empty">${MISSING}</span>` : `<a href="${escapeHtml(normalizeUrl(l.website))}" target="_blank" rel="noopener">${escapeHtml(l.website)}</a>`;
   const siteOpts = [['unknown', MISSING], ['none', t('site_none')], ['bad', t('site_bad')], ['ok', t('site_ok')]]
     .map(([k, lbl]) => `<option value="${k}" ${l.site === k ? 'selected' : ''}>${lbl}</option>`).join('');
@@ -1329,6 +1410,7 @@ function renderCallMode() {
       <h2 class="cm-name">${escapeHtml(l.name)}</h2>
       <div class="cm-sub">${escapeHtml(l.address || '')}${cb === 'overdue' ? ` <span class="due-flag overdue">${t('overdue')}</span>` : cb === 'today' ? ` <span class="due-flag today">${t('today')}</span>` : ''}</div>
       ${contact}
+      ${l.wc ? `<div class="cm-reason"><span class="k">${t('wc_label')}</span><span class="wc-line">${wcTags(l.wc)}</span></div>` : ''}
       <div class="cm-meta">
         <span class="k">${t('meta_link')}</span><span>${site}</span>
         ${mode === 'email' ? `<span class="k">${t('meta_phone')}</span><span>${escapeHtml(isMissing(l.phone) ? MISSING : l.phone)}</span>` : `<span class="k">${t('meta_email')}</span><span>${escapeHtml(isMissing(l.email) ? MISSING : l.email)}${l.emailGuess && !isMissing(l.email) ? ' <span class="guess-tag">?</span>' : ''}</span>`}
@@ -2089,13 +2171,40 @@ const MORE_EUROPE = {
     "Northern Ireland":["Belfast","Derry","Lisburn","Newry"] }},
 };
 
+// Australia and New Zealand, same format as EU_COUNTRIES.
+const OCEANIA = {
+  au: { dial:'61', geoSuffix:'Australia', stateKey:'au', states:{
+    "New South Wales":["Sydney","Newcastle","Wollongong","Central Coast","Parramatta","Penrith","Coffs Harbour","Wagga Wagga","Albury","Port Macquarie","Tamworth","Orange","Dubbo","Bathurst"],
+    "Victoria":["Melbourne","Geelong","Ballarat","Bendigo","Shepparton","Mildura","Warrnambool","Traralgon","Wodonga"],
+    "Queensland":["Brisbane","Gold Coast","Sunshine Coast","Townsville","Cairns","Toowoomba","Mackay","Rockhampton","Bundaberg","Hervey Bay","Ipswich","Logan City"],
+    "Western Australia":["Perth","Fremantle","Joondalup","Mandurah","Bunbury","Geraldton","Kalgoorlie","Albany","Busselton"],
+    "South Australia":["Adelaide","Mount Gambier","Whyalla","Murray Bridge","Port Augusta","Port Lincoln","Victor Harbor"],
+    "Tasmania":["Hobart","Launceston","Devonport","Burnie"],
+    "Australian Capital Territory":["Canberra"],
+    "Northern Territory":["Darwin","Alice Springs","Palmerston","Katherine"] }},
+  nz: { dial:'64', geoSuffix:'New Zealand', states:{
+    "Auckland":["Auckland","Manukau","North Shore","Waitakere","Pukekohe"],
+    "Wellington":["Wellington","Lower Hutt","Upper Hutt","Porirua","Masterton"],
+    "Canterbury":["Christchurch","Timaru","Ashburton","Rangiora"],
+    "Waikato":["Hamilton","Cambridge","Taupō","Te Awamutu","Thames"],
+    "Bay of Plenty":["Tauranga","Rotorua","Whakatāne","Mount Maunganui"],
+    "Otago":["Dunedin","Queenstown","Oamaru","Wānaka"],
+    "Manawatū-Whanganui":["Palmerston North","Whanganui","Levin","Feilding"],
+    "Hawke's Bay":["Napier","Hastings"],
+    "Northland":["Whangārei","Kerikeri","Kaitaia"],
+    "Taranaki":["New Plymouth","Hāwera"],
+    "Southland":["Invercargill","Gore"],
+    "Nelson":["Nelson"], "Tasman":["Richmond","Motueka"],
+    "Marlborough":["Blenheim","Picton"], "Gisborne":["Gisborne"], "West Coast":["Greymouth","Westport","Hokitika"] }},
+};
+
 // Country registry: region list, geocoder suffix, label set and calling code.
 const COUNTRIES = {
   us: { states: US_CITIES, geoSuffix: 'USA',         stateKey: 'us', dial: '1',  example: 'Austin' },
   de: { states: DE_CITIES, geoSuffix: 'Deutschland', stateKey: 'de', dial: '49', example: 'Bielefeld' },
   at: { states: AT_CITIES, geoSuffix: 'Österreich',  stateKey: 'at', dial: '43', example: 'Graz' },
 };
-for (const [cc, c] of Object.entries({ ...EU_COUNTRIES, ...MORE_EUROPE })){
+for (const [cc, c] of Object.entries({ ...EU_COUNTRIES, ...MORE_EUROPE, ...OCEANIA })){
   COUNTRIES[cc] = { stateKey: 'region', ...c, example: Object.values(c.states)[0][0] };
 }
 const EU_MEMBERS = ['de', 'at', ...Object.keys(EU_COUNTRIES)];
@@ -2299,7 +2408,8 @@ function addElement(el, branchLabel, fallbackCity){
   let website = t.website || t['contact:website'] || t.url || t['contact:url']
     || t['website:en'] || t['contact:facebook'] || t.facebook || t['contact:instagram'] || t.instagram || '';
   if (website && !/^https?:\/\//i.test(website)) website = 'https://' + website;
-  const phone = t.phone || t['contact:phone'] || t['contact:mobile'] || t.mobile || t['phone:mobile'] || '';
+  const rawPhone = t.phone || t['contact:phone'] || t['contact:mobile'] || t.mobile || t['phone:mobile'] || '';
+  const phone = (country === 'au' || country === 'nz') ? formatOceaniaPhone(rawPhone, country) : rawPhone;
   const email = t.email || t['contact:email'] || '';
   const lat = el.lat ?? el.center?.lat ?? null;
   const lon = el.lon ?? el.center?.lon ?? null;
@@ -2595,7 +2705,54 @@ function decodeFeature(buf, [start, end]){
 const parseJSON = s => { try { return typeof s === 'string' ? JSON.parse(s) : s; } catch(e){ return null; } };
 const PLACEHOLDER_MAIL = /johndoe|john\.doe|max\.?mustermann|@(domain|example|test|email)\.|^(test|email|mail)@/i;
 // Overture often drops the "+" ("494214585625") or adds a trunk zero ("049421351008").
+// Australian and New Zealand numbers in international form with local grouping,
+// e.g. "+61 7 3123 4567", "+61 412 345 678", "+64 9 123 4567", "1300 123 456".
+// Anything that does not parse stays as it is.
+function formatOceaniaPhone(p, cc){
+  const raw = (p || '').trim();
+  if (!raw) return raw;
+  if (raw.includes(';')) return raw.split(';').map(x => formatOceaniaPhone(x, cc)).filter(Boolean).join('; ');
+  let d = raw.replace(/\D/g, '');
+  const code = cc === 'au' ? '61' : '64';
+  if (d.startsWith('00')) d = d.slice(2);
+  let nsn = null;
+  if (raw.startsWith('+') || (d.startsWith(code) && d.length >= 10)) {
+    if (!d.startsWith(code)) return raw;
+    nsn = d.slice(code.length).replace(/^0/, '');
+  } else if (d.startsWith('0')) nsn = d.slice(1);
+  if (cc === 'au' && nsn && /^(1[38]00\d{6}|13\d{4})$/.test(nsn)) d = nsn;
+  if (cc === 'au') {
+    if (/^1[38]00\d{6}$/.test(d)) return `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7)}`;
+    if (/^13\d{4}$/.test(d)) return `${d.slice(0, 2)} ${d.slice(2, 4)} ${d.slice(4)}`;
+    if (!nsn || nsn.length !== 9) return raw;
+    if (nsn[0] === '4' || nsn[0] === '5') return `+61 ${nsn.slice(0, 3)} ${nsn.slice(3, 6)} ${nsn.slice(6)}`;
+    if ('2378'.includes(nsn[0])) return `+61 ${nsn[0]} ${nsn.slice(1, 5)} ${nsn.slice(5)}`;
+    return raw;
+  }
+  if (nsn && /^(800|508)\d{6}$/.test(nsn)) d = '0' + nsn;
+  if (/^0(800|508)\d{6}$/.test(d)) return `${d.slice(0, 4)} ${d.slice(4, 7)} ${d.slice(7)}`;
+  if (!nsn) return raw;
+  if (nsn[0] === '2' && nsn.length >= 8 && nsn.length <= 10) return `+64 ${nsn.slice(0, 2)} ${nsn.slice(2, 5)} ${nsn.slice(5)}`;
+  if ('34679'.includes(nsn[0]) && nsn.length === 8) return `+64 ${nsn[0]} ${nsn.slice(1, 4)} ${nsn.slice(4)}`;
+  return raw;
+}
+// Kind of an Australian or New Zealand number, read from the number itself, so it
+// also works for leads saved earlier. Other countries get no label.
+function phoneKind(p){
+  const s = (p || '').split(';')[0].trim();
+  const d = s.replace(/\D/g, '');
+  if (/^\+61/.test(s)) return /^61[45]/.test(d) ? 'mobile' : /^61[2378]/.test(d) ? 'landline' : null;
+  if (/^\+64/.test(s)) return /^642/.test(d) ? 'mobile' : /^64[34679]/.test(d) ? 'landline' : null;
+  if (/^(1[38]00\d{6}|13\d{4})$/.test(d) && /^1/.test(s)) return 'service';
+  if (/^0(800|508)\d{6}$/.test(d)) return 'service';
+  return null;
+}
+function phoneTag(p){
+  const k = phoneKind(p);
+  return k ? `<span class="ph-kind ph-${k}" title="${escapeHtml(t('ph_' + k + '_tip'))}">${t('ph_' + k)}</span>` : '';
+}
 function cleanPhone(p){
+  if (country === 'au' || country === 'nz') return formatOceaniaPhone(p, country);
   p = (p || '').trim();
   const dial = COUNTRIES[country].dial;
   const digits = p.replace(/\D/g, '');
@@ -2749,7 +2906,7 @@ function loadStaging(){
     finderResults = raw ? JSON.parse(raw) : [];
   } catch(e){ finderResults = []; }
   finderResults.forEach(r => { if (r._sid > sidCounter) sidCounter = r._sid; });
-  if (finderResults.length) renderStaging();
+  if (finderResults.length){ renderStaging(); startWebChecks(); }
 }
 
 // --- Main search ----------------------------------------------------------
@@ -2835,6 +2992,7 @@ async function runFinderSearch(){
     if (finderResults.length){
       fStatus(t('f_found', finderResults.length), 'ok');
       enrichAddresses(gen);
+      startWebChecks();
     } else {
       fStatus(t('f_none'), 'err');
     }
@@ -2867,6 +3025,246 @@ function guessEmail(url){
   if (!h || !h.includes('.') || HOSTED_SITES.test(h)) return '';
   return 'info@' + h;
 }
+// --- Website check ----------------------------------------------------------
+// Finds a concrete reason to call: dead domain, no HTTPS, not usable on a phone,
+// old copyright year, outdated WordPress, parked domain, site builder.
+// The browser may not read other sites (CORS), so the page itself is fetched through
+// the public reader r.jina.ai (about 20 requests a minute without a key); whether
+// HTTPS answers is tested directly, and a dead domain is confirmed via dns.google.
+const WC_READER = 'https://r.jina.ai/';
+const WC_PARALLEL = 2, WC_GAP_MS = 3300;
+const WC_BUILDERS = [
+  ['Wix', /static\.wixstatic\.com|static\.parastorage\.com|wix\.com\/|wixsite\.com/i],
+  ['Jimdo', /jimdo(site|free)?\.com|jimstatic\.com|jimcdn\.com/i],
+  ['Squarespace', /squarespace(-cdn)?\.com|static1\.squarespace/i],
+  ['IONOS', /mywebsite-editor\.com|ionos|1and1|homepagebaukasten|website builder by 1&1|mywebsite/i],
+  ['STRATO', /strato-editor|strato\.de\/|sitebuilder.*strato|strato/i],
+  ['GoDaddy', /img\d*\.wsimg\.com|godaddy/i],
+  ['Webflow', /data-wf-site|webflow\.(com|io)/i],
+  ['Weebly', /weebly\.com|editmysite\.com/i],
+  ['Webnode', /webnode\./i],
+  ['Duda', /multiscreensite\.com|dudaone|irp\.cdn-website\.com/i],
+  ['Site123', /site123\./i],
+  ['Shopify', /cdn\.shopify\.com/i],
+];
+const WC_PARKED = /domain (is )?(for sale|zu verkaufen|kaufen)|diese domain (steht zum verkauf|wurde registriert|ist geparkt)|this domain (is parked|may be for sale|has been registered)|sedo(parking)?\.com|parkingcrew|bodis\.com|dan\.com\/buy-domain|afternic|hugedomains|domain parking|website (coming soon|under construction)|hier entsteht (eine neue|unsere neue)? ?(website|internetseite|homepage)|baustelle/i;
+
+let wcRunning = 0, wcLastStart = 0, wcPauseUntil = 0, wcLeadsOn = false;
+const wcBusy = new Set();
+const wcCache = new Map();   // host -> result, so the same site is fetched once per session
+
+function wcToday(){ return new Date().toISOString().slice(0, 10); }
+async function wcFetch(url, opts = {}, ms = 30000){
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), ms);
+  try { return await fetch(url, { ...opts, signal: ctrl.signal }); }
+  finally { clearTimeout(timer); }
+}
+// True when https://host answers at all (opaque response); a bad certificate or a
+// closed port 443 throws.
+async function wcHttpsAnswers(host){
+  for (const h of [host, host.startsWith('www.') ? host.slice(4) : 'www.' + host]){
+    try { await wcFetch('https://' + h + '/', { mode: 'no-cors', cache: 'no-store' }, 12000); return true; }
+    catch(e){ /* try the other spelling */ }
+  }
+  return false;
+}
+async function wcDnsDead(host){
+  try {
+    const j = await (await wcFetch('https://dns.google/resolve?name=' + encodeURIComponent(host) + '&type=A', {}, 10000)).json();
+    if (j.Status === 3) return true;                       // NXDOMAIN
+    if (j.Status === 0 && !(j.Answer || []).length){
+      const j6 = await (await wcFetch('https://dns.google/resolve?name=' + encodeURIComponent(host) + '&type=AAAA', {}, 10000)).json();
+      return !(j6.Answer || []).length;
+    }
+  } catch(e){ /* unknown */ }
+  return false;
+}
+function wcText(html){
+  return html.replace(/<script[\s\S]*?<\/script>/gi, ' ').replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ').replace(/&copy;|&#169;|&#xa9;/gi, '©').replace(/&nbsp;|&#160;/gi, ' ')
+    .replace(/&amp;/gi, '&').replace(/\s+/g, ' ');
+}
+function wcAnalyse(html, finalUrl){
+  const res = {};
+  const text = wcText(html);
+  res.mobile = /<meta[^>]+name\s*=\s*["']?viewport/i.test(html);
+  const now = new Date().getFullYear();
+  let year = 0;
+  for (const m of text.matchAll(/(?:©|\(c\)|copyright)\s*(?:by\s*)?\D{0,40}?((?:19|20)\d{2})(?:\s*[-\u2013\/]\s*((?:19|20)\d{2}))?/gi)){
+    const y = Number(m[2] || m[1]);
+    if (y <= now && y > year) year = y;
+  }
+  if (year) res.year = year;
+  const gen = (html.match(/<meta[^>]+name\s*=\s*["']generator["'][^>]*content\s*=\s*["']([^"']+)/i)
+            || html.match(/<meta[^>]+content\s*=\s*["']([^"']+)["'][^>]*name\s*=\s*["']generator/i) || [])[1] || '';
+  const wp = gen.match(/wordpress\s+(\d+(?:\.\d+)?)/i);
+  if (wp) res.wp = wp[1];
+  const hay = gen + ' ' + html.slice(0, 200000) + ' ' + (finalUrl || '');
+  for (const [name, re] of WC_BUILDERS) if (re.test(hay)){ res.builder = name; break; }
+  res.form = /<form[\s>]/i.test(html) || /href=["'][^"']*(kontakt|contact)/i.test(html);
+  const title = (html.match(/<title[^>]*>([^<]*)/i) || [])[1] || '';
+  if (WC_PARKED.test(title + ' ' + text.slice(0, 3000)) && text.length < 6000) res.parked = true;
+  return res;
+}
+async function checkWebsite(url){
+  const host = siteHost(url);
+  const full = new URL(normalizeUrl(url.trim())).hostname.toLowerCase();
+  if (wcCache.has(host)) return wcCache.get(host);
+  const wc = { d: wcToday() };
+  let r, j = null;
+  try {
+    r = await wcFetch(WC_READER + normalizeUrl(url.trim()), { headers: { 'X-Return-Format': 'html', 'Accept': 'application/json', 'X-Timeout': '20' } }, 35000);
+    if (r.status === 429) return { retry: true };
+    j = await r.json().catch(() => null);
+  } catch(e){ j = null; }
+  const data = j && j.data;
+  if (data && typeof data.html === 'string' && data.html.length > 50){
+    const finalUrl = data.finalUrl || data.url || '';
+    Object.assign(wc, wcAnalyse(data.html, finalUrl));
+    const st = Number(data.httpStatus) || 200;
+    if (st >= 400){
+      // Bot protection answers the reader with an error page; that says nothing about the site.
+      const guarded = st === 429 || /cf-chl|challenge-platform|just a moment|attention required|captcha|access denied|ddos-guard|sucuri/i.test(data.html.slice(0, 20000));
+      for (const k of ['mobile', 'year', 'wp', 'builder', 'form', 'parked']) delete wc[k];
+      if (guarded) wc.st = 'nocheck'; else wc.err = st;
+    }
+    if (/^https:/i.test(finalUrl)) wc.https = true;
+    else wc.https = await wcHttpsAnswers(full) ? 'noredirect' : false;
+    if (!wc.st) wc.st = 'ok';
+  } else if (j && /could not be resolved/i.test(j.message || j.readableMessage || '')){
+    wc.st = 'down';
+  } else if (j && j.code === 429){
+    return { retry: true };
+  } else {
+    if (await wcDnsDead(full)) wc.st = 'down';
+    else if (await wcHttpsAnswers(full)) { wc.st = 'nocheck'; wc.https = true; }
+    else wc.st = 'unreach';
+  }
+  wc.hard = wcIsHard(wc);
+  wcCache.set(host, wc);
+  return wc;
+}
+function wcIsHard(wc){
+  if (!wc) return false;
+  const now = new Date().getFullYear();
+  return wc.st === 'down' || wc.st === 'unreach' || !!wc.err || !!wc.parked || wc.https === false
+    || wc.mobile === false || (wc.year && wc.year <= now - 5) || (wc.wp && parseFloat(wc.wp) < 6);
+}
+// Short labels, hard defects first.
+function wcFlags(wc){
+  if (!wc) return [];
+  const now = new Date().getFullYear(), f = [];
+  if (wc.st === 'down') return [{ k: 'hard', s: t('wc_down'), tip: t('wc_down_tip') }];
+  if (wc.st === 'unreach') return [{ k: 'hard', s: t('wc_unreach'), tip: t('wc_unreach_tip') }];
+  if (wc.parked) f.push({ k: 'hard', s: t('wc_parked'), tip: t('wc_parked_tip') });
+  if (wc.err) f.push({ k: 'hard', s: t('wc_err', wc.err), tip: t('wc_err_tip') });
+  if (wc.https === false) f.push({ k: 'hard', s: t('wc_nohttps'), tip: t('wc_nohttps_tip') });
+  if (wc.mobile === false) f.push({ k: 'hard', s: t('wc_nomobile'), tip: t('wc_nomobile_tip') });
+  if (wc.year && wc.year <= now - 3) f.push({ k: wc.year <= now - 5 ? 'hard' : 'soft', s: '© ' + wc.year, tip: t('wc_year_tip') });
+  if (wc.wp && parseFloat(wc.wp) < 6) f.push({ k: 'hard', s: 'WordPress ' + wc.wp, tip: t('wc_wp_tip') });
+  if (wc.https === 'noredirect') f.push({ k: 'soft', s: t('wc_noredirect'), tip: t('wc_noredirect_tip') });
+  if (wc.builder) f.push({ k: 'info', s: wc.builder, tip: t('wc_builder_tip') });
+  if (wc.form === false) f.push({ k: 'soft', s: t('wc_noform'), tip: t('wc_noform_tip') });
+  if (wc.st === 'nocheck') f.push({ k: 'info', s: t('wc_nocheck'), tip: t('wc_nocheck_tip') });
+  if (!f.length) f.push({ k: 'ok', s: t('wc_fine'), tip: t('wc_fine_tip') });
+  return f;
+}
+function wcDate(d){
+  try { return new Date(d + 'T12:00:00').toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB'); } catch(e){ return d; }
+}
+function wcTags(wc, pending){
+  if (!wc) return pending ? `<span class="wc-tag wc-wait">${t('wc_pending')}</span>` : '';
+  return wcFlags(wc).map(x => `<span class="wc-tag wc-${x.k}" title="${escapeHtml(x.tip + ' (' + t('wc_checked', wcDate(wc.d)) + ')')}">${escapeHtml(x.s)}</span>`).join('');
+}
+function wcNeeds(item){ return !item.wc && siteKind(item.website) === 'site'; }
+function wcStagingTargets(){ return finderResults.filter(r => wcNeeds(r) && !wcBusy.has('s' + r._sid)); }
+function wcLeadTargets(){ return wcLeadsOn ? leads.filter(l => wcNeeds(l) && !wcBusy.has('l' + l.id)) : []; }
+
+// Works through the results (then, after a click, the saved list) at a pace the reader allows.
+function startWebChecks(){
+  // A site already checked elsewhere (result row or saved lead) needs no new request.
+  const known = new Map();
+  for (const x of [...finderResults, ...leads]) if (x.wc && !isMissing(x.website)) known.set(siteHost(x.website), x.wc);
+  for (const x of [...finderResults, ...leads]){
+    if (!x.wc && siteKind(x.website) === 'site' && known.has(siteHost(x.website))) wcApply(x.website, known.get(siteHost(x.website)));
+  }
+  while (wcRunning < WC_PARALLEL){
+    // A click on "Check websites" is a direct request, so saved leads go first.
+    const l = wcLeadTargets()[0];
+    const r = l ? null : wcStagingTargets()[0];
+    if (!r && !l) break;
+    wcRunning++;
+    const key = r ? 's' + r._sid : 'l' + l.id;
+    wcBusy.add(key);
+    wcRunOne(r ? r.website : l.website).then(wc => {
+      wcBusy.delete(key);
+      wcRunning--;
+      if (wc) wcApply(r ? r.website : l.website, wc);
+      wcRenderStatus();
+      startWebChecks();
+    });
+  }
+  wcRenderStatus();
+}
+async function wcRunOne(url){
+  for (let attempt = 0; attempt < 4; attempt++){
+    const wait = Math.max(wcPauseUntil, wcLastStart + WC_GAP_MS) - Date.now();
+    wcLastStart = Math.max(Date.now(), wcLastStart + WC_GAP_MS, wcPauseUntil);
+    if (wait > 0) await sleep(wait);
+    let wc;
+    try { wc = await checkWebsite(url); } catch(e){ wc = null; }
+    if (wc && !wc.retry) return wc;
+    if (!wc) return null;
+    wcPauseUntil = Date.now() + 60000;                    // rate limit: wait a minute
+    wcRenderStatus();
+  }
+  return null;
+}
+// Stores a result on every result row and saved lead with the same site.
+function wcApply(url, wc){
+  const host = siteHost(url);
+  let rowsChanged = false, leadsChanged = false;
+  for (const r of finderResults){
+    if (r.wc || siteHost(r.website) !== host) continue;
+    r.wc = wc; rowsChanged = true;
+    const cell = document.getElementById('wc-s' + r._sid);
+    if (cell) cell.innerHTML = wcTags(wc);
+  }
+  leads.forEach(l => {
+    if (l.wc || isMissing(l.website) || siteHost(l.website) !== host) return;
+    l.wc = wc; leadsChanged = true;
+    if (wc.hard && (l.site === 'unknown' || !l.site)) l.site = 'bad';
+  });
+  if (rowsChanged){
+    persistStaging();
+    if (stagingFilter.hard) renderStaging(); else renderStagingFilters();
+  }
+  if (leadsChanged){
+    persist();
+    if (!document.getElementById('lead-list').contains(document.activeElement)) render();
+  }
+}
+function wcRenderStatus(){
+  const el = document.getElementById('wc-status');
+  if (el){
+    const withSite = finderResults.filter(r => siteKind(r.website) === 'site');
+    const done = withSite.filter(r => r.wc).length, hard = withSite.filter(r => r.wc && r.wc.hard).length;
+    const paused = wcPauseUntil > Date.now();
+    el.innerHTML = !withSite.length ? '' : done < withSite.length
+      ? `<span class="spin"></span>${escapeHtml(paused ? t('wc_paused', done, withSite.length) : t('wc_progress', done, withSite.length))}`
+      : escapeHtml(t('wc_done', done, hard));
+  }
+  const btn = document.getElementById('wc-leads');
+  if (btn){
+    const open = leads.filter(l => wcNeeds(l)).length;
+    btn.style.display = open ? '' : 'none';
+    btn.textContent = wcLeadsOn ? t('wc_leads_running', open) : t('wc_leads_btn', open);
+    btn.disabled = wcLeadsOn;
+  }
+}
+function checkLeadWebsites(){ wcLeadsOn = true; startWebChecks(); }
+
 // Keys that identify a business already in the list (same rule as addAllStaged).
 function listKeys(){
   const digits = s => (s || '').replace(/\D/g, '');
@@ -2881,7 +3279,7 @@ function listKeys(){
 }
 
 // --- Staging filters -------------------------------------------------------
-let stagingFilter = { site:'all', phone:false, fresh:false };
+let stagingFilter = { site:'all', phone:false, fresh:false, nomobile:false, hard:false };
 function setStagingFilter(k, v){
   if (k === 'site') stagingFilter.site = v; else stagingFilter[k] = !stagingFilter[k];
   renderStaging();
@@ -2894,7 +3292,9 @@ function visibleStaging(){
     if (stagingFilter.site === 'social' && kind !== 'social') return false;
     if (stagingFilter.site === 'nosite' && kind === 'site') return false;
     if (stagingFilter.phone && !r.phone) return false;
+    if (stagingFilter.nomobile && phoneKind(r.phone) === 'mobile') return false;
     if (stagingFilter.fresh && keys.isIn(r)) return false;
+    if (stagingFilter.hard && !(r.wc && r.wc.hard)) return false;
     return true;
   });
 }
@@ -2908,7 +3308,12 @@ function renderStagingFilters(){
     chip(t('flt_social'), stagingFilter.site === 'social', "setStagingFilter('site','social')") +
     '<span class="chip-sep"></span>' +
     chip(t('flt_phone'), stagingFilter.phone, "setStagingFilter('phone')") +
-    chip(t('flt_new'), stagingFilter.fresh, "setStagingFilter('fresh')");
+    (country === 'au' || country === 'nz' ? chip(t('flt_nomobile'), stagingFilter.nomobile, "setStagingFilter('nomobile')") : '') +
+    chip(t('flt_new'), stagingFilter.fresh, "setStagingFilter('fresh')") +
+    '<span class="chip-sep"></span>' +
+    chip(t('flt_hard', finderResults.filter(r => r.wc && r.wc.hard).length), stagingFilter.hard, "setStagingFilter('hard')") +
+    '<span class="wc-status" id="wc-status"></span>';
+  wcRenderStatus();
 }
 
 // --- Staging table render + edit ------------------------------------------
@@ -2925,6 +3330,7 @@ function renderStaging(){
   count.textContent = visible.length === finderResults.length ? t('count_biz', finderResults.length) : t('count_shown', visible.length, finderResults.length);
   document.getElementById('f-addall').textContent = t('add_all', fresh, terms().uncontacted);
   document.getElementById('f-addall').disabled = !fresh;
+  document.getElementById('staging-table').classList.toggle('has-kind', country === 'au' || country === 'nz');
   body.innerHTML = visible.map(r => {
     const dup = keys.isIn(r);
     const f = (field, ph) => `<input type="text" data-sid="${r._sid}" data-field="${field}" value="${escapeHtml(r[field] || '')}" placeholder="${escapeHtml(ph)}" oninput="stagingEdit(${r._sid}, '${field}', this.value)" />`;
@@ -2932,15 +3338,15 @@ function renderStaging(){
       <td class="c-name">${f('name', t('th_name').toLowerCase())}${dup ? `<span class="dup-tag">${t('in_list')}</span>` : ''}</td>
       <td class="c-mail" data-label="${escapeHtml(t('th_email'))}">${f('email', t('th_email').toLowerCase())}</td>
       <td class="c-addr" data-label="${escapeHtml(t('th_address'))}">${f('address', t('th_address').toLowerCase())}</td>
-      <td class="c-web" data-label="${escapeHtml(t('th_website'))}"><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">${ICON.open}</a>` : ''}</div></td>
-      <td class="c-phone" data-label="${escapeHtml(t('th_phone'))}">${f('phone', t('th_phone').toLowerCase())}</td>
+      <td class="c-web" data-label="${escapeHtml(t('th_website'))}"><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">${ICON.open}</a>` : ''}</div>${siteKind(r.website) === 'site' ? `<div class="wc-line" id="wc-s${r._sid}">${wcTags(r.wc, true)}</div>` : ''}</td>
+      <td class="c-phone" data-label="${escapeHtml(t('th_phone'))}"><div class="web-cell">${f('phone', t('th_phone').toLowerCase())}${phoneTag(r.phone)}</div></td>
       <td class="col-x"><button class="row-remove" title="${escapeHtml(t('remove'))}" onclick="stagingRemove(${r._sid})">${ICON.remove}</button></td>
     </tr>`;
   }).join('');
 }
 function stagingEdit(sid, field, val){
   const r = finderResults.find(x => x._sid === sid);
-  if (r){ r[field] = val; persistStaging(); }
+  if (r){ r[field] = val; if (field === 'website') delete r.wc; persistStaging(); }
 }
 function stagingRemove(sid){
   finderResults = finderResults.filter(x => x._sid !== sid);
@@ -2970,7 +3376,7 @@ function addAllStaged(){
     if (pk.length >= 7) keys.phones.add(pk);
     keys.names.add((r.name||'').toLowerCase().trim() + '|' + (r.address||'').toLowerCase().trim());
     const kind = siteKind(r.website);
-    const guess = r.email ? '' : guessEmail(r.website);
+    const guess = (r.email || (r.wc && r.wc.st === 'down')) ? '' : guessEmail(r.website);
     if (guess) guessed++;
     toAdd.push({
       id: newId(i++),
@@ -2980,7 +3386,8 @@ function addAllStaged(){
       email: r.email || guess || MISSING,
       emailGuess: !!guess,
       address: r.address || '',
-      site: kind === 'none' ? 'none' : kind === 'social' ? 'bad' : 'unknown',
+      site: kind === 'none' ? 'none' : kind === 'social' ? 'bad' : (r.wc && r.wc.hard) ? 'bad' : 'unknown',
+      ...(r.wc ? { wc: r.wc } : {}),
       status: 'pending',
       note: '',
       callback: '',
@@ -3044,7 +3451,7 @@ function renderCountryOptions(){
   const sel = document.getElementById('f-country');
   sel.innerHTML = `<optgroup label="${escapeHtml(t('grp_eu'))}">${opts(EU_MEMBERS)}</optgroup>` +
     `<optgroup label="${escapeHtml(t('grp_europe'))}">${opts(Object.keys(MORE_EUROPE))}</optgroup>` +
-    `<optgroup label="${escapeHtml(t('grp_other'))}">${opts(['us'])}</optgroup>`;
+    `<optgroup label="${escapeHtml(t('grp_other'))}">${opts(['us', 'au', 'nz'])}</optgroup>`;
   sel.value = country;
 }
 function updateCitySuggest(){
