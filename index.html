@@ -492,7 +492,7 @@
       <button id="mode-email" class="tab" onclick="setMode('email')" data-i18n="mode_email">Email</button>
     </nav>
     <div class="topbar-actions">
-      <button class="small primary" onclick="openFinder()" id="finder-toggle" data-i18n="btn_find">Find leads</button>
+      <button class="small primary" onclick="openFinder()" id="finder-toggle" data-i18n="btn_find">Find businesses</button>
       <details class="menu" id="data-menu">
         <summary data-i18n="btn_data">Import / Export</summary>
         <div class="menu-list" onclick="if (event.target.closest('button')) this.parentElement.open = false">
@@ -520,7 +520,7 @@
 <section id="finder" class="panel">
   <div class="panel-head">
     <div>
-      <h2 class="panel-title" data-i18n="finder_title">Find leads</h2>
+      <h2 class="panel-title" data-i18n="finder_title">Find businesses</h2>
       <div class="panel-sub" id="finder-sub" data-i18n="finder_sub">Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap and Overture Maps. Email is often missing and stays editable.</div>
     </div>
     <button class="small" onclick="toggleFinder()" data-i18n="btn_close">Close</button>
@@ -592,7 +592,7 @@
 <div id="backup-bar" class="backup-bar"></div>
 
 <section class="panel">
-  <div class="panel-head"><h2 class="panel-title" data-i18n="add_title">Add a lead</h2></div>
+  <div class="panel-head"><h2 class="panel-title" data-i18n="add_title">Add a business</h2></div>
   <div class="panel-body">
     <div class="add-form">
       <div>
@@ -627,11 +627,11 @@
 
 <div id="callback-banner" class="callback-banner" onclick="toggleCallbackFilter()"></div>
 
-<div class="list-head"><h2 class="list-title" data-i18n="list_title">Leads</h2><button class="small primary" id="cm-start" onclick="openCallMode()">Start calling</button></div>
+<div class="list-head"><h2 class="list-title" data-i18n="list_title">Businesses</h2><button class="small primary" id="cm-start" onclick="openCallMode()">Start calling</button></div>
 <div id="lead-list"></div>
 
 <div id="empty-state" class="empty-state">
-  Add your first lead above, aim for 20 before you start calling
+  Add your first business above, aim for 20 before you start calling
 </div>
 
 <div class="footer" id="footer-text">
@@ -665,11 +665,11 @@ let callbackFilter = false;
 const I18N = {
   en: {
     mode_calls:'Calls', mode_email:'Email',
-    btn_find:'Find leads', btn_import_csv:'Import CSV', btn_export_csv:'Export CSV',
+    btn_find:'Find businesses', btn_import_csv:'Import CSV', btn_export_csv:'Export CSV',
     btn_export_json:'Export JSON', btn_import_json:'Import JSON', btn_clear_all:'Clear all',
     btn_close:'Close', btn_search:'Search', btn_add:'Add', btn_data:'Import / Export', remove:'Remove',
-    add_title:'Add a lead', list_title:'Leads', btn_clear_results:'Clear results',
-    finder_title:'Find leads',
+    add_title:'Add a business', list_title:'Businesses', btn_clear_results:'Clear results',
+    finder_title:'Find businesses',
     finder_sub:'Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap and Overture Maps. Email is often missing and stays editable.',
     lbl_niche:'Niche', lbl_country:'Country', lbl_city:'City', lbl_radius:'Metro radius',
     lbl_state_us:'State', lbl_state_de:'Federal state', lbl_state_at:'Federal state', lbl_state_region:'Region', lbl_state_ch:'Canton',
@@ -686,21 +686,21 @@ const I18N = {
     meta_phone:'Phone:', meta_link:'Link', meta_email:'E-Mail:', meta_quality:'Quality:', meta_addr:'Addr:',
     notes_ph:'Notes, type freely. Cmd/Ctrl+Enter saves immediately',
     overdue:'overdue', today:'today', clear:'clear',
-    empty_first:(verb)=>`Add your first lead above, aim for 20 before you start ${verb}`,
+    empty_first:(verb)=>`Add your first business above, aim for 20 before you start ${verb}`,
     footer:'Data is stored locally in your browser and never leaves this device.<br/>CSV format: header row recognized, <code>name, phone, website, email, address, quality, notes</code> (any subset). Missing fields show as <code>???</code> and can be edited later.',
     banner_focus:(n,dn)=>`${n} ${dn}${n===1?'':'s'} due today or overdue, click to focus`,
-    banner_showing:(n,dn)=>`Showing ${n} ${dn}${n===1?'':'s'} due, click to show all leads`,
+    banner_showing:(n,dn)=>`Showing ${n} ${dn}${n===1?'':'s'} due, click to show all businesses`,
     add_all:(n,target)=>`Add ${n} to ${target}`,
     add_all_empty:(target)=>`Add all to ${target}`,
     count_biz:(n)=>`${n} business${n===1?'':'es'}`,
     a_empty:'Already empty.',
-    a_confirm_clear:(n)=>`Delete all ${n} lead${n===1?'':'s'}? This cannot be undone.`,
+    a_confirm_clear:(n)=>`Delete all ${n} business${n===1?'':'es'}? This cannot be undone.`,
     a_confirm_clear2:'Are you absolutely sure? Export your data first if you want a backup.',
     a_nothing_export:'Nothing to export.',
-    a_confirm_import:(a,b)=>`Replace ${a} existing leads with ${b} imported leads?`,
+    a_confirm_import:(a,b)=>`Replace ${a} existing businesses with ${b} imported businesses?`,
     a_bad_import:(m)=>'Could not import: ' + m,
     a_bad_csv:(m)=>'Could not import CSV: ' + m,
-    a_imported:(n,noHdr)=>`Imported ${n} lead${n===1?'':'s'}.${noHdr?' (no header detected)':''}`,
+    a_imported:(n,noHdr)=>`Imported ${n} business${n===1?'':'es'}.${noHdr?' (no header detected)':''}`,
     e_empty_csv:'Empty CSV', e_no_rows:'No valid rows found (need at least a name column)',
     e_bad_format:'Invalid format',
     f_need_city:'Enter a city.',
@@ -723,19 +723,19 @@ const I18N = {
     stat_today:'Today', goal_prompt:'Daily goal (contacts per day):', goal_title:'Click to change the daily goal',
     cm_start_call:'Start calling', cm_start_email:'Start emailing',
     cm_progress:(i,n)=>`${i} of ${n}`,
-    cm_empty:'Nothing to do right now. Every lead is contacted or has a future date.',
+    cm_empty:'Nothing to do right now. Every business is contacted or has a future date.',
     cm_done:'All done for now.',
     cm_skip:'Skip', cm_no_contact:'No contact details',
     cm_hint:'<kbd>1</kbd> no answer <kbd>2</kbd> interested <kbd>3</kbd> not interested <kbd>4</kbd> closed <kbd>Space</kbd> skip <kbd>Esc</kbd> close',
     move_to_email:'Move to email list', move_to_call:'Move to call list',
-    bk_never:'Your leads only exist in this browser and were never exported.',
+    bk_never:'Your businesses only exist in this browser and were never exported.',
     bk_old:(d)=>`Last backup ${d} day${d===1?'':'s'} ago.`,
     bk_export:'Export now', bk_auto:'Set up automatic backup file', bk_later:'Remind me in a week',
     bk_active:(name,when)=>`Automatic backup to ${name}${when?`, last saved ${when}`:''}.`,
     bk_reconnect:'Re-enable automatic backup', bk_stop:'stop', bk_failed:'Backup file could not be written. Set it up again.',
-    bk_confirm_both:(a,b)=>`Replace your lists with this backup (${a} call leads, ${b} email leads)?`,
+    bk_confirm_both:(a,b)=>`Replace your lists with this backup (${a} call businesses, ${b} email businesses)?`,
     cache_info:(mb)=>`Map data cache: ${mb} MB.`, cache_clear:'Clear',
-    kb_hint:'Keys: <kbd>c</kbd> start calling, <kbd>f</kbd> find leads, <kbd>n</kbd> new lead, <kbd>Esc</kbd> close',
+    kb_hint:'Keys: <kbd>c</kbd> start calling, <kbd>f</kbd> find businesses, <kbd>n</kbd> new business, <kbd>Esc</kbd> close',
   },
   de: {
     mode_calls:'Anrufe', mode_email:'E-Mail',
