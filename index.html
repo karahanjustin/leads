@@ -578,7 +578,7 @@
       <div class="panel-sub" id="finder-sub" data-i18n="finder_sub">Pick a niche and a location, then add the results to your list. Data comes from OpenStreetMap and Overture Maps. Email is often missing and stays editable.</div>
     </div>
     <div class="head-actions">
-      <button class="small dice-all" onclick="rollAll()" data-i18n-title="dice_all_tip" title="Random niche, region and city, then search"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="1.75" width="12.5" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.2" cy="5.2" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="10.8" cy="10.8" r="1.15" fill="currentColor"/></svg><span data-i18n="btn_roll_all">Random sample</span></button>
+      <button class="small dice-all" onclick="rollAll()" data-i18n-title="dice_all_tip" title="Fill in a random niche, region and city"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="1.75" width="12.5" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.2" cy="5.2" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="10.8" cy="10.8" r="1.15" fill="currentColor"/></svg><span data-i18n="btn_roll_all">Random sample</span></button>
       <button class="small" onclick="toggleFinder()" data-i18n="btn_close">Close</button>
     </div>
   </div>
@@ -724,7 +724,7 @@ const I18N = {
     mode_calls:'Calls', mode_email:'Email',
     btn_find:'Find businesses', btn_import_csv:'Import CSV', btn_export_csv:'Export CSV',
     btn_export_json:'Export JSON', btn_import_json:'Import JSON', btn_clear_all:'Clear all',
-    btn_roll_all:'Random sample', dice_all_tip:'Random niche, region and city, then search right away',
+    btn_roll_all:'Random sample', dice_all_tip:'Fill in a random niche, region and city',
     dice_niche_tip:'Random niche', dice_state_tip:'Random region (with a city in it)', dice_city_tip:'Random city',
     btn_close:'Close', btn_search:'Search', btn_add:'Add', btn_data:'Import / Export', remove:'Remove',
     add_title:'Add a business', list_title:'Businesses', btn_clear_results:'Clear results',
@@ -826,7 +826,7 @@ const I18N = {
     mode_calls:'Anrufe', mode_email:'E-Mail',
     btn_find:'Unternehmen finden', btn_import_csv:'CSV importieren', btn_export_csv:'CSV exportieren',
     btn_export_json:'JSON exportieren', btn_import_json:'JSON importieren', btn_clear_all:'Alle löschen',
-    btn_roll_all:'Zufallsstichprobe', dice_all_tip:'Zufällige Branche, Region und Stadt, dann sofort suchen',
+    btn_roll_all:'Zufallsstichprobe', dice_all_tip:'Zufällige Branche, Region und Stadt eintragen',
     dice_niche_tip:'Zufällige Branche', dice_state_tip:'Zufällige Region (mit einer Stadt darin)', dice_city_tip:'Zufällige Stadt',
     btn_close:'Schließen', btn_search:'Suchen', btn_add:'Hinzufügen', btn_data:'Import / Export', remove:'Entfernen',
     add_title:'Unternehmen manuell anlegen', list_title:'Unternehmen', btn_clear_results:'Ergebnisse löschen',
@@ -3519,7 +3519,6 @@ function rollDice(kind){
 function rollAll(){
   rollDice('niche');
   rollDice('state');
-  runFinderSearch();
 }
 
 // --- Finder init ----------------------------------------------------------
