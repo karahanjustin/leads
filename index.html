@@ -296,16 +296,16 @@
   .staging-wrap { margin-top: 14px; }
   .staging-scroll { max-height: 62vh; overflow: auto; border: 1px solid var(--border); border-radius: var(--r); }
   table.staging { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; min-width: 860px; }
-  table.staging th:nth-child(1) { width: 27%; }
-  table.staging th:nth-child(2) { width: 16%; }
-  table.staging th:nth-child(3) { width: 24%; }
-  table.staging th:nth-child(4) { width: 19%; }
-  table.staging th:nth-child(5) { width: 14%; }
-  table.staging.has-kind th:nth-child(1) { width: 23%; }
-  table.staging.has-kind th:nth-child(2) { width: 14%; }
-  table.staging.has-kind th:nth-child(3) { width: 22%; }
-  table.staging.has-kind th:nth-child(4) { width: 17%; }
-  table.staging.has-kind th:nth-child(5) { width: 24%; }
+  table.staging th:nth-child(1) { width: 25%; }
+  table.staging th:nth-child(2) { width: 15%; }
+  table.staging th:nth-child(3) { width: 22%; }
+  table.staging th:nth-child(4) { width: 23%; }
+  table.staging th:nth-child(5) { width: 15%; }
+  table.staging.has-kind th:nth-child(1) { width: 22%; }
+  table.staging.has-kind th:nth-child(2) { width: 22%; }
+  table.staging.has-kind th:nth-child(3) { width: 20%; }
+  table.staging.has-kind th:nth-child(4) { width: 22%; }
+  table.staging.has-kind th:nth-child(5) { width: 14%; }
   table.staging td .web-cell .ph-kind { margin-right: 2px; }
   table.staging th {
     position: sticky; top: 0; z-index: 1;
@@ -321,7 +321,27 @@
   }
   table.staging input:hover { border-color: var(--border); background: var(--surface); }
   table.staging input:focus { background: var(--surface); border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
-  table.staging .col-x { width: 40px; text-align: center; }
+  table.staging .col-x { width: 76px; text-align: center; }
+  table.staging td.col-x .row-acts { display: flex; gap: 2px; justify-content: center; }
+  table.staging td.c-name input { font-weight: 600; color: var(--ink); }
+  table.staging td.c-mail input, table.staging td.c-addr input { color: var(--text-2); }
+  table.staging input::placeholder { color: #c4c7cf; }
+  table.staging tbody tr:nth-child(even) td { background: #fbfbfc; }
+  table.staging tbody tr:hover td { background: #f3f5ff; }
+  table.staging td.c-web .wc-line { margin: 0 0 3px 6px; }
+  .row-add {
+    width: 26px; height: 26px; padding: 0; display: grid; place-items: center;
+    color: var(--blue); background: none; border-color: transparent;
+  }
+  .row-add:hover { color: #fff; background: var(--blue); border-color: var(--blue); }
+  .row-add:disabled { color: var(--text-3); opacity: .35; background: none; border-color: transparent; cursor: default; }
+  tr.just-added td { background: var(--success-bg, #eaf7ef) !important; transition: background .3s; }
+  .staging-actions { position: sticky; bottom: 0; z-index: 2; background: var(--surface); padding: 10px 0 4px; margin-top: 4px; border-top: 1px solid var(--border); }
+  .undo-toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 60; display: flex; align-items: center; gap: 14px; background: var(--ink); color: #fff; font-size: 14px; padding: 10px 12px 10px 16px; border-radius: 10px; box-shadow: 0 10px 30px rgba(17,19,24,.25); max-width: min(560px, 92vw); }
+  .undo-toast .msg { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .undo-toast button { flex: none; font-size: 13px; padding: 5px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,.35); background: transparent; color: #fff; font-weight: 600; }
+  .undo-toast button:hover { background: rgba(255,255,255,.12); }
+  .undo-toast .x { border: 0; padding: 4px 6px; opacity: .6; }
   table.staging td .web-cell { display: flex; align-items: center; gap: 4px; }
   table.staging td .web-cell input { flex: 1 1 auto; min-width: 60px; width: auto; }
   table.staging .web-link { flex: none; color: var(--link); display: grid; place-items: center; width: 22px; height: 22px; border-radius: 5px; }
@@ -331,7 +351,7 @@
     color: var(--text-3); background: none; border-color: transparent;
   }
   .row-remove:hover { color: var(--danger); background: var(--danger-bg); border-color: transparent; }
-  .staging-actions { margin-top: 14px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .staging-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   .staging-count { font-size: 13px; color: var(--text-3); margin-left: auto; font-variant-numeric: tabular-nums; }
 
   /* Result filters */
@@ -547,7 +567,7 @@
     table.staging thead { display: none; }
     table.staging, table.staging tbody { display: block; }
     table.staging tr {
-      display: grid; grid-template-columns: minmax(0, 1fr) 40px;
+      display: grid; grid-template-columns: minmax(0, 1fr) 80px;
       grid-template-areas: "name x" "phone phone" "addr addr" "web web" "mail mail";
       border: 1px solid var(--border); border-radius: var(--r-panel); padding: 8px 8px 10px; margin-bottom: 10px;
     }
@@ -568,7 +588,10 @@
     table.staging tr:hover td { background: none; }
     table.staging input { min-width: 0; padding: 7px 6px; }
     table.staging .web-link { width: 36px; height: 36px; }
-    .row-remove { width: 36px; height: 36px; }
+    .row-remove, .row-add { width: 36px; height: 36px; }
+    table.staging td.col-x .row-acts { justify-content: flex-end; }
+    .undo-toast { bottom: 84px; }
+    table.staging tbody tr:nth-child(even) td, table.staging tbody tr:hover td { background: none; }
     .staging-actions .primary { width: 100%; min-height: 44px; }
   }
 </style>
@@ -665,7 +688,7 @@
         <table class="staging" id="staging-table">
           <thead>
             <tr>
-              <th data-i18n="th_name">Name</th><th data-i18n="th_email">Email</th><th data-i18n="th_address">Address</th><th data-i18n="th_website">Website</th><th data-i18n="th_phone">Phone</th><th class="col-x"></th>
+              <th data-i18n="th_name">Name</th><th data-i18n="th_phone">Phone</th><th data-i18n="th_website">Website</th><th data-i18n="th_address">Address</th><th data-i18n="th_email">Email</th><th class="col-x"></th>
             </tr>
           </thead>
           <tbody id="staging-body"></tbody>
@@ -849,6 +872,7 @@ const I18N = {
     f_found_enriching:(n,i,k)=>`Found ${n} businesses. Completing missing addresses in the background, ${i} of ${k} ...`,
     f_none:'No results. Try a bigger city, a different niche, or a larger radius.',
     f_error:(m)=>'Error: ' + m,
+    add_one:(target)=>`Add to ${target}`, undo:'Undo', undo_done:'Undone.', undo_more:(n)=>`${n} more step${n===1?'':'s'} can be undone.`, undo_removed:(name)=>`Removed "${name}" from the results.`, undo_added:(n,target)=>`Added ${n} to ${target}.`, undo_added_one:(name,target)=>`"${name}" added to ${target}.`,
     f_added:(n,target,skipped)=>`Added ${n} to ${target}${skipped?`, skipped ${skipped} already in your list`:''}.`,
     f_added_mails:(n)=>` ${n} email address${n===1?'':'es'} guessed from the website.`,
     flt_all:'All', flt_nosite:'No website', flt_hassite:'Has website', flt_social:'Social media only', flt_phone:'With phone', flt_nomobile:'No mobile numbers', flt_new:'New only',
@@ -955,6 +979,7 @@ const I18N = {
     f_found_enriching:(n,i,k)=>`${n} Betriebe gefunden. Fehlende Adressen werden im Hintergrund ergänzt, ${i} von ${k} ...`,
     f_none:'Keine Treffer. Größere Stadt, andere Branche oder größeren Umkreis probieren.',
     f_error:(m)=>'Fehler: ' + m,
+    add_one:(target)=>`Zu ${target} hinzufügen`, undo:'Rückgängig', undo_done:'Rückgängig gemacht.', undo_more:(n)=>`Noch ${n} Schritt${n===1?'':'e'} rückgängig machbar.`, undo_removed:(name)=>`"${name}" aus den Ergebnissen entfernt.`, undo_added:(n,target)=>`${n} zu ${target} hinzugefügt.`, undo_added_one:(name,target)=>`"${name}" zu ${target} hinzugefügt.`,
     f_added:(n,target,skipped)=>`${n} zu ${target} hinzugefügt${skipped?`, ${skipped} bereits in der Liste übersprungen`:''}.`,
     f_added_mails:(n)=>` ${n} E-Mail-Adresse${n===1?'':'n'} aus der Website vermutet.`,
     flt_all:'Alle', flt_nosite:'Ohne Website', flt_hassite:'Website vorhanden', flt_social:'Nur Social Media', flt_phone:'Mit Telefon', flt_nomobile:'Ohne Mobilnummern', flt_new:'Nur neue',
@@ -1349,6 +1374,7 @@ const ICON = {
   mail: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="2" y="3.5" width="12" height="9" rx="1"/><path d="m2.5 4.5 5.5 4 5.5-4"/></svg>',
   open: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7.5 8.5M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3"/></svg>',
   remove: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8"/></svg>',
+  add: '<svg class="ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>',
 };
 
 function isMissing(v) { return !v || v === MISSING; }
@@ -3916,13 +3942,13 @@ function renderStaging(){
   body.innerHTML = visible.map(r => {
     const dup = keys.isIn(r);
     const f = (field, ph) => `<input type="text" data-sid="${r._sid}" data-field="${field}" value="${escapeHtml(r[field] || '')}" placeholder="${escapeHtml(ph)}" oninput="stagingEdit(${r._sid}, '${field}', this.value)" />`;
-    return `<tr${dup ? ' class="dup"' : ''}>
+    return `<tr${dup ? ' class="dup"' : ''} data-sid="${r._sid}">
       <td class="c-name">${f('name', t('th_name').toLowerCase())}${dup ? `<span class="dup-tag">${t('in_list')}</span>` : ''}</td>
-      <td class="c-mail" data-label="${escapeHtml(t('th_email'))}">${f('email', t('th_email').toLowerCase())}</td>
-      <td class="c-addr" data-label="${escapeHtml(t('th_address'))}">${f('address', t('th_address').toLowerCase())}</td>
-      <td class="c-web" data-label="${escapeHtml(t('th_website'))}"><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">${ICON.open}</a>` : ''}</div>${siteKind(r.website) === 'site' ? `<div class="wc-line" id="wc-s${r._sid}">${wcTags(r.wc, true)}</div>` : ''}</td>
       <td class="c-phone" data-label="${escapeHtml(t('th_phone'))}"><div class="web-cell">${f('phone', t('th_phone').toLowerCase())}${phoneTag(r.phone)}</div></td>
-      <td class="col-x"><button class="row-remove" title="${escapeHtml(t('remove'))}" onclick="stagingRemove(${r._sid})">${ICON.remove}</button></td>
+      <td class="c-web" data-label="${escapeHtml(t('th_website'))}"><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">${ICON.open}</a>` : ''}</div>${siteKind(r.website) === 'site' ? `<div class="wc-line" id="wc-s${r._sid}">${wcTags(r.wc, true)}</div>` : ''}</td>
+      <td class="c-addr" data-label="${escapeHtml(t('th_address'))}">${f('address', t('th_address').toLowerCase())}</td>
+      <td class="c-mail" data-label="${escapeHtml(t('th_email'))}">${f('email', t('th_email').toLowerCase())}</td>
+      <td class="col-x"><div class="row-acts"><button class="row-add" title="${escapeHtml(t('add_one', terms().uncontacted))}" onclick="addOneStaged(${r._sid})"${dup ? ' disabled' : ''}>${ICON.add}</button><button class="row-remove" title="${escapeHtml(t('remove'))}" onclick="stagingRemove(${r._sid})">${ICON.remove}</button></div></td>
     </tr>`;
   }).join('');
 }
@@ -3931,9 +3957,50 @@ function stagingEdit(sid, field, val){
   if (r){ r[field] = val; if (field === 'website') delete r.wc; persistStaging(); }
 }
 function stagingRemove(sid){
-  finderResults = finderResults.filter(x => x._sid !== sid);
+  const idx = finderResults.findIndex(x => x._sid === sid);
+  if (idx < 0) return;
+  const row = finderResults[idx];
+  finderResults.splice(idx, 1);
   persistStaging();
   renderStaging();
+  pushUndo(t('undo_removed', row.name), { rows: [[idx, row]], leadIds: [] });
+}
+
+// --- Undo for taking rows over or removing them ------------------------------
+// Each step remembers the result rows (with their old position) and the leads it created.
+const undoStack = [];
+let undoTimer = null;
+function pushUndo(msg, step){
+  undoStack.push(step);
+  if (undoStack.length > 30) undoStack.shift();
+  showUndoToast(msg);
+}
+function showUndoToast(msg){
+  let el = document.getElementById('undo-toast');
+  if (!el){ el = document.createElement('div'); el.id = 'undo-toast'; el.className = 'undo-toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.innerHTML = `<span class="msg">${escapeHtml(msg)}</span><button type="button" onclick="undoLast()">${escapeHtml(t('undo'))}</button><button type="button" class="x" onclick="hideUndoToast()" aria-label="OK">${ICON.remove}</button>`;
+  el.style.display = 'flex';
+  clearTimeout(undoTimer);
+  undoTimer = setTimeout(hideUndoToast, 9000);
+}
+function hideUndoToast(){ const el = document.getElementById('undo-toast'); if (el) el.style.display = 'none'; }
+function undoLast(){
+  const step = undoStack.pop();
+  if (!step){ hideUndoToast(); return; }
+  if (step.leadIds.length){
+    const ids = new Set(step.leadIds);
+    leads = leads.filter(l => !ids.has(l.id));
+    persist();
+    render();
+  }
+  // Put rows back where they were, lowest position first so later ones land right.
+  for (const [idx, row] of step.rows.slice().sort((a, b) => a[0] - b[0])){
+    if (!finderResults.some(x => x._sid === row._sid)) finderResults.splice(Math.min(idx, finderResults.length), 0, row);
+  }
+  persistStaging();
+  renderStaging();
+  if (undoStack.length) showUndoToast(t('undo_more', undoStack.length)); else hideUndoToast();
+  fStatus(t('undo_done'), 'ok');
 }
 function clearStaging(){
   searchGen++;
@@ -3942,17 +4009,15 @@ function clearStaging(){
   renderStaging();
   fStatus('', '');
 }
-// Adds the rows the filters show; the rest stays in the results for another pass.
-function addAllStaged(){
-  const visible = visibleStaging();
-  if (!visible.length) return;
-  searchGen++;
+// Turns result rows into leads; rows already in the list are skipped.
+function takeOver(rows){
   const keys = listKeys();
   const digits = s => (s || '').replace(/\D/g, '');
-  let added = 0, skipped = 0, guessed = 0, i = 0;
-  const toAdd = [], taken = new Set();
-  for (const r of visible){
-    taken.add(r._sid);
+  let skipped = 0, guessed = 0, i = 0;
+  const toAdd = [], taken = [];
+  for (const r of rows){
+    const idx = finderResults.indexOf(r);
+    if (idx >= 0) taken.push([idx, r]);
     if (keys.isIn(r)){ skipped++; continue; }
     const pk = digits(r.phone);
     if (pk.length >= 7) keys.phones.add(pk);
@@ -3975,16 +4040,31 @@ function addAllStaged(){
       callback: '',
       touched: '',
     });
-    added++;
   }
   leads = leads.concat(toAdd);
   persist();
-  finderResults = finderResults.filter(r => !taken.has(r._sid));
-  if (!finderResults.length) finderSeen.clear();
+  const takenSids = new Set(taken.map(([, r]) => r._sid));
+  finderResults = finderResults.filter(r => !takenSids.has(r._sid));
   persistStaging();
   renderStaging();
   render();
-  fStatus(t('f_added', added, terms().uncontacted, skipped) + (guessed ? t('f_added_mails', guessed) : ''), 'ok');
+  return { added: toAdd.length, skipped, guessed, step: { rows: taken, leadIds: toAdd.map(l => l.id) } };
+}
+// Adds the rows the filters show; the rest stays in the results for another pass.
+function addAllStaged(){
+  const visible = visibleStaging();
+  if (!visible.length) return;
+  searchGen++;
+  const res = takeOver(visible);
+  fStatus(t('f_added', res.added, terms().uncontacted, res.skipped) + (res.guessed ? t('f_added_mails', res.guessed) : ''), 'ok');
+  if (res.added || res.step.rows.length) pushUndo(t('undo_added', res.added, terms().uncontacted), res.step);
+}
+// One row straight into the list; the search and its background work keep running.
+function addOneStaged(sid){
+  const r = finderResults.find(x => x._sid === sid);
+  if (!r) return;
+  const res = takeOver([r]);
+  if (res.added) pushUndo(t('undo_added_one', r.name, terms().uncontacted), res.step);
 }
 
 // --- Dice: random niche, region and city for quick samples ----------------
