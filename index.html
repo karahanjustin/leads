@@ -842,7 +842,7 @@ const I18N = {
     f_tiles:'Large area, scanning in tiles ...',
     f_overture:(i,n,mb)=>`Loading Overture Maps data, block ${i} of ${n} (${mb} MB) ...`,
     f_overture_cached:(n)=>`Overture Maps data already saved on this device (${n} tiles), nothing to download ...`,
-    f_wait_osm:(n)=>`Overture done (${n} hits). Waiting for OpenStreetMap, this can take up to a minute ...`,
+    f_wait_osm:(n)=>`${n} businesses from Overture shown. OpenStreetMap is still adding hits, this can take up to a minute ...`,
     sub_hint:'Too many? Narrow it down:', nm_subs:'Show sub-niches', nm_count:(n)=>String(n), nm_none:'No matching niche, the search will still try it as free text.',
     btn_stop:'Stop', f_stopped:(n)=>`Stopped. ${n} businesses kept.`, wc_stopped:(d,n)=>`Website check stopped at ${d} of ${n}.`, wc_resume:'Continue', wc_stopping:'Stopping website check ...',
     f_found:(n)=>`Found ${n} businesses. Edit or remove rows, then add them to your call list.`,
@@ -948,7 +948,7 @@ const I18N = {
     f_tiles:'Großes Gebiet, wird in Kacheln durchsucht ...',
     f_overture:(i,n,mb)=>`Lade Overture-Maps-Daten, Paket ${i} von ${n} (${mb} MB) ...`,
     f_overture_cached:(n)=>`Overture-Kartendaten liegen schon auf diesem Gerät (${n} Kacheln), kein Download nötig ...`,
-    f_wait_osm:(n)=>`Overture fertig (${n} Treffer). Warte noch auf OpenStreetMap, das kann bis zu einer Minute dauern ...`,
+    f_wait_osm:(n)=>`${n} Betriebe aus Overture angezeigt. OpenStreetMap ergänzt noch, das kann bis zu einer Minute dauern ...`,
     sub_hint:'Zu viele? Eingrenzen:', nm_subs:'Unterbranchen zeigen', nm_count:(n)=>String(n), nm_none:'Keine passende Branche, die Suche versucht es trotzdem als freien Text.',
     btn_stop:'Stopp', f_stopped:(n)=>`Gestoppt. ${n} Betriebe bleiben in der Liste.`, wc_stopped:(d,n)=>`Website-Check bei ${d} von ${n} gestoppt.`, wc_resume:'Fortsetzen', wc_stopping:'Website-Check wird angehalten ...',
     f_found:(n)=>`${n} Betriebe gefunden. Zeilen bearbeiten oder entfernen, dann in die Liste übernehmen.`,
@@ -2825,10 +2825,13 @@ function addElement(el, branchLabel, fallbackCity){
   const lat = el.lat ?? el.center?.lat ?? null;
   const lon = el.lon ?? el.center?.lon ?? null;
   finderSeen.add(oid);
-  finderResults.push({ _sid: ++sidCounter, name, address: addr, phone, email, website, lat, lon,
-    _hasFullAddr: !!(t['addr:street'] && t['addr:housenumber']) });
+  const full = !!(t['addr:street'] && t['addr:housenumber']);
+  // Once Overture rows are on screen, OSM hits merge into them instead of doubling them.
+  if (osmMerge) return mergeRecord({ name, address: addr, phone, email, website, lat, lon }, full);
+  finderResults.push({ _sid: ++sidCounter, name, address: addr, phone, email, website, lat, lon, _hasFullAddr: full });
   return true;
 }
+let osmMerge = false;
 
 // --- Prebuilt datasets (data/<name>-<country>.json, see tools/) -----------
 const datasetCache = {};
@@ -3407,9 +3410,23 @@ async function runFinderSearch(){
           (done, total, bytes, cached) => fStatus(total ? t('f_overture', done, total, (bytes / 1e6).toFixed(1)) : t('f_overture_cached', cached), '', true))
           .catch(e => { console.warn('Overture unavailable:', e); return []; })
       : Promise.resolve([]);
-    let data = null, osmDone = false;
-    // Overture is often done first; say what is still running instead of a stale progress line.
-    ovtPromise.then(rows => { if (!osmDone && !stopped() && filters.length) fStatus(t('f_wait_osm', rows.length), '', true); });
+    let data = null, osmDone = false, ovtShown = false;
+    osmMerge = false;
+    const awayFromCenter = r => (r.lat && r.lon) ? distM(lat, lon, r.lat, r.lon) : Infinity;
+    const addOvt = rows => {
+      for (const rec of rows){ const street = rec.street; delete rec.street; mergeRecord(rec, !!street); }
+    };
+    // Overture is often done long before OpenStreetMap: show its rows right away,
+    // OSM hits are merged in when they arrive.
+    ovtPromise.then(rows => {
+      if (osmDone || stopped() || !filters.length) return;
+      ovtShown = true; osmMerge = true;
+      addOvt(rows);
+      finderResults.sort((a, b) => awayFromCenter(a) - awayFromCenter(b));
+      renderStaging();
+      startWebChecks();
+      fStatus(t('f_wait_osm', finderResults.length), '', true);
+    });
     if (filters.length) try { data = await overpass(buildCombinedQuery(aid, lat, lon, radiusM, filters)); }
     catch(e){ /* try tiling below */ }
     osmDone = true;
@@ -3426,10 +3443,8 @@ async function runFinderSearch(){
     }
     const ds = await dsPromise;
     addDatasetRows(ds, place, radiusM);
-    for (const rec of await ovtPromise){
-      const street = rec.street; delete rec.street;
-      mergeRecord(rec, !!street);
-    }
+    const ovtRows = await ovtPromise;
+    if (!ovtShown) addOvt(ovtRows);
     renderStaging();
     if (radiusM && filters.length && finderResults.length < 25 && !stopped()){
       for (const rad of [50000, 100000]){
