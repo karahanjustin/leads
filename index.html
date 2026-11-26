@@ -357,6 +357,28 @@
   .chip.link { border-color: transparent; background: none; text-decoration: underline; color: var(--text-3); }
   .chips.sub-hint { margin-top: 8px; }
   .sub-hint .hint-label { font-size: 13px; color: var(--text-3); margin-right: 2px; }
+  .niche-wrap { position: relative; }
+  .niche-wrap input { width: 100%; padding-right: 30px; }
+  .niche-caret { position: absolute; right: 2px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; padding: 0; border: 0; background: none; color: var(--text-3); display: grid; place-items: center; }
+  .niche-caret:hover { background: none; color: var(--ink); }
+  .niche-caret .arrow, .nm-tog .arrow { display: inline-block; width: 6px; height: 6px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .12s; }
+  .niche-menu { position: absolute; z-index: 40; left: 0; top: calc(100% + 4px); min-width: max(100%, 280px); width: max-content; max-width: min(420px, 92vw); max-height: 360px; overflow-y: auto; background: var(--surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: 0 10px 28px rgba(17,19,24,.14); padding: 4px; }
+  .nm-row { display: flex; align-items: center; gap: 2px; border-radius: 6px; font-size: 14px; color: var(--text); cursor: pointer; }
+  .nm-row .nm-name { flex: 1; padding: 6px 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nm-row.lvl1 { padding-left: 18px; } .nm-row.lvl2 { padding-left: 36px; }
+  .nm-row.lvl1 .nm-name, .nm-row.lvl2 .nm-name { color: var(--text-2); font-size: 13.5px; }
+  .nm-row.lvl1, .nm-row.lvl2 { border-left: 2px solid var(--border); border-radius: 0 6px 6px 0; margin-left: 10px; }
+  .nm-row.lvl2 { margin-left: 28px; padding-left: 8px; }
+  .nm-row.lvl1 { padding-left: 0; }
+  .nm-row:hover, .nm-row.hi { background: var(--surface-2); }
+  .nm-row.hi .nm-name { color: var(--blue); }
+  .nm-row .nm-count { font-size: 11px; color: var(--text-3); padding-right: 4px; font-variant-numeric: tabular-nums; }
+  .nm-tog { width: 26px; height: 26px; padding: 0; border: 0; background: none; color: var(--text-3); display: grid; place-items: center; flex: none; }
+  .nm-tog:hover { background: var(--border); color: var(--ink); }
+  .nm-tog.open .arrow { transform: translateY(1px) rotate(225deg); }
+  .nm-tog.none { visibility: hidden; }
+  .nm-empty { padding: 10px; font-size: 13px; color: var(--text-3); }
+  mark.nm { background: none; color: inherit; font-weight: 700; }
   .chip-sep { width: 1px; height: 18px; background: var(--border-strong); margin: 0 4px; }
   table.staging tr.dup td { opacity: 0.45; }
   table.staging tr.dup td.c-name input { text-decoration: line-through; }
@@ -602,8 +624,11 @@
     <div class="finder-form">
       <div>
         <div class="label-row"><div class="field-label" data-i18n="lbl_niche">Niche</div><button type="button" class="dice" onclick="rollDice('niche')" data-i18n-title="dice_niche_tip" title="Random"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="1.75" y="1.75" width="12.5" height="12.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="5.2" cy="5.2" r="1.15" fill="currentColor"/><circle cx="8" cy="8" r="1.15" fill="currentColor"/><circle cx="10.8" cy="10.8" r="1.15" fill="currentColor"/></svg></button></div>
-        <input type="text" id="f-niche" list="niche-suggest" data-i18n-ph="ph_niche" placeholder="e.g. dentist, plumber, restaurant" />
-        <datalist id="niche-suggest"></datalist>
+        <div class="niche-wrap">
+          <input type="text" id="f-niche" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="niche-menu" data-i18n-ph="ph_niche" placeholder="e.g. dentist, plumber, restaurant" />
+          <button type="button" class="niche-caret" tabindex="-1" onmousedown="event.preventDefault()" onclick="toggleNicheMenu()" aria-label="Branchen"><span class="arrow"></span></button>
+          <div class="niche-menu" id="niche-menu" role="listbox" style="display:none"></div>
+        </div>
       </div>
       <div>
         <div class="field-label" data-i18n="lbl_country">Country</div>
@@ -813,7 +838,7 @@ const I18N = {
     f_businesses:'businesses',
     f_tiles:'Large area, scanning in tiles ...',
     f_overture:(i,n,mb)=>`Loading Overture Maps data, block ${i} of ${n} (${mb} MB) ...`,
-    sub_hint:'Too many? Narrow it down:',
+    sub_hint:'Too many? Narrow it down:', nm_subs:'Show sub-niches', nm_count:(n)=>String(n), nm_none:'No matching niche, the search will still try it as free text.',
     f_found:(n)=>`Found ${n} businesses. Edit or remove rows, then add them to your call list.`,
     f_found_enriching:(n,i,k)=>`Found ${n} businesses. Completing missing addresses in the background, ${i} of ${k} ...`,
     f_none:'No results. Try a bigger city, a different niche, or a larger radius.',
@@ -916,7 +941,7 @@ const I18N = {
     f_businesses:'Betriebe',
     f_tiles:'Großes Gebiet, wird in Kacheln durchsucht ...',
     f_overture:(i,n,mb)=>`Lade Overture-Maps-Daten, Paket ${i} von ${n} (${mb} MB) ...`,
-    sub_hint:'Zu viele? Eingrenzen:',
+    sub_hint:'Zu viele? Eingrenzen:', nm_subs:'Unterbranchen zeigen', nm_count:(n)=>String(n), nm_none:'Keine passende Branche, die Suche versucht es trotzdem als freien Text.',
     f_found:(n)=>`${n} Betriebe gefunden. Zeilen bearbeiten oder entfernen, dann in die Liste übernehmen.`,
     f_found_enriching:(n,i,k)=>`${n} Betriebe gefunden. Fehlende Adressen werden im Hintergrund ergänzt, ${i} von ${k} ...`,
     f_none:'Keine Treffer. Größere Stadt, andere Branche oder größeren Umkreis probieren.',
@@ -1615,457 +1640,509 @@ document.addEventListener('keydown', e => {
 // regex over a city times out, so name matching for them happens in the dataset build.
 const CATEGORIES = [
   { names:["auktionshaus","auktionshäuser","auktionshaeuser","auktion","auktionen","versteigerung","versteigerungen","versteigerer","auktionator","auktionatoren","kunstauktion","kunstauktionen","auction house","auction houses","auction","auctions","auctioneer","auctioneers","art auction"],
-    label:"Auktionshaus", ovt:['auction_house'], dataset:"auctions",
+    label:"Auktionshaus", en:"Auction house", ovt:['auction_house'], dataset:"auctions",
     filters:['shop=auction','craft=auctioneer','office=auctioneer','amenity=auction'] },
   // Sub-niches come before the broad entries, so a specific term wins over a general one.
   { names:["italiener","italienisch","italienisches restaurant","italian","italian restaurant","trattoria","osteria","ristorante"],
-    label:"Italienisches Restaurant", parent:"Restaurant", ovt:['italian_restaurant'], filters:['amenity=restaurant&cuisine~italian'] },
+    label:"Italienisches Restaurant", en:"Italian restaurant", parent:"Restaurant", ovt:['italian_restaurant'], filters:['amenity=restaurant&cuisine~italian'] },
   { names:["pizzeria","pizzerien","pizza","pizza restaurant","pizzaria","pizza place","pizza shop","pizza lieferdienst","pizza delivery"],
-    label:"Pizzeria", parent:"Restaurant", ovt:['pizza_restaurant','pizza_delivery_service'], filters:['amenity=restaurant&cuisine~pizza','amenity=fast_food&cuisine~pizza'] },
+    label:"Pizzeria", en:"Pizzeria", parent:"Restaurant", ovt:['pizza_restaurant','pizza_delivery_service'], filters:['amenity=restaurant&cuisine~pizza','amenity=fast_food&cuisine~pizza'] },
   { names:["grieche","griechisch","griechisches restaurant","greek","greek restaurant","taverna","taverne"],
-    label:"Griechisches Restaurant", parent:"Restaurant", ovt:['greek_restaurant'], filters:['amenity=restaurant&cuisine~greek'] },
+    label:"Griechisches Restaurant", en:"Greek restaurant", parent:"Restaurant", ovt:['greek_restaurant'], filters:['amenity=restaurant&cuisine~greek'] },
   { names:["türkisch","türkisches restaurant","turkish","turkish restaurant","türkische küche"],
-    label:"Türkisches Restaurant", parent:"Restaurant", ovt:['turkish_restaurant'], filters:['amenity=restaurant&cuisine~turkish'] },
+    label:"Türkisches Restaurant", en:"Turkish restaurant", parent:"Restaurant", ovt:['turkish_restaurant'], filters:['amenity=restaurant&cuisine~turkish'] },
   { names:["döner","doener","dönerladen","kebab","kebap","kebab shop","doner","doner kebab","shawarma"],
-    label:"Döner / Kebab", parent:"Imbiss / Fast Food", ovt:['doner_kebab_restaurant'], filters:['amenity=fast_food&cuisine~kebab','amenity=restaurant&cuisine~kebab'] },
+    label:"Döner / Kebab", en:"Kebab shop", parent:"Imbiss / Fast Food", ovt:['doner_kebab_restaurant'], filters:['amenity=fast_food&cuisine~kebab','amenity=restaurant&cuisine~kebab'] },
   { names:["asiate","asiatisch","asiatisches restaurant","asian","asian restaurant","asia restaurant","asia imbiss","wok"],
-    label:"Asiatisches Restaurant", parent:"Restaurant", ovt:['asian_restaurant','pan_asian_restaurant','asian_fusion_restaurant','wok_restaurant'], filters:['amenity=restaurant&cuisine~asian|chinese|thai|vietnamese|japanese|sushi|korean'] },
+    label:"Asiatisches Restaurant", en:"Asian restaurant", parent:"Restaurant", ovt:['asian_restaurant','pan_asian_restaurant','asian_fusion_restaurant','wok_restaurant'], filters:['amenity=restaurant&cuisine~asian|chinese|thai|vietnamese|japanese|sushi|korean'] },
   { names:["chinese","chinesisch","chinesisches restaurant","chinese restaurant","chinarestaurant","china restaurant"],
-    label:"Chinesisches Restaurant", parent:"Restaurant", ovt:['chinese_restaurant'], filters:['amenity=restaurant&cuisine~chinese'] },
+    label:"Chinesisches Restaurant", en:"Chinese restaurant", parent:"Restaurant", ovt:['chinese_restaurant'], filters:['amenity=restaurant&cuisine~chinese'] },
   { names:["japaner","japanisch","japanisches restaurant","japanese","japanese restaurant","sushi","sushi bar","sushi restaurant","ramen"],
-    label:"Japanisch / Sushi", parent:"Restaurant", ovt:['japanese_restaurant','ramen_restaurant'], filters:['amenity=restaurant&cuisine~japanese|sushi|ramen'] },
+    label:"Japanisch / Sushi", en:"Japanese / Sushi", parent:"Restaurant", ovt:['japanese_restaurant','ramen_restaurant'], filters:['amenity=restaurant&cuisine~japanese|sushi|ramen'] },
   { names:["thai","thailändisch","thai restaurant","thailändisches restaurant","thai küche"],
-    label:"Thailändisches Restaurant", parent:"Restaurant", ovt:['thai_restaurant'], filters:['amenity=restaurant&cuisine~thai'] },
+    label:"Thailändisches Restaurant", en:"Thai restaurant", parent:"Restaurant", ovt:['thai_restaurant'], filters:['amenity=restaurant&cuisine~thai'] },
   { names:["vietnamese","vietnamesisch","vietnamesisches restaurant","vietnamese restaurant","pho"],
-    label:"Vietnamesisches Restaurant", parent:"Restaurant", ovt:['vietnamese_restaurant'], filters:['amenity=restaurant&cuisine~vietnamese'] },
+    label:"Vietnamesisches Restaurant", en:"Vietnamese restaurant", parent:"Restaurant", ovt:['vietnamese_restaurant'], filters:['amenity=restaurant&cuisine~vietnamese'] },
   { names:["inder","indisch","indisches restaurant","indian","indian restaurant","curry house","pakistani restaurant","nepalese restaurant"],
-    label:"Indisches Restaurant", parent:"Restaurant", ovt:['south_asian_restaurant'], filters:['amenity=restaurant&cuisine~indian|pakistani|nepalese'] },
+    label:"Indisches Restaurant", en:"Indian restaurant", parent:"Restaurant", ovt:['south_asian_restaurant'], filters:['amenity=restaurant&cuisine~indian|pakistani|nepalese'] },
   { names:["mexikaner","mexikanisch","mexikanisches restaurant","mexican","mexican restaurant","tex mex","taco","tacos","burrito"],
-    label:"Mexikanisches Restaurant", parent:"Restaurant", ovt:['mexican_restaurant','taco_restaurant','texmex_restaurant'], filters:['amenity=restaurant&cuisine~mexican|tex-mex'] },
+    label:"Mexikanisches Restaurant", en:"Mexican restaurant", parent:"Restaurant", ovt:['mexican_restaurant','taco_restaurant','texmex_restaurant'], filters:['amenity=restaurant&cuisine~mexican|tex-mex'] },
   { names:["spanisch","spanisches restaurant","spanish restaurant","tapas","tapas bar","tapasbar"],
-    label:"Spanisch / Tapas", parent:"Restaurant", ovt:['spanish_restaurant','tapas_bar','iberian_restaurant'], filters:['amenity=restaurant&cuisine~spanish|tapas'] },
+    label:"Spanisch / Tapas", en:"Spanish / Tapas", parent:"Restaurant", ovt:['spanish_restaurant','tapas_bar','iberian_restaurant'], filters:['amenity=restaurant&cuisine~spanish|tapas'] },
   { names:["deutsche küche","deutsches restaurant","german restaurant","german cuisine","bürgerliche küche","hausmannskost","brauhaus"],
-    label:"Deutsches Restaurant", parent:"Restaurant", ovt:['german_restaurant'], filters:['amenity=restaurant&cuisine~german|regional'] },
+    label:"Deutsches Restaurant", en:"German restaurant", parent:"Restaurant", ovt:['german_restaurant'], filters:['amenity=restaurant&cuisine~german|regional'] },
   { names:["steakhouse","steak","steakhaus","grill restaurant","grillhaus","barbecue","bbq","bbq restaurant","churrascaria"],
-    label:"Steakhouse / Grill", parent:"Restaurant", ovt:['steakhouse','barbecue_restaurant','bar_and_grill_restaurant'], filters:['amenity=restaurant&cuisine~steak_house|barbecue|grill'] },
+    label:"Steakhouse / Grill", en:"Steakhouse / BBQ", parent:"Restaurant", ovt:['steakhouse','barbecue_restaurant','bar_and_grill_restaurant'], filters:['amenity=restaurant&cuisine~steak_house|barbecue|grill'] },
   { names:["burger","burgerladen","burger restaurant","burger joint","burger bar","hamburger"],
-    label:"Burger-Restaurant", parent:"Imbiss / Fast Food", ovt:['burger_restaurant'], filters:['amenity=fast_food&cuisine~burger','amenity=restaurant&cuisine~burger'] },
+    label:"Burger-Restaurant", en:"Burger restaurant", parent:"Imbiss / Fast Food", ovt:['burger_restaurant'], filters:['amenity=fast_food&cuisine~burger','amenity=restaurant&cuisine~burger'] },
   { names:["fischrestaurant","fisch restaurant","seafood","seafood restaurant","fish restaurant","fish and chips"],
-    label:"Fisch / Seafood", parent:"Restaurant", ovt:['seafood_restaurant'], filters:['amenity=restaurant&cuisine~seafood|fish'] },
+    label:"Fisch / Seafood", en:"Seafood restaurant", parent:"Restaurant", ovt:['seafood_restaurant'], filters:['amenity=restaurant&cuisine~seafood|fish'] },
   { names:["vegan","veganes restaurant","vegetarisch","vegetarisches restaurant","vegan restaurant","vegetarian","vegetarian restaurant"],
-    label:"Vegan / Vegetarisch", parent:"Restaurant", ovt:['vegan_restaurant','vegetarian_restaurant'], filters:['amenity=restaurant&diet:vegan~yes|only','amenity=restaurant&diet:vegetarian~only'] },
+    label:"Vegan / Vegetarisch", en:"Vegan / Vegetarian", parent:"Restaurant", ovt:['vegan_restaurant','vegetarian_restaurant'], filters:['amenity=restaurant&diet:vegan~yes|only','amenity=restaurant&diet:vegetarian~only'] },
   { names:["orientalisch","orientalisches restaurant","libanesisch","libanese","lebanese","syrisch","persisch","arabisch","middle eastern","middle eastern restaurant","lebanese restaurant","falafel"],
-    label:"Orientalisch / Libanesisch", parent:"Restaurant", ovt:['middle_eastern_restaurant'], filters:['amenity=restaurant&cuisine~lebanese|arab|persian|syrian|oriental'] },
+    label:"Orientalisch / Libanesisch", en:"Middle Eastern restaurant", parent:"Restaurant", ovt:['middle_eastern_restaurant'], filters:['amenity=restaurant&cuisine~lebanese|arab|persian|syrian|oriental'] },
   { names:["frühstück","frühstückscafé","brunch","breakfast","brunch restaurant","breakfast restaurant"],
-    label:"Frühstück / Brunch", parent:"Restaurant", ovt:['breakfast_and_brunch_restaurant'], filters:['amenity=restaurant&cuisine~breakfast'] },
+    label:"Frühstück / Brunch", en:"Breakfast / Brunch", parent:"Restaurant", ovt:['breakfast_and_brunch_restaurant'], filters:['amenity=restaurant&cuisine~breakfast'] },
   { names:["hausarzt","hausärzte","hausarztpraxis","allgemeinmedizin","allgemeinarzt","general practitioner","gp","family doctor","family practice","primary care"],
-    label:"Hausarzt", parent:"Arztpraxis", ovt:['family_practice','primary_care_or_general_clinic'], filters:['healthcare:speciality~general'] },
+    label:"Hausarzt", en:"General practitioner", parent:"Arztpraxis", ovt:['family_practice','primary_care_or_general_clinic'], filters:['healthcare:speciality~general'] },
   { names:["kinderarzt","kinderärzte","kinderarztpraxis","kinderheilkunde","pediatrician","paediatrician","pediatrics","children's doctor"],
-    label:"Kinderarzt", parent:"Arztpraxis", ovt:['pediatric_clinic'], filters:['healthcare:speciality~paediatrics'] },
+    label:"Kinderarzt", en:"Pediatrician", parent:"Arztpraxis", ovt:['pediatric_clinic'], filters:['healthcare:speciality~paediatrics'] },
   { names:["hautarzt","hautärzte","dermatologe","dermatologie","dermatologist","dermatology","skin doctor"],
-    label:"Hautarzt", parent:"Arztpraxis", ovt:['dermatology'], filters:['healthcare:speciality~dermatology'] },
+    label:"Hautarzt", en:"Dermatologist", parent:"Arztpraxis", ovt:['dermatology'], filters:['healthcare:speciality~dermatology'] },
   { names:["augenarzt","augenärzte","augenheilkunde","ophthalmologe","ophthalmologist","ophthalmology","eye doctor"],
-    label:"Augenarzt", parent:"Arztpraxis", ovt:['ophthalmology'], filters:['healthcare:speciality~ophthalmology'] },
+    label:"Augenarzt", en:"Ophthalmologist", parent:"Arztpraxis", ovt:['ophthalmology'], filters:['healthcare:speciality~ophthalmology'] },
   { names:["frauenarzt","frauenärzte","frauenärztin","gynäkologe","gynäkologie","gynecologist","gynaecologist","obgyn","ob gyn"],
-    label:"Frauenarzt", parent:"Arztpraxis", ovt:['obstetrics_and_gynecology'], filters:['healthcare:speciality~gynaecology'] },
+    label:"Frauenarzt", en:"Gynecologist", parent:"Arztpraxis", ovt:['obstetrics_and_gynecology'], filters:['healthcare:speciality~gynaecology'] },
   { names:["hno","hno arzt","hals nasen ohren","ent","ent doctor","ear nose throat","otolaryngologist"],
-    label:"HNO-Arzt", parent:"Arztpraxis", ovt:['ear_nose_and_throat'], filters:['healthcare:speciality~otolaryngology'] },
+    label:"HNO-Arzt", en:"ENT doctor", parent:"Arztpraxis", ovt:['ear_nose_and_throat'], filters:['healthcare:speciality~otolaryngology'] },
   { names:["orthopäde","orthopäden","orthopädie","orthopedist","orthopedics","orthopaedic","orthopedic surgeon"],
-    label:"Orthopäde", parent:"Arztpraxis", ovt:['orthopedics','orthopedic_surgery'], filters:['healthcare:speciality~orthopaedics'] },
+    label:"Orthopäde", en:"Orthopedist", parent:"Arztpraxis", ovt:['orthopedics','orthopedic_surgery'], filters:['healthcare:speciality~orthopaedics'] },
   { names:["urologe","urologie","urologist","urology"],
-    label:"Urologe", parent:"Arztpraxis", ovt:['urology'], filters:['healthcare:speciality~urology'] },
+    label:"Urologe", en:"Urologist", parent:"Arztpraxis", ovt:['urology'], filters:['healthcare:speciality~urology'] },
   { names:["neurologe","neurologie","neurologist","neurology"],
-    label:"Neurologe", parent:"Arztpraxis", ovt:['neurology'], filters:['healthcare:speciality~neurology'] },
+    label:"Neurologe", en:"Neurologist", parent:"Arztpraxis", ovt:['neurology'], filters:['healthcare:speciality~neurology'] },
   { names:["kardiologe","kardiologie","herzarzt","cardiologist","cardiology"],
-    label:"Kardiologe", parent:"Arztpraxis", ovt:['cardiology'], filters:['healthcare:speciality~cardiology'] },
+    label:"Kardiologe", en:"Cardiologist", parent:"Arztpraxis", ovt:['cardiology'], filters:['healthcare:speciality~cardiology'] },
   { names:["internist","internisten","innere medizin","internal medicine","gastroenterologe","gastroenterology"],
-    label:"Internist", parent:"Arztpraxis", ovt:['internal_medicine','gastroenterology'], filters:['healthcare:speciality~internal|gastroenterology'] },
+    label:"Internist", en:"Internist", parent:"Arztpraxis", ovt:['internal_medicine','gastroenterology'], filters:['healthcare:speciality~internal|gastroenterology'] },
   { names:["radiologe","radiologie","röntgen","mrt","radiologist","radiology","imaging center","diagnostic imaging"],
-    label:"Radiologie", parent:"Arztpraxis", ovt:['radiology','diagnostic_imaging'], filters:['healthcare:speciality~radiology'] },
+    label:"Radiologie", en:"Radiology", parent:"Arztpraxis", ovt:['radiology','diagnostic_imaging'], filters:['healthcare:speciality~radiology'] },
   { names:["schönheitschirurg","schönheitschirurgie","schönheitsklinik","plastische chirurgie","ästhetische chirurgie","cosmetic surgery","plastic surgery","plastic surgeon","cosmetic surgeon"],
-    label:"Schönheitschirurgie", parent:"Arztpraxis", ovt:['plastic_and_reconstructive_surgery','cosmetic_surgery'], filters:['healthcare:speciality~plastic_surgery'] },
+    label:"Schönheitschirurgie", en:"Cosmetic surgery", parent:"Arztpraxis", ovt:['plastic_and_reconstructive_surgery','cosmetic_surgery'], filters:['healthcare:speciality~plastic_surgery'] },
   { names:["kieferorthopäde","kieferorthopädie","zahnspange","orthodontist","orthodontics"],
-    label:"Kieferorthopäde", parent:"Zahnarzt", ovt:['orthodontics'], filters:['healthcare:speciality~orthodontics'] },
+    label:"Kieferorthopäde", en:"Orthodontist", parent:"Zahnarzt", ovt:['orthodontics'], filters:['healthcare:speciality~orthodontics'] },
   { names:["kinderzahnarzt","kinderzahnärzte","pediatric dentist","paediatric dentist","kids dentist"],
-    label:"Kinderzahnarzt", parent:"Zahnarzt", ovt:['pediatric_dentistry'], filters:[] },
+    label:"Kinderzahnarzt", en:"Pediatric dentist", parent:"Zahnarzt", ovt:['pediatric_dentistry'], filters:[] },
   { names:["oralchirurg","oralchirurgie","kieferchirurg","kieferchirurgie","mkg","implantologie","oral surgeon","oral surgery","maxillofacial surgeon"],
-    label:"Oralchirurgie", parent:"Zahnarzt", ovt:['oral_and_maxillofacial_surgery'], filters:[] },
+    label:"Oralchirurgie", en:"Oral surgery", parent:"Zahnarzt", ovt:['oral_and_maxillofacial_surgery'], filters:[] },
   { names:["zahntechnik","zahntechniker","dentallabor","dental lab","dental laboratory","dental technician"],
-    label:"Zahntechnik", parent:"Zahnarzt", ovt:['b2b_dental_lab'], filters:['craft=dental_technician'] },
+    label:"Zahntechnik", en:"Dental lab", parent:"Zahnarzt", ovt:['b2b_dental_lab'], filters:['craft=dental_technician'] },
   { names:["ergotherapie","ergotherapeut","occupational therapy","occupational therapist"],
-    label:"Ergotherapie", parent:"Physiotherapie", ovt:['occupational_therapy'], filters:['healthcare=occupational_therapist'] },
+    label:"Ergotherapie", en:"Occupational therapy", parent:"Physiotherapie", ovt:['occupational_therapy'], filters:['healthcare=occupational_therapist'] },
   { names:["logopädie","logopäde","sprachtherapie","speech therapy","speech therapist"],
-    label:"Logopädie", parent:"Physiotherapie", ovt:['speech_therapy'], filters:['healthcare=speech_therapist'] },
+    label:"Logopädie", en:"Speech therapy", parent:"Physiotherapie", ovt:['speech_therapy'], filters:['healthcare=speech_therapist'] },
   { names:["chiropraktiker","chiropraktik","osteopath","osteopathie","chiropractor","chiropractic","osteopathy"],
-    label:"Chiropraktik / Osteopathie", parent:"Physiotherapie", ovt:['chiropractic','osteopathic_medicine'], filters:['healthcare=chiropractor','healthcare:speciality~osteopathy|chiropractic'] },
+    label:"Chiropraktik / Osteopathie", en:"Chiropractor / Osteopath", parent:"Physiotherapie", ovt:['chiropractic','osteopathic_medicine'], filters:['healthcare=chiropractor','healthcare:speciality~osteopathy|chiropractic'] },
   { names:["ernährungsberatung","ernährungsberater","diätassistent","nutritionist","dietitian","nutrition coach"],
-    label:"Ernährungsberatung", parent:"Heilpraktiker", ovt:['nutrition_service'], filters:['healthcare=nutrition_counselling'] },
+    label:"Ernährungsberatung", en:"Nutritionist", parent:"Heilpraktiker", ovt:['nutrition_service'], filters:['healthcare=nutrition_counselling'] },
   { names:["familienrecht","scheidungsanwalt","anwalt familienrecht","scheidung","family lawyer","divorce lawyer","family law"],
-    label:"Anwalt Familienrecht", parent:"Rechtsanwalt", ovt:['divorce_and_family_law'], filters:[] },
+    label:"Anwalt Familienrecht", en:"Family lawyer", parent:"Rechtsanwalt", ovt:['divorce_and_family_law'], filters:[] },
   { names:["strafrecht","strafverteidiger","anwalt strafrecht","criminal lawyer","criminal defense","defense attorney","dui lawyer"],
-    label:"Anwalt Strafrecht", parent:"Rechtsanwalt", ovt:['criminal_defense_law','dui_law'], filters:[] },
+    label:"Anwalt Strafrecht", en:"Criminal lawyer", parent:"Rechtsanwalt", ovt:['criminal_defense_law','dui_law'], filters:[] },
   { names:["arbeitsrecht","anwalt arbeitsrecht","fachanwalt arbeitsrecht","employment lawyer","employment law","labor lawyer"],
-    label:"Anwalt Arbeitsrecht", parent:"Rechtsanwalt", ovt:['employment_law','workers_compensation_law'], filters:[] },
+    label:"Anwalt Arbeitsrecht", en:"Employment lawyer", parent:"Rechtsanwalt", ovt:['employment_law','workers_compensation_law'], filters:[] },
   { names:["verkehrsrecht","verkehrsanwalt","anwalt verkehrsrecht","unfallrecht","personal injury lawyer","traffic lawyer","accident lawyer"],
-    label:"Anwalt Verkehrsrecht", parent:"Rechtsanwalt", ovt:['traffic_ticketing_law','personal_injury_law'], filters:[] },
+    label:"Anwalt Verkehrsrecht", en:"Traffic / Injury lawyer", parent:"Rechtsanwalt", ovt:['traffic_ticketing_law','personal_injury_law'], filters:[] },
   { names:["erbrecht","anwalt erbrecht","testament","estate lawyer","estate planning","probate lawyer","wills and trusts"],
-    label:"Anwalt Erbrecht", parent:"Rechtsanwalt", ovt:['estate_planning_law','wills_trusts_and_probate'], filters:[] },
+    label:"Anwalt Erbrecht", en:"Estate lawyer", parent:"Rechtsanwalt", ovt:['estate_planning_law','wills_trusts_and_probate'], filters:[] },
   { names:["mietrecht","immobilienrecht","baurecht","anwalt mietrecht","real estate lawyer","real estate law","landlord tenant lawyer"],
-    label:"Anwalt Miet- und Immobilienrecht", parent:"Rechtsanwalt", ovt:['real_estate_law'], filters:[] },
+    label:"Anwalt Miet- und Immobilienrecht", en:"Real estate lawyer", parent:"Rechtsanwalt", ovt:['real_estate_law'], filters:[] },
   { names:["wirtschaftsrecht","handelsrecht","gesellschaftsrecht","vertragsrecht","business lawyer","corporate lawyer","business law","contract law"],
-    label:"Anwalt Wirtschaftsrecht", parent:"Rechtsanwalt", ovt:['business_law','contract_law'], filters:[] },
+    label:"Anwalt Wirtschaftsrecht", en:"Business lawyer", parent:"Rechtsanwalt", ovt:['business_law','contract_law'], filters:[] },
   { names:["insolvenzrecht","insolvenzanwalt","insolvenzverwalter","bankruptcy lawyer","bankruptcy law"],
-    label:"Anwalt Insolvenzrecht", parent:"Rechtsanwalt", ovt:['bankruptcy_law'], filters:[] },
+    label:"Anwalt Insolvenzrecht", en:"Bankruptcy lawyer", parent:"Rechtsanwalt", ovt:['bankruptcy_law'], filters:[] },
   { names:["steuerrecht","steueranwalt","fachanwalt steuerrecht","tax lawyer","tax attorney","tax law"],
-    label:"Anwalt Steuerrecht", parent:"Rechtsanwalt", ovt:['tax_law'], filters:[] },
+    label:"Anwalt Steuerrecht", en:"Tax lawyer", parent:"Rechtsanwalt", ovt:['tax_law'], filters:[] },
   { names:["ausländerrecht","migrationsrecht","aufenthaltsrecht","immigration lawyer","immigration law"],
-    label:"Anwalt Ausländerrecht", parent:"Rechtsanwalt", ovt:['immigration_law'], filters:[] },
+    label:"Anwalt Ausländerrecht", en:"Immigration lawyer", parent:"Rechtsanwalt", ovt:['immigration_law'], filters:[] },
   { names:["patentanwalt","patentanwälte","markenrecht","urheberrecht","it recht","patent attorney","patent lawyer","ip lawyer","intellectual property"],
-    label:"Patentanwalt", parent:"Rechtsanwalt", ovt:['patent_law','ip_and_internet_law'], filters:[] },
+    label:"Patentanwalt", en:"Patent / IP lawyer", parent:"Rechtsanwalt", ovt:['patent_law','ip_and_internet_law'], filters:[] },
   { names:["sozialrecht","anwalt sozialrecht","social security lawyer","disability lawyer","disability law"],
-    label:"Anwalt Sozialrecht", parent:"Rechtsanwalt", ovt:['social_security_law','disability_law'], filters:[] },
+    label:"Anwalt Sozialrecht", en:"Social security lawyer", parent:"Rechtsanwalt", ovt:['social_security_law','disability_law'], filters:[] },
   { names:["heizung","heizungsbauer","heizungsbau","heizungsinstallateur","klima","klimaanlage","klimatechnik","wärmepumpe","hvac","heating","air conditioning","ac repair","heat pump","furnace repair"],
-    label:"Heizung / Klima", parent:"Sanitär / Klempner", ovt:['hvac_service','water_heater_installation_repair'], filters:['craft=hvac','craft=heating_engineer'] },
+    label:"Heizung / Klima", en:"HVAC", parent:"Sanitär / Klempner", ovt:['hvac_service','water_heater_installation_repair'], filters:['craft=hvac','craft=heating_engineer'] },
   { names:["badsanierung","badezimmer","badplanung","badausstatter","bathroom remodeling","bathroom renovation","bathroom fitter"],
-    label:"Badsanierung", parent:"Sanitär / Klempner", ovt:['bathroom_remodeling','bathtub_and_sink_repair'], filters:[] },
+    label:"Badsanierung", en:"Bathroom remodeling", parent:"Sanitär / Klempner", ovt:['bathroom_remodeling','bathtub_and_sink_repair'], filters:[] },
   { names:["küchenstudio","küchen","küchenbauer","küchenplanung","einbauküche","kitchen studio","kitchen remodeling","kitchen fitter","kitchen store"],
-    label:"Küchenstudio", parent:"Handwerk", ovt:['kitchen_remodeling','kitchen_and_bath_store','cabinet_sales_service','countertop_installation'], filters:['shop=kitchen'] },
+    label:"Küchenstudio", en:"Kitchen studio", parent:"Handwerk", ovt:['kitchen_remodeling','kitchen_and_bath_store','cabinet_sales_service','countertop_installation'], filters:['shop=kitchen'] },
   { names:["tischler","tischlerei","schreiner","schreinerei","möbeltischler","joiner","joinery","carpenter","carpentry","woodworker","cabinet maker","zimmerei","zimmermann","zimmerer","holzbau","timber construction"],
-    label:"Tischler / Schreiner", parent:"Handwerk", ovt:['carpenter','turnery','furniture_repair'], filters:['craft=carpenter','craft=joiner','craft=cabinet_maker'] },
+    label:"Tischler / Schreiner", en:"Carpenter / Joiner", parent:"Handwerk", ovt:['carpenter','turnery','furniture_repair'], filters:['craft=carpenter','craft=joiner','craft=cabinet_maker'] },
   { names:["glaser","glaserei","fensterbauer","fenster","fenstermontage","türen","haustüren","glazier","windows","window installation","door installation"],
-    label:"Glaser / Fenster", parent:"Handwerk", ovt:['glass_and_mirror_sales_service','windows_installation','door_sales_service','skylight_installation'], filters:['craft=glaziery','craft=window_construction'] },
+    label:"Glaser / Fenster", en:"Glazier / Windows", parent:"Handwerk", ovt:['glass_and_mirror_sales_service','windows_installation','door_sales_service','skylight_installation'], filters:['craft=glaziery','craft=window_construction'] },
   { names:["rollladen","rolladen","jalousie","jalousien","markise","markisen","sonnenschutz","raffstore","shutters","blinds","awnings","window blinds"],
-    label:"Rollladen / Sonnenschutz", parent:"Handwerk", ovt:['shades_and_blinds','shutters','patio_covers'], filters:[] },
+    label:"Rollladen / Sonnenschutz", en:"Shutters / Blinds", parent:"Handwerk", ovt:['shades_and_blinds','shutters','patio_covers'], filters:[] },
   { names:["schornsteinfeger","kaminkehrer","kaminfeger","schornstein","kamin","chimney sweep","chimney service","fireplace service"],
-    label:"Schornsteinfeger", parent:"Handwerk", ovt:['chimney_service','fireplace_service'], filters:['craft=chimney_sweeper'] },
+    label:"Schornsteinfeger", en:"Chimney sweep", parent:"Handwerk", ovt:['chimney_service','fireplace_service'], filters:['craft=chimney_sweeper'] },
   { names:["solar","photovoltaik","pv anlage","solaranlage","solarteur","solar installer","solar installation","solar panels","photovoltaics"],
-    label:"Solar / Photovoltaik", parent:"Handwerk", ovt:['solar_installation','solar_panel_cleaning'], filters:['craft=photovoltaic','craft=solar'] },
+    label:"Solar / Photovoltaik", en:"Solar installer", parent:"Handwerk", ovt:['solar_installation','solar_panel_cleaning'], filters:['craft=photovoltaic','craft=solar'] },
   { names:["trockenbau","trockenbauer","stuckateur","stuck","verputzer","putz","drywall","plasterer","plastering","stucco"],
-    label:"Trockenbau / Stuck", parent:"Handwerk", ovt:['drywall_service','plasterer','stucco_service'], filters:['craft=plasterer','craft=stuccoer'] },
+    label:"Trockenbau / Stuck", en:"Drywall / Plaster", parent:"Handwerk", ovt:['drywall_service','plasterer','stucco_service'], filters:['craft=plasterer','craft=stuccoer'] },
   { names:["maurer","maurerei","betonbau","mauerwerk","pflasterer","pflasterarbeiten","steinmetz","mason","masonry","bricklayer","concrete contractor","paving","stonemason"],
-    label:"Maurer / Betonbau", parent:"Bauunternehmen", ovt:['masonry_concrete','masonry_contractor','stone_and_masonry','paving_contractor'], filters:['craft=stonemason','craft=bricklayer','craft=paver'] },
+    label:"Maurer / Betonbau", en:"Masonry / Concrete", parent:"Bauunternehmen", ovt:['masonry_concrete','masonry_contractor','stone_and_masonry','paving_contractor'], filters:['craft=stonemason','craft=bricklayer','craft=paver'] },
   { names:["hausmeister","hausmeisterservice","hausmeisterdienst","handwerkerservice","handyman","handyman service","property maintenance"],
-    label:"Hausmeisterservice", parent:"Handwerk", ovt:['handyman'], filters:['craft=handyman','office=property_maintenance'] },
+    label:"Hausmeisterservice", en:"Handyman", parent:"Handwerk", ovt:['handyman'], filters:['craft=handyman','office=property_maintenance'] },
   { names:["schädlingsbekämpfung","kammerjäger","schädlingsbekämpfer","pest control","exterminator"],
-    label:"Schädlingsbekämpfung", parent:"Handwerk", ovt:['pest_control_service'], filters:['craft=pest_control','shop=pest_control'] },
+    label:"Schädlingsbekämpfung", en:"Pest control", parent:"Handwerk", ovt:['pest_control_service'], filters:['craft=pest_control','shop=pest_control'] },
   { names:["alarmanlage","alarmanlagen","sicherheitstechnik","videoüberwachung","einbruchschutz","security systems","alarm systems","home security","cctv installer"],
-    label:"Sicherheitstechnik / Alarmanlagen", parent:"Handwerk", ovt:['security_systems','home_security','home_automation'], filters:['shop=security'] },
+    label:"Sicherheitstechnik / Alarmanlagen", en:"Security systems", parent:"Handwerk", ovt:['security_systems','home_security'], filters:['shop=security'] },
   { names:["sicherheitsdienst","security","wachdienst","objektschutz","security service","security guards","security company"],
-    label:"Sicherheitsdienst", ovt:['security_service'], filters:['office=security'] },
+    label:"Sicherheitsdienst", en:"Security service", ovt:['security_service'], filters:['office=security'] },
   { names:["galabau","garten und landschaftsbau","gartenbau","landschaftsbau","landscaping","landscape contractor","garden design"],
-    label:"Garten- und Landschaftsbau", parent:"Gärtner", ovt:['landscaping','landscape_architect','irrigation_service','artificial_turf'], filters:['craft=gardener','office=landscape_architect'] },
+    label:"Garten- und Landschaftsbau", en:"Landscaping", parent:"Gärtner", ovt:['landscaping','landscape_architect','irrigation_service','artificial_turf'], filters:['craft=gardener','office=landscape_architect'] },
   { names:["baumpflege","baumfällung","baumdienst","rasenpflege","rasenmähen","tree service","tree surgeon","arborist","lawn care","lawn service","lawn mowing"],
-    label:"Baumpflege / Rasen", parent:"Gärtner", ovt:['tree_service','lawn_service'], filters:['craft=arborist'] },
+    label:"Baumpflege / Rasen", en:"Tree / Lawn care", parent:"Gärtner", ovt:['tree_service','lawn_service'], filters:['craft=arborist'] },
   { names:["poolbau","pool","schwimmbadbau","whirlpool","pool service","pool builder","pool cleaning","hot tub"],
-    label:"Pool / Schwimmbadbau", parent:"Handwerk", ovt:['pool_and_hot_tub_service','pool_cleaning'], filters:['shop=swimming_pool'] },
+    label:"Pool / Schwimmbadbau", en:"Pool service", parent:"Handwerk", ovt:['pool_and_hot_tub_service','pool_cleaning'], filters:['shop=swimming_pool'] },
   { names:["raumausstatter","polsterer","polsterei","gardinen","upholsterer","upholstery","interior decorator","curtains"],
-    label:"Raumausstatter / Polsterer", parent:"Handwerk", ovt:['furniture_reupholstery','wallpaper_installer'], filters:['craft=upholsterer','shop=curtain'] },
+    label:"Raumausstatter / Polsterer", en:"Upholsterer / Decorator", parent:"Handwerk", ovt:['furniture_reupholstery','wallpaper_installer'], filters:['craft=upholsterer','shop=curtain'] },
   { names:["innenarchitekt","innenarchitektur","interior designer","interior design","inneneinrichtung"],
-    label:"Innenarchitekt", parent:"Architekt", ovt:['interior_design'], filters:['office=interior_design','shop=interior_decoration'] },
+    label:"Innenarchitekt", en:"Interior designer", parent:"Architekt", ovt:['interior_design'], filters:['office=interior_design','shop=interior_decoration'] },
   { names:["abriss","abrissunternehmen","entrümpelung","haushaltsauflösung","entkernung","demolition","junk removal","house clearance"],
-    label:"Abriss / Entrümpelung", parent:"Bauunternehmen", ovt:['demolition_service','junk_removal_and_hauling'], filters:[] },
+    label:"Abriss / Entrümpelung", en:"Demolition / Junk removal", parent:"Bauunternehmen", ovt:['demolition_service','junk_removal_and_hauling'], filters:[] },
   { names:["wasserschaden","schadensanierung","brandschaden","schimmelsanierung","trocknung","water damage","fire damage","damage restoration","mold remediation"],
-    label:"Wasserschaden / Sanierung", parent:"Handwerk", ovt:['damage_restoration','fire_and_water_damage_restoration','waterproofing'], filters:[] },
+    label:"Wasserschaden / Sanierung", en:"Damage restoration", parent:"Handwerk", ovt:['damage_restoration','fire_and_water_damage_restoration','waterproofing'], filters:[] },
   { names:["garagentor","garagentore","torbau","tore","garage door","garage doors","garage door repair"],
-    label:"Garagentore", parent:"Handwerk", ovt:['garage_door_service'], filters:[] },
+    label:"Garagentore", en:"Garage doors", parent:"Handwerk", ovt:['garage_door_service'], filters:[] },
   { names:["statiker","bauingenieur","ingenieurbüro","tragwerksplanung","structural engineer","civil engineer","engineering firm"],
-    label:"Bauingenieur / Statiker", parent:"Bauunternehmen", ovt:['structural_engineer','civil_engineer','engineering_service'], filters:['office=engineer'] },
+    label:"Bauingenieur / Statiker", en:"Structural engineer", parent:"Bauunternehmen", ovt:['structural_engineer','civil_engineer','engineering_service'], filters:['office=engineer'] },
   { names:["gutachter","sachverständiger","bausachverständiger","baugutachter","home inspector","building inspector","surveyor"],
-    label:"Gutachter / Bausachverständiger", parent:"Bauunternehmen", ovt:['home_inspector','inspection_service'], filters:['office=surveyor'] },
+    label:"Gutachter / Bausachverständiger", en:"Building inspector", parent:"Bauunternehmen", ovt:['home_inspector','inspection_service'], filters:['office=surveyor'] },
   { names:["gebäudereinigung","büroreinigung","unterhaltsreinigung","reinigungsfirma","office cleaning","janitorial","commercial cleaning","janitorial service"],
-    label:"Gebäudereinigung", parent:"Reinigung", ovt:['office_cleaning','janitorial_service'], filters:['office=cleaning'] },
+    label:"Gebäudereinigung", en:"Commercial cleaning", parent:"Reinigung", ovt:['office_cleaning','janitorial_service'], filters:['office=cleaning'] },
   { names:["haushaltshilfe","putzhilfe","putzfrau","haushaltsreinigung","home cleaning","house cleaning","maid service","maid"],
-    label:"Haushaltsreinigung", parent:"Reinigung", ovt:['home_cleaning'], filters:[] },
+    label:"Haushaltsreinigung", en:"House cleaning", parent:"Reinigung", ovt:['home_cleaning'], filters:[] },
   { names:["fensterreinigung","fensterputzer","glasreinigung","window cleaning","window washing","window cleaner"],
-    label:"Fensterreinigung", parent:"Reinigung", ovt:['window_washing','pressure_washing'], filters:[] },
+    label:"Fensterreinigung", en:"Window cleaning", parent:"Reinigung", ovt:['window_washing','pressure_washing'], filters:[] },
   { names:["textilreinigung","chemische reinigung","wäscherei","waschsalon","dry cleaning","dry cleaner","laundry","laundromat"],
-    label:"Textilreinigung / Wäscherei", parent:"Reinigung", ovt:['dry_cleaning','laundry_service'], filters:['shop=dry_cleaning','shop=laundry'] },
+    label:"Textilreinigung / Wäscherei", en:"Dry cleaning / Laundry", parent:"Reinigung", ovt:['dry_cleaning','laundry_service'], filters:['shop=dry_cleaning','shop=laundry'] },
   { names:["reifen","reifenservice","reifenhandel","reifenwechsel","tires","tyres","tire shop","tyre shop","tire service"],
-    label:"Reifenservice", parent:"Autowerkstatt", ovt:['tire_dealer_and_repair','tire_shop','wheel_and_rim_repair'], filters:['shop=tyres'] },
+    label:"Reifenservice", en:"Tire shop", parent:"Autowerkstatt", ovt:['tire_dealer_and_repair','tire_shop','wheel_and_rim_repair'], filters:['shop=tyres'] },
   { names:["karosserie","karosseriebau","autolackierer","autolackierung","lackiererei","unfallinstandsetzung","auto body","body shop","collision repair","car paint"],
-    label:"Karosserie / Lackierung", parent:"Autowerkstatt", ovt:['auto_body_shop'], filters:['craft=car_painter','shop=car_repair&car_repair~body'] },
+    label:"Karosserie / Lackierung", en:"Auto body / Paint", parent:"Autowerkstatt", ovt:['auto_body_shop'], filters:['craft=car_painter','shop=car_repair&car_repair~body'] },
   { names:["autoglas","scheibenreparatur","windschutzscheibe","auto glass","windshield repair","windscreen repair"],
-    label:"Autoglas", parent:"Autowerkstatt", ovt:['auto_glass_service'], filters:[] },
+    label:"Autoglas", en:"Auto glass", parent:"Autowerkstatt", ovt:['auto_glass_service'], filters:[] },
   { names:["tüv","dekra","prüfstelle","hauptuntersuchung","kfz prüfstelle","car inspection","mot","vehicle inspection"],
-    label:"TÜV / Prüfstelle", parent:"Autowerkstatt", ovt:['car_inspection'], filters:['amenity=vehicle_inspection'] },
+    label:"TÜV / Prüfstelle", en:"Vehicle inspection", parent:"Autowerkstatt", ovt:['car_inspection'], filters:['amenity=vehicle_inspection'] },
   { names:["autowäsche","waschanlage","autopflege","fahrzeugaufbereitung","car wash","car detailing","auto detailing"],
-    label:"Autopflege / Waschanlage", parent:"Autowerkstatt", ovt:['car_wash','auto_detailing'], filters:['amenity=car_wash'] },
+    label:"Autopflege / Waschanlage", en:"Car wash / Detailing", parent:"Autowerkstatt", ovt:['car_wash','auto_detailing'], filters:['amenity=car_wash'] },
   { names:["motorrad","motorradhändler","motorradwerkstatt","motorrad werkstatt","motorcycle","motorcycle dealer","motorcycle repair","motorbike"],
-    label:"Motorrad", parent:"Autohändler", ovt:['motorcycle_dealer','motorcycle_repair'], filters:['shop=motorcycle','shop=motorcycle_repair'] },
+    label:"Motorrad", en:"Motorcycle", parent:"Autohändler", ovt:['motorcycle_dealer','motorcycle_repair'], filters:['shop=motorcycle','shop=motorcycle_repair'] },
   { names:["gebrauchtwagen","gebrauchtwagenhändler","autoankauf","used cars","used car dealer"],
-    label:"Gebrauchtwagenhändler", parent:"Autohändler", ovt:['used_auto_dealer'], filters:['shop=car&second_hand~yes|only'] },
+    label:"Gebrauchtwagenhändler", en:"Used car dealer", parent:"Autohändler", ovt:['used_auto_dealer'], filters:['shop=car&second_hand~yes|only'] },
   { names:["autovermietung","mietwagen","autoverleih","car rental","rent a car","vehicle rental"],
-    label:"Autovermietung", parent:"Vermietung", ovt:['car_rental_service','vehicle_rental_service'], filters:['amenity=car_rental'] },
+    label:"Autovermietung", en:"Car rental", parent:"Vermietung", ovt:['car_rental_service','vehicle_rental_service'], filters:['amenity=car_rental'] },
   { names:["kfz elektrik","autoelektrik","motorinstandsetzung","getriebe","auspuff","auto electrical","engine repair","transmission repair","exhaust repair"],
-    label:"Kfz-Elektrik / Motorinstandsetzung", parent:"Autowerkstatt", ovt:['auto_electrical_repair','engine_repair_service','transmission_repair','exhaust_and_muffler_repair'], filters:[] },
+    label:"Kfz-Elektrik / Motorinstandsetzung", en:"Auto electrical / Engine repair", parent:"Autowerkstatt", ovt:['auto_electrical_repair','engine_repair_service','transmission_repair','exhaust_and_muffler_repair'], filters:[] },
   { names:["wimpern","wimpernverlängerung","lash","lashes","lash studio","augenbrauen","brows","brow bar","eyelash extensions","microblading"],
-    label:"Wimpern / Augenbrauen", parent:"Kosmetik", ovt:['eyelash_service','eyebrow_service'], filters:['shop=beauty&beauty~lashes|eyebrows'] },
+    label:"Wimpern / Augenbrauen", en:"Lashes / Brows", parent:"Kosmetik", ovt:['eyelash_service','eyebrow_service'], filters:['shop=beauty&beauty~lashes|eyebrows'] },
   { names:["waxing","haarentfernung","laser haarentfernung","sugaring","hair removal","laser hair removal"],
-    label:"Haarentfernung / Waxing", parent:"Kosmetik", ovt:['waxing','hair_removal','laser_hair_removal'], filters:['shop=beauty&beauty~waxing|hair_removal'] },
+    label:"Haarentfernung / Waxing", en:"Hair removal / Waxing", parent:"Kosmetik", ovt:['waxing','hair_removal','laser_hair_removal'], filters:['shop=beauty&beauty~waxing|hair_removal'] },
   { names:["permanent make up","permanent makeup","pmu","permanent make-up"],
-    label:"Permanent Make-up", parent:"Kosmetik", ovt:['permanent_makeup'], filters:[] },
+    label:"Permanent Make-up", en:"Permanent makeup", parent:"Kosmetik", ovt:['permanent_makeup'], filters:[] },
   { names:["immobilienmakler","makler","maklerbüro","real estate agent","realtor","estate agent","real estate broker"],
-    label:"Immobilienmakler", parent:"Immobilien", ovt:['real_estate_agent','apartment_agent'], filters:['office=estate_agent'] },
+    label:"Immobilienmakler", en:"Real estate agent", parent:"Immobilien", ovt:['real_estate_agent','apartment_agent'], filters:['office=estate_agent'] },
   { names:["hausverwaltung","immobilienverwaltung","weg verwaltung","property management","property manager"],
-    label:"Hausverwaltung", parent:"Immobilien", ovt:['property_management'], filters:['office=property_management'] },
+    label:"Hausverwaltung", en:"Property management", parent:"Immobilien", ovt:['property_management'], filters:['office=property_management'] },
   { names:["ambulanter pflegedienst","ambulante pflege","häusliche pflege","24 stunden pflege","home care","home health care","home nursing"],
-    label:"Ambulanter Pflegedienst", parent:"Pflegedienst", ovt:['home_health_care'], filters:['healthcare=nursing'] },
+    label:"Ambulanter Pflegedienst", en:"Home care", parent:"Pflegedienst", ovt:['home_health_care'], filters:['healthcare=nursing'] },
   { names:["seniorenheim","altenheim","pflegeheim","seniorenresidenz","betreutes wohnen","nursing home","retirement home","assisted living","senior living"],
-    label:"Seniorenheim", parent:"Pflegedienst", ovt:['senior_living_facility','assisted_living_facility','retirement_home'], filters:['amenity=nursing_home','social_facility=nursing_home'] },
+    label:"Seniorenheim", en:"Nursing home", parent:"Pflegedienst", ovt:['senior_living_facility','assisted_living_facility','retirement_home'], filters:['amenity=nursing_home','social_facility=nursing_home'] },
   { names:["buchhaltung","buchhalter","buchführung","lohnbuchhaltung","bookkeeping","bookkeeper","payroll service"],
-    label:"Buchhaltung", parent:"Steuerberater", ovt:['bookkeeper'], filters:['office=accountant'] },
+    label:"Buchhaltung", en:"Bookkeeping", parent:"Steuerberater", ovt:['bookkeeper'], filters:['office=accountant'] },
   { names:["hochzeitsplaner","hochzeitsplanung","wedding planner","wedding planning"],
-    label:"Hochzeitsplaner", parent:"Event-Agentur", ovt:['wedding_planning'], filters:[] },
+    label:"Hochzeitsplaner", en:"Wedding planner", parent:"Event-Agentur", ovt:['wedding_planning'], filters:[] },
   { names:["dj","djs","hochzeits dj","party dj","dj service","wedding dj"],
-    label:"DJ", parent:"Event-Agentur", ovt:['dj_service'], filters:[] },
+    label:"DJ", en:"DJ", parent:"Event-Agentur", ovt:['dj_service'], filters:[] },
   { names:["hundeschule","hundetrainer","hundetraining","dog trainer","dog training","dog school"],
-    label:"Hundeschule", parent:"Tierhandlung", ovt:['dog_trainer'], filters:[] },
+    label:"Hundeschule", en:"Dog trainer", parent:"Tierhandlung", ovt:['dog_trainer'], filters:[] },
   { names:["hundefriseur","hundesalon","tierfriseur","dog groomer","pet groomer","dog grooming"],
-    label:"Hundefriseur", parent:"Tierhandlung", ovt:['pet_groomer'], filters:['shop=pet_grooming'] },
+    label:"Hundefriseur", en:"Dog groomer", parent:"Tierhandlung", ovt:['pet_groomer'], filters:['shop=pet_grooming'] },
   { names:["tierpension","hundepension","katzenpension","hundetagesstätte","tiersitter","pet boarding","dog boarding","dog daycare","pet sitter","kennel"],
-    label:"Tierpension / Tiersitter", parent:"Tierhandlung", ovt:['pet_boarding','pet_sitting'], filters:['amenity=animal_boarding'] },
+    label:"Tierpension / Tiersitter", en:"Pet boarding / Sitting", parent:"Tierhandlung", ovt:['pet_boarding','pet_sitting'], filters:['amenity=animal_boarding'] },
   { names:["nachhilfe","nachhilfeschule","nachhilfelehrer","lernhilfe","tutoring","tutor","tutoring center","private tutor"],
-    label:"Nachhilfe", parent:"Schule", ovt:['tutoring_service','private_tutor','test_preparation','after_school_program'], filters:['amenity=prep_school'] },
+    label:"Nachhilfe", en:"Tutoring", parent:"Schule", ovt:['tutoring_service','private_tutor','test_preparation','after_school_program'], filters:['amenity=prep_school'] },
   { names:["kurier","kurierdienst","botendienst","lieferdienst","courier","courier service","delivery service"],
-    label:"Kurierdienst", ovt:['courier_and_delivery_service'], filters:['office=courier'] },
+    label:"Kurierdienst", en:"Courier", ovt:['courier_and_delivery_service'], filters:['office=courier'] },
+  { names:["schlüsseldienst","schlüsselnotdienst","schlüssel","aufsperrdienst","locksmith","emergency locksmith","key cutting"],
+    label:"Schlüsseldienst", en:"Locksmith (keys)", parent:"Schlosser", ovt:['key_and_locksmith'], filters:['craft=locksmith','shop=locksmith'] },
+  { names:["metallbau","metallbauer","schweißer","schweißerei","stahlbau","schmiede","schmied","kunstschmied","metal fabrication","welder","welding","blacksmith","ironworker","steel fabrication"],
+    label:"Metallbau / Schweißer", en:"Metal fabrication / Welding", parent:"Schlosser", ovt:['metal_fabricator','welder','ironworker','blacksmith'], filters:['craft=metal_construction','craft=welder','craft=blacksmith'] },
+  { names:["dachrinne","dachrinnen","spengler","spenglerei","klempnerei dach","blechner","gutter","gutters","gutter cleaning","sheet metal"],
+    label:"Dachrinnen / Spengler", en:"Gutters / Sheet metal", parent:"Dachdecker", ovt:['gutter_service'], filters:['craft=tinsmith'] },
+  { names:["fassade","fassadenbau","fassadenbauer","wärmedämmung","dämmung","wdvs","verklinkerung","facade","siding","insulation","insulation contractor"],
+    label:"Fassade / Dämmung", en:"Facade / Insulation", parent:"Handwerk", ovt:['siding','insulation_installation'], filters:['craft=insulation'] },
+  { names:["zaunbau","zaun","zäune","tore und zäune","fence","fencing","fence contractor","gates"],
+    label:"Zaunbau", en:"Fences / Gates", parent:"Handwerk", ovt:['fence_and_gate_sales_service'], filters:[] },
+  { names:["hausgeräte reparatur","waschmaschinen reparatur","geräte reparatur","elektrogeräte reparatur","kundendienst hausgeräte","appliance repair","washer repair","dryer repair"],
+    label:"Hausgeräte-Reparatur", en:"Appliance repair", parent:"Elektriker", ovt:['appliance_repair_service','washer_and_dryer_repair_service'], filters:['craft=electronics_repair&repair~appliance'] },
+  { names:["smart home","hausautomation","antennenbau","sat anlage","satellitenanlage","netzwerkinstallation","tv montage","home automation","antenna installation","satellite installer","tv mounting","home network"],
+    label:"Smart Home / Antennen", en:"Smart home / AV install", parent:"Elektriker", ovt:['home_automation','home_network_installation','antenna_service','tv_mounting'], filters:[] },
+  { names:["rohrreinigung","abflussreinigung","kanalreinigung","rohrverstopfung","kanalsanierung","drain cleaning","drain unblocking","sewer cleaning","hydro jetting"],
+    label:"Rohrreinigung", en:"Drain cleaning", parent:"Sanitär / Klempner", ovt:['hydro_jetting','backflow_service'], filters:[] },
+  { names:["brunnenbau","brunnenbohrung","brunnenbauer","well drilling","well driller"],
+    label:"Brunnenbau", en:"Well drilling", parent:"Handwerk", ovt:['well_drilling'], filters:[] },
+  { names:["winterdienst","schneeräumung","räumdienst","snow removal","snow plowing"],
+    label:"Winterdienst", en:"Snow removal", parent:"Hausmeisterservice", ovt:['snow_removal_service'], filters:[] },
+  { names:["parkett","parkettleger","parkett schleifen","teppichverlegung","teppichboden","hardwood floors","floor refinishing","carpet installation","carpet fitter"],
+    label:"Parkett / Teppich", en:"Hardwood / Carpet", parent:"Bodenleger", ovt:['carpet_installation','refinishing_service'], filters:['craft=parquet_layer'] },
+  { names:["schuhmacher","schuster","schuhreparatur","schlüssel und schuhservice","shoe repair","cobbler","shoemaker"],
+    label:"Schuhmacher", en:"Shoe repair", parent:"Handwerk", ovt:['shoe_repair'], filters:['craft=shoemaker','shop=shoe_repair'] },
+  { names:["goldschmied","goldschmiede","schmuckreparatur","schmuckdesign","goldsmith","jewelry repair","jewellery repair"],
+    label:"Goldschmied", en:"Goldsmith / Jewelry repair", parent:"Handwerk", ovt:['jewelry_repair_service','goldsmith'], filters:['craft=goldsmith','craft=jeweller'] },
+  { names:["buchbinder","buchbinderei","bookbinder","bookbinding"],
+    label:"Buchbinder", en:"Bookbinder", parent:"Handwerk", ovt:['bookbinding'], filters:['craft=bookbinder'] },
+  { names:["kinderfriseur","kinder friseur","kids hair salon","kids haircut","children's hairdresser"],
+    label:"Kinderfriseur", en:"Kids hair salon", parent:"Friseur", ovt:['kids_hair_salon'], filters:[] },
+  { names:["haarverlängerung","extensions","haarteile","perücke","perücken","zweithaar","haarersatz","hair extensions","wigs","hair replacement","hair loss"],
+    label:"Haarverlängerung / Perücken", en:"Hair extensions / Wigs", parent:"Friseur", ovt:['hair_replacement'], filters:['shop=wigs'] },
+  { names:["make up artist","visagist","visagistin","braut make up","makeup artist","bridal makeup","mua"],
+    label:"Make-up Artist", en:"Makeup artist", parent:"Kosmetik", ovt:['makeup_artist'], filters:[] },
+  { names:["kosmetikerin","kosmetikinstitut","gesichtsbehandlung","hautpflege","aknebehandlung","esthetician","aesthetician","facials","facial","acne treatment"],
+    label:"Kosmetikerin / Gesichtsbehandlung", en:"Esthetician / Facials", parent:"Kosmetik", ovt:['esthetician','acne_treatment'], filters:[] },
+  { names:["ästhetische medizin","botox","hyaluron","faltenbehandlung","medical spa","med spa","medspa","aesthetic medicine","aesthetic clinic","fillers","body contouring"],
+    label:"Ästhetische Medizin", en:"Aesthetic medicine", parent:"Kosmetik", ovt:['aesthetic_medicine','medical_spa','body_contouring'], filters:[] },
+  { names:["fußpflege","medizinische fußpflege","podologie","podologe","pediküre","foot care","podiatry","podiatrist","chiropodist","pedicure"],
+    label:"Fußpflege / Podologie", en:"Foot care / Podiatry", parent:"Beauty & Pflege", ovt:['foot_care','podiatry'], filters:['healthcare=podiatrist','shop=beauty&beauty~pedicure'] },
+  { names:["piercing","piercingstudio","piercer","piercing studio","body piercing"],
+    label:"Piercing", en:"Piercing", parent:"Tattoo / Piercing", ovt:['piercing'], filters:['shop=tattoo&tattoo~piercing'] },
+  { names:["tattooentfernung","tattoo entfernung","laser tattooentfernung","tattoo removal","laser tattoo removal"],
+    label:"Tattooentfernung", en:"Tattoo removal", parent:"Tattoo / Piercing", ovt:['tattoo_removal'], filters:[] },
+  { names:["henna","mehndi","body art","bodypainting","scalp micropigmentation","haarpigmentierung"],
+    label:"Henna / Body Art", en:"Henna / Body art", parent:"Tattoo / Piercing", ovt:['body_art','mehndi_henna','scalp_micropigmentation'], filters:[] },
+  { names:["day spa","dayspa","wellness oase","beauty spa","day spa wellness"],
+    label:"Day Spa", en:"Day spa", parent:"Massage / Spa", ovt:['day_spa'], filters:[] },
+  { names:["bleaching","zahnaufhellung","zahnbleaching","zahnschmuck","teeth whitening","tooth gems","teeth jewelry"],
+    label:"Bleaching / Zahnschmuck", en:"Teeth whitening", parent:"Beauty & Pflege", ovt:['teeth_whitening','teeth_jewelry_service'], filters:[] },
   { names:["marketing agentur","werbeagentur","marketing agency","advertising agency","marketing","advertising","ads agency","branding agency","creative agency","content agency","digital marketing","performance marketing","seo agency","sem agency","social media agency"],
-    label:"Marketing / Werbeagentur", ovt:['advertising_agency','marketing_agency','internet_marketing_service','b2b_advertising_and_marketing_service','social_media_agency','media_agency','sign_making'],
+    label:"Marketing / Werbeagentur", en:"Marketing agency", ovt:['advertising_agency','marketing_agency','internet_marketing_service','b2b_advertising_and_marketing_service','social_media_agency','media_agency','sign_making'],
     filters:['office=advertising_agency','office=marketing','craft=sign_maker','shop=advertising'] },
   { names:["pr agentur","kommunikationsagentur","public relations","pr agency","communications agency","pr firm","öffentlichkeitsarbeit","press agency","presseagentur"],
-    label:"PR / Kommunikation", ovt:['public_relations','media_agency'], filters:['office=newspaper','office=publisher','office=consulting'] },
+    label:"PR / Kommunikation", en:"PR / Communications", ovt:['public_relations','media_agency'], filters:['office=newspaper','office=publisher','office=consulting'] },
   { names:["softwarefirma","softwareentwicklung","software company","software development","software agency","software house","app entwicklung","app development","app developer","saas","tech company","it company","it firma","it dienstleister","it services"],
-    label:"Software / IT", ovt:['software_development','information_technology_company','it_consultant','it_service_and_computer_repair','web_hosting_service'], filters:['office=it','office=software','craft=electronics_repair'] },
+    label:"Software / IT", en:"Software / IT", ovt:['software_development','information_technology_company','it_consultant','it_service_and_computer_repair','web_hosting_service'], filters:['office=it','office=software','craft=electronics_repair'] },
   { names:["webdesign","webagentur","web agency","web design","webentwicklung","web development","web developer","frontend","backend","fullstack","ui design","ux design"],
-    label:"Web / Design", ovt:['web_designer','graphic_designer','product_design'], filters:['office=web_design','office=graphic_design','craft=photographer'] },
+    label:"Web / Design", en:"Web / Design", ovt:['web_designer','graphic_designer','product_design'], filters:['office=web_design','office=graphic_design','craft=photographer'] },
   { names:["beratung","unternehmensberatung","consulting","consultancy","consultant","berater","strategieberatung","management consulting","business consulting"],
-    label:"Consulting", ovt:['business_consulting','b2b_business_management_service','b2b_marketing_consultant'], filters:['office=consulting','office=accountant','office=lawyer'] },
+    label:"Consulting", en:"Consulting", ovt:['business_consulting','b2b_business_management_service','b2b_marketing_consultant'], filters:['office=consulting','office=accountant','office=lawyer'] },
   { names:["fitnessstudio","gym","fitness center","fitness centre","fitness","crossfit","yoga studio","yoga","pilates","pilates studio","training","fitness club","health club","sportstudio","kraftraum"],
-    label:"Fitness", ovt:['gym','fitness_studio','fitness_trainer','pilates_studio'], filters:['leisure=fitness_centre','leisure=sports_centre','leisure=fitness_station'] },
+    label:"Fitness", en:"Fitness", ovt:['gym','fitness_studio','fitness_trainer','pilates_studio'], filters:['leisure=fitness_centre','leisure=sports_centre','leisure=fitness_station'] },
   { names:["restaurant","restaurants","gaststätte","gaststaette","gasthaus","gasthof","wirtshaus","lokal","speiselokal","bistro","brasserie"],
-    label:"Restaurant", ovt:['restaurant','bistro','gastropub'], filters:['amenity=restaurant','amenity=fast_food','amenity=food_court'] },
+    label:"Restaurant", en:"Restaurant", ovt:['restaurant','bistro','gastropub'], filters:['amenity=restaurant','amenity=fast_food','amenity=food_court'] },
   { names:["cafe","café","cafes","coffee shop","coffeeshop","coffeehouse","kaffeehaus","kaffee","coffee bar","espresso bar"],
-    label:"Café", ovt:['cafe','coffee_shop','tea_room'], filters:['amenity=cafe','shop=coffee'] },
+    label:"Café", en:"Cafe", ovt:['cafe','coffee_shop','tea_room'], filters:['amenity=cafe','shop=coffee'] },
   { names:["bar","bars","kneipe","kneipen","pub","pubs","beer garden","biergarten","cocktailbar","cocktail bar","weinbar","wine bar","sportsbar","sports bar"],
-    label:"Bar / Pub", ovt:['bar','pub','cocktail_bar','beer_bar','beer_garden','wine_bar','sports_bar','lounge','speakeasy'], filters:['amenity=bar','amenity=pub','amenity=biergarten'] },
+    label:"Bar / Pub", en:"Bar / Pub", ovt:['bar','pub','cocktail_bar','beer_bar','beer_garden','wine_bar','sports_bar','lounge','speakeasy'], filters:['amenity=bar','amenity=pub','amenity=biergarten'] },
   { names:["bäckerei","baeckerei","backstube","bakery","bakeries","bread shop","brot","backshop"],
-    label:"Bäckerei", ovt:['bakery'], filters:['shop=bakery','craft=bakery'] },
-  { names:["friseur","friseursalon","frisör","hairdresser","hair salon","barber","barbershop","barber shop","haircuts","hair stylist","beauty salon","hair studio"],
-    label:"Friseur", ovt:['hair_salon','barber'], filters:['shop=hairdresser','shop=beauty','craft=hairdresser'] },
+    label:"Bäckerei", en:"Bakery", ovt:['bakery'], filters:['shop=bakery','craft=bakery'] },
+  { names:["friseur","friseursalon","frisör","hairdresser","hair salon","haircuts","hair stylist","hair studio"],
+    label:"Friseur", en:"Hair salon", parent:"Beauty & Pflege", ovt:['hair_salon','barber'], filters:['shop=hairdresser','shop=beauty','craft=hairdresser'] },
   { names:["zahnarzt","zahnärzte","dentist","dentists","dental","dental practice","dental clinic","dental office"],
-    label:"Zahnarzt", ovt:['dentist','dental_clinic','general_dentistry','orthodontics','cosmetic_dentistry','oral_and_maxillofacial_surgery'], filters:['amenity=dentist','healthcare=dentist'] },
+    label:"Zahnarzt", en:"Dentist", ovt:['dentist','dental_clinic','general_dentistry','orthodontics','cosmetic_dentistry','oral_and_maxillofacial_surgery'], filters:['amenity=dentist','healthcare=dentist'] },
   { names:["arzt","ärzte","arztpraxis","praxis","doctor","doctors","physician","physicians","medical practice","medical office","general practitioner","gp","family doctor","hausarzt"],
-    label:"Arztpraxis", ovt:['doctors_office','primary_care_or_general_clinic','family_practice','internal_medicine','pediatric_clinic','dermatology','ophthalmology','obstetrics_and_gynecology','ear_nose_and_throat','orthopedics','urology','neurology','cardiology'], filters:['amenity=doctors','healthcare=doctor','healthcare=clinic'] },
+    label:"Arztpraxis", en:"Doctor", ovt:['doctors_office','primary_care_or_general_clinic','family_practice','internal_medicine','pediatric_clinic','dermatology','ophthalmology','obstetrics_and_gynecology','ear_nose_and_throat','orthopedics','urology','neurology','cardiology'], filters:['amenity=doctors','healthcare=doctor','healthcare=clinic'] },
   { names:["apotheke","apotheken","pharmacy","pharmacies","drugstore","chemist"],
-    label:"Apotheke", ovt:['pharmacy'], filters:['amenity=pharmacy','healthcare=pharmacy'] },
+    label:"Apotheke", en:"Pharmacy", ovt:['pharmacy'], filters:['amenity=pharmacy','healthcare=pharmacy'] },
   { names:["anwalt","rechtsanwalt","anwälte","kanzlei","lawyer","lawyers","attorney","attorneys","law firm","law office","legal","legal services","jurist","advocate"],
-    label:"Rechtsanwalt", ovt:['attorney_or_law_firm','lawyer','divorce_and_family_law','criminal_defense_law','bankruptcy_law','patent_law','appellate_practice_lawyer'], filters:['office=lawyer','amenity=lawyer'] },
+    label:"Rechtsanwalt", en:"Lawyer", ovt:['attorney_or_law_firm','lawyer','divorce_and_family_law','criminal_defense_law','bankruptcy_law','patent_law','appellate_practice_lawyer'], filters:['office=lawyer','amenity=lawyer'] },
   { names:["steuerberater","tax advisor","tax consultant","tax accountant","accountant","accounting","accountants","bookkeeper","bookkeeping","buchhaltung"],
-    label:"Steuerberater", ovt:['tax_service','accountant','bookkeeper'], filters:['office=tax_advisor','office=accountant'] },
+    label:"Steuerberater", en:"Tax advisor / Accountant", ovt:['tax_service','accountant','bookkeeper'], filters:['office=tax_advisor','office=accountant'] },
   { names:["immobilien","immobilienmakler","makler","real estate","realtor","realtors","real estate agent","realty","property management","hausverwaltung"],
-    label:"Immobilien", ovt:['real_estate_agent','property_management','commercial_real_estate','apartment_agent'], filters:['office=estate_agent','shop=estate_agent'] },
+    label:"Immobilien", en:"Real estate", ovt:['real_estate_agent','property_management','commercial_real_estate','apartment_agent'], filters:['office=estate_agent','shop=estate_agent'] },
   { names:["versicherung","versicherungen","versicherungsmakler","insurance","insurance agent","insurance broker","insurance agency"],
-    label:"Versicherung", ovt:['insurance_agency','health_insurance_office'], filters:['office=insurance'] },
+    label:"Versicherung", en:"Insurance", ovt:['insurance_agency','health_insurance_office'], filters:['office=insurance'] },
   { names:["architekt","architekten","architekturbüro","architect","architects","architecture firm","architectural"],
-    label:"Architekt", ovt:['architect','architectural_designer','landscape_architect'], filters:['office=architect'] },
+    label:"Architekt", en:"Architect", ovt:['architect','architectural_designer','landscape_architect'], filters:['office=architect'] },
   { names:["handwerker","tischler","schreiner","carpenter","carpenters","carpentry","woodworker","woodworking","cabinet maker","cabinetry","joiner","joinery"],
-    label:"Handwerk", ovt:['carpenter','handyman','turnery'], filters:['craft=carpenter','craft=joiner','craft=cabinet_maker'] },
+    label:"Handwerk", en:"Trades", ovt:['carpenter','handyman','turnery'], filters:['craft=carpenter','craft=joiner','craft=cabinet_maker'] },
   { names:["klempner","sanitär","sanitaer","plumber","plumbers","plumbing","pipefitter","heizung","heating","hvac","heizungsbauer","installateur"],
-    label:"Sanitär / Klempner", ovt:['plumbing','hvac_service','bathroom_remodeling'], filters:['craft=plumber','craft=hvac'] },
+    label:"Sanitär / Klempner", en:"Plumber", parent:"Handwerk", ovt:['plumbing','hvac_service','bathroom_remodeling'], filters:['craft=plumber','craft=hvac'] },
   { names:["elektriker","elektroniker","electrician","electricians","electrical","electrical contractor","electric service","elektrobetrieb"],
-    label:"Elektriker", ovt:['electrician'], filters:['craft=electrician'] },
+    label:"Elektriker", en:"Electrician", parent:"Handwerk", ovt:['electrician'], filters:['craft=electrician'] },
   { names:["autowerkstatt","kfz","kfz werkstatt","werkstatt","car repair","auto repair","auto shop","mechanic","mechanics","garage","car service","autoservice","tire shop","reifenhandel","reifenservice"],
-    label:"Autowerkstatt", ovt:['automotive_repair','auto_body_shop','tire_dealer_and_repair','tire_shop','brake_service_and_repair','auto_glass_service','car_inspection'], filters:['shop=car_repair','craft=car_repair','shop=car'] },
+    label:"Autowerkstatt", en:"Auto repair", ovt:['automotive_repair','auto_body_shop','tire_dealer_and_repair','tire_shop','brake_service_and_repair','auto_glass_service','car_inspection'], filters:['shop=car_repair','craft=car_repair','shop=car'] },
   { names:["hotel","hotels","gästehaus","guest house","motel","motels","pension","b&b","bed and breakfast","boutique hotel","resort","hostel"],
-    label:"Hotel", ovt:['hotel','guest_house','hostel','bed_and_breakfast','inn','resort','motel'], filters:['tourism=hotel','tourism=guest_house','tourism=motel','tourism=hostel'] },
+    label:"Hotel", en:"Hotel", ovt:['hotel','guest_house','hostel','bed_and_breakfast','inn','resort','motel'], filters:['tourism=hotel','tourism=guest_house','tourism=motel','tourism=hostel'] },
   { names:["supermarkt","supermarkets","supermarket","grocery","grocery store","grocer","lebensmittel"],
-    label:"Supermarkt", ovt:['grocery_store','organic_grocery_store','convenience_store','warehouse_club_store'], filters:['shop=supermarket','shop=convenience'] },
+    label:"Supermarkt", en:"Supermarket", ovt:['grocery_store','organic_grocery_store','convenience_store','warehouse_club_store'], filters:['shop=supermarket','shop=convenience'] },
   { names:["boutique","modegeschäft","mode","fashion","clothing","clothing store","fashion store","clothes shop","apparel","apparel store"],
-    label:"Mode / Boutique", ovt:['clothing_store','fashion_boutique','womens_clothing_store','mens_clothing_store','designer_clothing','childrens_clothing_store','bridal_shop'], filters:['shop=clothes','shop=boutique','shop=fashion'] },
+    label:"Mode / Boutique", en:"Fashion / Boutique", ovt:['clothing_store','fashion_boutique','womens_clothing_store','mens_clothing_store','designer_clothing','childrens_clothing_store','bridal_shop'], filters:['shop=clothes','shop=boutique','shop=fashion'] },
   { names:["spielothek","spielhalle","spielhallen","casino","casinos","gambling","arcade","arcades","gaming centre","gaming center","slot hall","slot machines","spielbank"],
-    label:"Spielothek / Casino", ovt:['casino','gaming_venue','arcade','betting_center'],
+    label:"Spielothek / Casino", en:"Casino / Arcade", ovt:['casino','gaming_venue','arcade','betting_center'],
     filters:['leisure=adult_gaming_centre','leisure=amusement_arcade','amenity=casino','amenity=gambling','shop=bookmaker','shop=lottery'] },
   { names:["wettbüro","wettbuero","wettannahme","lottoannahme","lotto","bookmaker","betting","betting shop","betting office","lottery","lottery shop","wettshop"],
-    label:"Wettbüro / Lotto", ovt:['betting_center','lottery_vendor'], filters:['shop=bookmaker','shop=lottery','amenity=gambling'] },
-  { names:["kino","kinos","cinema","cinemas","movie theater","movie theatre","film","filmtheater","multiplex"], label:"Kino", ovt:['movie_theater'], filters:['amenity=cinema'] },
+    label:"Wettbüro / Lotto", en:"Betting / Lottery", ovt:['betting_center','lottery_vendor'], filters:['shop=bookmaker','shop=lottery','amenity=gambling'] },
+  { names:["kino","kinos","cinema","cinemas","movie theater","movie theatre","film","filmtheater","multiplex"], label:"Kino", en:"Cinema", ovt:['movie_theater'], filters:['amenity=cinema'] },
   { names:["theater","theatre","oper","opera","opernhaus","schauspielhaus","kabarett","comedy club","performing arts"],
-    label:"Theater", ovt:['theatre_venue','performing_arts_venue'], filters:['amenity=theatre','amenity=arts_centre'] },
+    label:"Theater", en:"Theater", ovt:['theatre_venue','performing_arts_venue'], filters:['amenity=theatre','amenity=arts_centre'] },
   { names:["diskothek","disko","disco","club","clubs","nightclub","nachtclub","tanzclub","dance club","lounge"],
-    label:"Club / Diskothek", ovt:['dance_club','nightlife_venue'], filters:['amenity=nightclub','amenity=stripclub'] },
+    label:"Club / Diskothek", en:"Nightclub", ovt:['dance_club','nightlife_venue'], filters:['amenity=nightclub','amenity=stripclub'] },
   { names:["bowling","bowlingbahn","bowling alley","billard","billardsalon","billiards","pool hall","snooker","kegeln","kegelbahn"],
-    label:"Bowling / Billard", ovt:['bowling_alley','pool_hall','pool_billiards'], filters:['leisure=bowling_alley','sport=billiards','leisure=sports_centre'] },
+    label:"Bowling / Billard", en:"Bowling / Billiards", ovt:['bowling_alley','pool_hall','pool_billiards'], filters:['leisure=bowling_alley','sport=billiards','leisure=sports_centre'] },
   { names:["escape room","escape rooms","lasertag","laser tag","paintball","paintball arena","indoor spielplatz","indoor playground","trampolinhalle","trampoline park","jump park","kletterhalle","climbing gym","boulderhalle","bouldering gym"],
-    label:"Freizeit-Halle", ovt:['escape_room','laser_tag','paintball','trampoline_park','kids_recreation_and_party','amusement_attraction'], filters:['leisure=escape_game','sport=laser_tag','sport=paintball','leisure=trampoline_park','leisure=indoor_play','leisure=climbing'] },
+    label:"Freizeit-Halle", en:"Indoor entertainment", ovt:['escape_room','laser_tag','paintball','trampoline_park','kids_recreation_and_party','amusement_attraction'], filters:['leisure=escape_game','sport=laser_tag','sport=paintball','leisure=trampoline_park','leisure=indoor_play','leisure=climbing'] },
   { names:["shisha","shisha bar","shisha lounge","hookah","hookah lounge","hookah bar","wasserpfeife"],
-    label:"Shisha-Bar", ovt:['hookah_bar'], filters:['amenity=hookah_lounge','amenity=shisha','amenity=bar'] },
+    label:"Shisha-Bar", en:"Hookah bar", ovt:['hookah_bar'], filters:['amenity=hookah_lounge','amenity=shisha','amenity=bar'] },
   { names:["eisdiele","eiscafe","eis café","eismanufaktur","gelateria","ice cream","ice cream parlor","ice cream shop","frozen yogurt","froyo"],
-    label:"Eisdiele", ovt:['ice_cream_shop','gelato_shop'], filters:['amenity=ice_cream','shop=ice_cream'] },
+    label:"Eisdiele", en:"Ice cream shop", ovt:['ice_cream_shop','gelato_shop'], filters:['amenity=ice_cream','shop=ice_cream'] },
   { names:["imbiss","schnellimbiss","döner","doener","kebab","kebap","pommes","pizza","pizzeria","burger","burger joint","snack bar","fast food","food truck","sub shop","sandwich shop","bbq","grill"],
-    label:"Imbiss / Fast Food", ovt:['fast_food_restaurant','doner_kebab_restaurant','burger_restaurant','falafel_restaurant','sandwich_shop','food_truck_stand','chicken_restaurant','pizza_delivery_service'], filters:['amenity=fast_food','amenity=food_court'] },
+    label:"Imbiss / Fast Food", en:"Fast food", ovt:['fast_food_restaurant','doner_kebab_restaurant','burger_restaurant','falafel_restaurant','sandwich_shop','food_truck_stand','chicken_restaurant','pizza_delivery_service'], filters:['amenity=fast_food','amenity=food_court'] },
   { names:["metzgerei","fleischerei","fleischer","butcher","butcher shop","butchery","meat shop"],
-    label:"Metzgerei", ovt:['butcher_shop'], filters:['shop=butcher','craft=butcher'] },
+    label:"Metzgerei", en:"Butcher", ovt:['butcher_shop'], filters:['shop=butcher','craft=butcher'] },
   { names:["konditorei","patisserie","pastry","pastry shop","confectionery","cake shop","cupcake shop","chocolatier"],
-    label:"Konditorei", ovt:['dessert_shop','cupcake_shop','chocolatier','candy_store'], filters:['shop=confectionery','shop=pastry','craft=confectioner'] },
+    label:"Konditorei", en:"Pastry / Sweets", ovt:['dessert_shop','cupcake_shop','chocolatier','candy_store'], filters:['shop=confectionery','shop=pastry','craft=confectioner'] },
   { names:["weinhandlung","weingeschäft","weinhandel","wein","wine shop","wine store","wine merchant","winery","liquor store","liquor shop","spirituosen","spirits shop","bottle shop"],
-    label:"Weinhandlung", ovt:['beer_wine_spirits_store','liquor_store','wine_wholesaler','winery'], filters:['shop=wine','shop=alcohol','craft=winery'] },
+    label:"Weinhandlung", en:"Wine / Liquor store", ovt:['beer_wine_spirits_store','liquor_store','wine_wholesaler','winery'], filters:['shop=wine','shop=alcohol','craft=winery'] },
   { names:["brauerei","brewery","breweries","craft brewery","microbrewery","brewpub","beer hall"],
-    label:"Brauerei", ovt:['brewery'], filters:['craft=brewery','industrial=brewery'] },
+    label:"Brauerei", en:"Brewery", ovt:['brewery'], filters:['craft=brewery','industrial=brewery'] },
   { names:["kosmetik","kosmetikstudio","kosmetikerin","beauty","beauty salon","beauty studio","cosmetics","cosmetic studio","facial","skincare","skin care","make up","makeup artist","permanent make up"],
-    label:"Kosmetik", ovt:['beauty_salon','skin_care_and_makeup','medical_skin_care','eyelash_service','waxing','hair_removal','makeup_artist'], filters:['shop=beauty','shop=cosmetics','leisure=spa'] },
+    label:"Kosmetik", en:"Beauty salon", parent:"Beauty & Pflege", ovt:['beauty_salon','skin_care_and_makeup','medical_skin_care','eyelash_service','waxing','hair_removal','makeup_artist'], filters:['shop=beauty','shop=cosmetics','leisure=spa'] },
   { names:["nagelstudio","nagelpflege","nail salon","nail studio","nails","manicure","pedicure","maniküre","pediküre"],
-    label:"Nagelstudio", ovt:['nail_salon'], filters:['shop=beauty','leisure=spa'] },
+    label:"Nagelstudio", en:"Nail salon", parent:"Beauty & Pflege", ovt:['nail_salon'], filters:['shop=beauty','leisure=spa'] },
   { names:["tattoo","tattoo studio","tattoos","tätowierer","tätowieren","tätowierungen","piercing","piercings","piercer","ink shop","tattoo shop","body modification"],
-    label:"Tattoo / Piercing", ovt:['tattoo','tattoo_and_piercing','piercing'], filters:['shop=tattoo','craft=tattoo','shop=piercing'] },
+    label:"Tattoo / Piercing", en:"Tattoo / Piercing", parent:"Beauty & Pflege", ovt:['tattoo','tattoo_and_piercing','piercing'], filters:['shop=tattoo','craft=tattoo','shop=piercing'] },
   { names:["massage","massagepraxis","massage studio","massage therapy","massage therapist","masseur","masseuse","spa","spas","wellness","wellness center","wellness centre","day spa","sauna","saunaclub"],
-    label:"Massage / Spa", ovt:['massage_therapy','spa','health_spa','sauna'], filters:['shop=massage','leisure=spa','leisure=sauna','amenity=spa'] },
+    label:"Massage / Spa", en:"Massage / Spa", parent:"Beauty & Pflege", ovt:['massage_therapy','spa','health_spa','sauna'], filters:['shop=massage','leisure=spa','leisure=sauna','amenity=spa'] },
   { names:["sonnenstudio","solarium","tanning","tanning salon","tan studio","spray tan"],
-    label:"Sonnenstudio", ovt:['tanning_salon'], filters:['leisure=tanning_salon','shop=tanning'] },
+    label:"Sonnenstudio", en:"Tanning salon", parent:"Beauty & Pflege", ovt:['tanning_salon'], filters:['leisure=tanning_salon','shop=tanning'] },
   { names:["physiotherapie","physiotherapeut","physio","physiotherapist","physical therapy","physical therapist","krankengymnastik","rehabilitation","rehab","sportphysio","osteopath","osteopathie","chiropractor","chiropraktiker","chiropraktik"],
-    label:"Physiotherapie", ovt:['physical_therapy','occupational_therapy','speech_therapy'], filters:['healthcare=physiotherapist','amenity=physiotherapist'] },
+    label:"Physiotherapie", en:"Physiotherapy", ovt:['physical_therapy','occupational_therapy','speech_therapy'], filters:['healthcare=physiotherapist','amenity=physiotherapist'] },
   { names:["heilpraktiker","heilpraktikerin","alternative medizin","alternative medicine","naturheilkunde","akupunktur","acupuncture","homöopathie","homeopathy","naturopath"],
-    label:"Heilpraktiker", ovt:['naturopathic_medicine','complementary_and_alternative_medicine','homeopathy','acupuncture','osteopathic_medicine','reiki','hypnotherapy'], filters:['healthcare=alternative','healthcare=psychotherapist'] },
+    label:"Heilpraktiker", en:"Alternative medicine", ovt:['naturopathic_medicine','complementary_and_alternative_medicine','homeopathy','acupuncture','osteopathic_medicine','reiki','hypnotherapy'], filters:['healthcare=alternative','healthcare=psychotherapist'] },
   { names:["optiker","optikerin","brille","brillen","optician","opticians","eyewear","eyeglasses","optometrist","optometry","eye care","sehtest"],
-    label:"Optiker", ovt:['eyewear_store','optometry'], filters:['shop=optician','healthcare=optometrist'] },
+    label:"Optiker", en:"Optician", ovt:['eyewear_store','optometry'], filters:['shop=optician','healthcare=optometrist'] },
   { names:["hörgeräte","hörgeräteakustiker","hoergeraete","hearing aid","hearing aids","audiologist","audiology","hearing center"],
-    label:"Hörgeräte", ovt:['hearing_aid_store'], filters:['shop=hearing_aids','healthcare=audiologist'] },
+    label:"Hörgeräte", en:"Hearing aids", ovt:['hearing_aid_store'], filters:['shop=hearing_aids','healthcare=audiologist'] },
   { names:["tierarzt","tierärztin","veterinarian","vet","vets","veterinary","animal hospital","tierklinik","tierarztpraxis"],
-    label:"Tierarzt", ovt:['veterinarian','animal_hospital'], filters:['amenity=veterinary','healthcare=veterinary'] },
+    label:"Tierarzt", en:"Veterinarian", ovt:['veterinarian','animal_hospital'], filters:['amenity=veterinary','healthcare=veterinary'] },
   { names:["krankenhaus","klinik","kliniken","hospital","hospitals","clinic","clinics","medical center","medical centre","urgent care","emergency room"],
-    label:"Krankenhaus", ovt:['hospital','specialty_hospital'], filters:['amenity=hospital','amenity=clinic','healthcare=hospital'] },
+    label:"Krankenhaus", en:"Hospital", ovt:['hospital','specialty_hospital'], filters:['amenity=hospital','amenity=clinic','healthcare=hospital'] },
   { names:["psychologe","psychologin","psychotherapeut","psychotherapeutin","psychologist","therapist","therapy","counselor","counseling","counsellor","mental health","therapie"],
-    label:"Psychologe", ovt:['psychotherapy','psychology','psychiatry','counseling'], filters:['healthcare=psychotherapist','healthcare=psychologist'] },
-  { names:["hebamme","midwife","midwives","doula","geburtshilfe"], label:"Hebamme", ovt:['midwifery'], filters:['healthcare=midwife'] },
+    label:"Psychologe", en:"Psychologist / Therapist", ovt:['psychotherapy','psychology','psychiatry','counseling'], filters:['healthcare=psychotherapist','healthcare=psychologist'] },
+  { names:["hebamme","midwife","midwives","doula","geburtshilfe"], label:"Hebamme", en:"Midwife", ovt:['midwifery'], filters:['healthcare=midwife'] },
   { names:["pflegedienst","ambulanter pflegedienst","pflege","altenpflege","caregiver","caregivers","nursing","nursing service","home care","home health","home health care","seniorenheim","altenheim","pflegeheim","retirement home","assisted living"],
-    label:"Pflegedienst", ovt:['home_health_care','nursing','senior_living_facility','assisted_living_facility','retirement_home'], filters:['healthcare=nursing','amenity=nursing_home','amenity=social_facility'] },
+    label:"Pflegedienst", en:"Care services", ovt:['home_health_care','nursing','senior_living_facility','assisted_living_facility','retirement_home'], filters:['healthcare=nursing','amenity=nursing_home','amenity=social_facility'] },
   { names:["buchhandlung","buchladen","bookstore","bookshop","bookstores","books","comic shop","manga shop"],
-    label:"Buchhandlung", ovt:['bookstore'], filters:['shop=books'] },
+    label:"Buchhandlung", en:"Bookstore", ovt:['bookstore'], filters:['shop=books'] },
   { names:["spielwaren","spielzeug","spielzeuggeschäft","toy store","toy shop","toys","game store","board games","kids store"],
-    label:"Spielwaren", ovt:['toy_store','toys_and_games_store'], filters:['shop=toys'] },
+    label:"Spielwaren", en:"Toy store", ovt:['toy_store','toys_and_games_store'], filters:['shop=toys'] },
   { names:["elektronik","elektronikmarkt","electronics","electronics store","consumer electronics","appliance store","appliances","hifi"],
-    label:"Elektronik", ovt:['electronics_store','computer_store','audio_visual_equipment_store','home_theater_systems_stores'], filters:['shop=electronics','shop=hifi','shop=computer'] },
+    label:"Elektronik", en:"Electronics store", ovt:['electronics_store','computer_store','audio_visual_equipment_store','home_theater_systems_stores'], filters:['shop=electronics','shop=hifi','shop=computer'] },
   { names:["computer","computerladen","pc shop","computer store","computer repair","computer service","laptop repair","tech repair"],
-    label:"Computer / PC", ovt:['computer_store','it_service_and_computer_repair'], filters:['shop=computer','shop=electronics'] },
+    label:"Computer / PC", en:"Computer store", ovt:['computer_store','it_service_and_computer_repair'], filters:['shop=computer','shop=electronics'] },
   { names:["handy","mobiltelefon","handyladen","handy shop","mobile phone","mobile phones","cell phone","cell phones","cellphone","smartphone","wireless store","phone repair","handy reparatur"],
-    label:"Handy-Shop", ovt:['mobile_phone_store','mobile_phone_repair','mobile_phone_accessory_store'], filters:['shop=mobile_phone'] },
+    label:"Handy-Shop", en:"Phone shop", ovt:['mobile_phone_store','mobile_phone_repair','mobile_phone_accessory_store'], filters:['shop=mobile_phone'] },
   { names:["juwelier","schmuck","schmuckgeschäft","jeweler","jewelers","jeweller","jewellery","jewelry","jewelry store","gold","silver","goldschmied","goldsmith"],
-    label:"Juwelier", ovt:['jewelry_store','goldsmith'], filters:['shop=jewelry'] },
+    label:"Juwelier", en:"Jeweler", ovt:['jewelry_store','goldsmith'], filters:['shop=jewelry'] },
   { names:["uhrmacher","uhren","uhrengeschäft","watches","watchmaker","watch shop","watch store","watch repair"],
-    label:"Uhrmacher", ovt:['watch_store','watch_repair_service'], filters:['shop=watches','craft=clockmaker'] },
+    label:"Uhrmacher", en:"Watchmaker", parent:"Handwerk", ovt:['watch_store','watch_repair_service'], filters:['shop=watches','craft=clockmaker'] },
   { names:["schuhgeschäft","schuhe","schuhladen","shoe store","shoe shop","shoes","footwear","sneaker shop","sneakers"],
-    label:"Schuhe", ovt:['shoe_store'], filters:['shop=shoes'] },
+    label:"Schuhe", en:"Shoe store", ovt:['shoe_store'], filters:['shop=shoes'] },
   { names:["sportgeschäft","sportladen","sportartikel","sports shop","sports store","sporting goods","outdoor shop","outdoor store"],
-    label:"Sportgeschäft", ovt:['sporting_goods_store','outdoor_store'], filters:['shop=sports','shop=outdoor'] },
+    label:"Sportgeschäft", en:"Sporting goods", ovt:['sporting_goods_store','outdoor_store'], filters:['shop=sports','shop=outdoor'] },
   { names:["fahrrad","fahrradladen","fahrradgeschäft","bike shop","bike store","bicycle","bicycles","cycling shop","e-bike","ebike"],
-    label:"Fahrradgeschäft", ovt:['bike_store','bike_repair_maintenance'], filters:['shop=bicycle','craft=bicycle_repair'] },
+    label:"Fahrradgeschäft", en:"Bike shop", ovt:['bike_store','bike_repair_maintenance'], filters:['shop=bicycle','craft=bicycle_repair'] },
   { names:["möbel","moebel","möbelhaus","furniture","furniture store","furniture shop","home decor","home furnishings","interior design","einrichtung"],
-    label:"Möbel", ovt:['furniture_store','home_decor_store','kitchen_and_bath_store','mattress_store'], filters:['shop=furniture','shop=interior_decoration'] },
+    label:"Möbel", en:"Furniture", ovt:['furniture_store','home_decor_store','kitchen_and_bath_store','mattress_store'], filters:['shop=furniture','shop=interior_decoration'] },
   { names:["baumarkt","heimwerker","hardware","hardware store","diy","diy store","home improvement","builders merchant","tool shop"],
-    label:"Baumarkt", ovt:['hardware_store','home_improvement_store','building_supply_store'], filters:['shop=doityourself','shop=hardware','shop=trade'] },
+    label:"Baumarkt", en:"Hardware store", ovt:['hardware_store','home_improvement_store','building_supply_store'], filters:['shop=doityourself','shop=hardware','shop=trade'] },
   { names:["gartencenter","garten geschäft","garden center","garden centre","garden shop","plant nursery","plant store","gärtnerei"],
-    label:"Gartencenter", ovt:['nursery_and_gardening_store'], filters:['shop=garden_centre','shop=florist'] },
+    label:"Gartencenter", en:"Garden center", ovt:['nursery_and_gardening_store'], filters:['shop=garden_centre','shop=florist'] },
   { names:["blumen","blumenladen","blumengeschäft","florist","florists","flower shop","flowers","floristik","floristics"],
-    label:"Blumenladen", ovt:['florist'], filters:['shop=florist'] },
+    label:"Blumenladen", en:"Florist", ovt:['florist'], filters:['shop=florist'] },
   { names:["drogerie","drugstore","drug store","health and beauty","beauty supply"],
-    label:"Drogerie", ovt:['drugstore','cosmetics_and_fragrance_store','personal_care_and_beauty_store'], filters:['shop=chemist','shop=cosmetics'] },
+    label:"Drogerie", en:"Drugstore / Toiletries", ovt:['drugstore','cosmetics_and_fragrance_store','personal_care_and_beauty_store'], filters:['shop=chemist','shop=cosmetics'] },
   { names:["second hand","secondhand","second-hand","thrift","thrift store","vintage","vintage shop","antiques","antique store","antique shop","flea market","flohmarkt","consignment"],
-    label:"Second Hand", ovt:['second_hand_store','second_hand_clothing_store','antique_store','flea_market'], filters:['shop=second_hand','shop=charity','shop=antiques'] },
+    label:"Second Hand", en:"Second hand", ovt:['second_hand_store','second_hand_clothing_store','antique_store','flea_market'], filters:['shop=second_hand','shop=charity','shop=antiques'] },
   { names:["tierhandlung","zoohandlung","zoo geschäft","pet shop","pet store","pet supplies","pets","pet grooming","hundefriseur","dog grooming"],
-    label:"Tierhandlung", ovt:['pet_store','animal_and_pet_store','pet_groomer'], filters:['shop=pet','shop=pet_grooming'] },
+    label:"Tierhandlung", en:"Pet store", ovt:['pet_store','animal_and_pet_store','pet_groomer'], filters:['shop=pet','shop=pet_grooming'] },
   { names:["kiosk","späti","spaeti","spätkauf","spätis","convenience","convenience store","corner store","mini market","trafik"],
-    label:"Kiosk / Späti", ovt:['kiosk','convenience_store','newspaper_and_magazines_store'], filters:['shop=kiosk','shop=convenience','shop=newsagent'] },
+    label:"Kiosk / Späti", en:"Convenience store", ovt:['kiosk','convenience_store','newspaper_and_magazines_store'], filters:['shop=kiosk','shop=convenience','shop=newsagent'] },
   { names:["tankstelle","tankstellen","gas station","gas stations","fuel","fuel station","filling station","petrol","petrol station","truck stop"],
-    label:"Tankstelle", ovt:['gas_station','fueling_station'], filters:['amenity=fuel'] },
+    label:"Tankstelle", en:"Gas station", ovt:['gas_station','fueling_station'], filters:['amenity=fuel'] },
   { names:["autohändler","autohaus","autohaeuser","car dealer","car dealership","auto dealership","used cars","new cars","motorcycle dealer","motorrad","motorrad händler"],
-    label:"Autohändler", ovt:['auto_dealer','used_auto_dealer','motorcycle_dealer'], filters:['shop=car','shop=motorcycle'] },
+    label:"Autohändler", en:"Car dealer", ovt:['auto_dealer','used_auto_dealer','motorcycle_dealer'], filters:['shop=car','shop=motorcycle'] },
   { names:["maler","malerbetrieb","malermeister","painter","painters","painting","painting contractor","house painter"],
-    label:"Maler", ovt:['painting'], filters:['craft=painter'] },
+    label:"Maler", en:"Painter", parent:"Handwerk", ovt:['painting'], filters:['craft=painter'] },
   { names:["dachdecker","roofer","roofers","roofing","roofing company","roofing contractor"],
-    label:"Dachdecker", ovt:['roofing','ceiling_and_roofing_repair_and_service'], filters:['craft=roofer'] },
+    label:"Dachdecker", en:"Roofer", parent:"Handwerk", ovt:['roofing','ceiling_and_roofing_repair_and_service'], filters:['craft=roofer'] },
   { names:["gärtner","gaertner","gärtnerei","landschaftsgärtner","gardener","gardeners","gardening","garden service","garden services","landscape","landscaper","landscapers","landscaping","lawn care","lawn maintenance","lawn service","yard service","tree service","arborist"],
-    label:"Gärtner", ovt:['gardener','landscaping','tree_service'], filters:['craft=gardener','shop=garden_centre'] },
+    label:"Gärtner", en:"Gardener", ovt:['gardener','landscaping','tree_service'], filters:['craft=gardener','shop=garden_centre'] },
   { names:["schlosser","schlossereien","metallbauer","metallbau","locksmith","locksmiths","lock service","key service","metal worker","welding","welder"],
-    label:"Schlosser", ovt:['key_and_locksmith','metal_fabricator','welder'], filters:['craft=locksmith','craft=metal_construction','shop=locksmith'] },
+    label:"Schlosser", en:"Locksmith / Metalwork", parent:"Handwerk", ovt:['key_and_locksmith','metal_fabricator','welder'], filters:['craft=locksmith','craft=metal_construction','shop=locksmith'] },
   { names:["fliesenleger","fliesen","tiler","tilers","tiling","tile setter","tile installation","tile contractor"],
-    label:"Fliesenleger", ovt:['tiling'], filters:['craft=tiler'] },
+    label:"Fliesenleger", en:"Tiler", parent:"Handwerk", ovt:['tiling'], filters:['craft=tiler'] },
   { names:["bodenleger","parkettleger","flooring","flooring contractor","floor layer","floor installation","carpet installation","teppich"],
-    label:"Bodenleger", ovt:['flooring_contractor'], filters:['craft=floorer','craft=parquet_layer'] },
+    label:"Bodenleger", en:"Flooring", parent:"Handwerk", ovt:['flooring_contractor'], filters:['craft=floorer','craft=parquet_layer'] },
   { names:["schneider","schneiderei","änderungsschneiderei","tailor","tailoring","tailors","alterations","seamstress"],
-    label:"Schneider", ovt:['tailor','sewing_and_alterations'], filters:['craft=tailor','shop=tailor'] },
+    label:"Schneider", en:"Tailor", parent:"Handwerk", ovt:['tailor','sewing_and_alterations'], filters:['craft=tailor','shop=tailor'] },
   { names:["reinigung","gebäudereinigung","reinigungsfirma","putzfirma","cleaning","cleaners","cleaning service","cleaning services","cleaning company","janitorial","janitor","house cleaning","commercial cleaning","carpet cleaning","window cleaning","fensterputzer","reinigungsdienst"],
-    label:"Reinigung", ovt:['cleaning_service','home_cleaning','office_cleaning','janitorial_service','dry_cleaning','laundry_service','carpet_cleaning'], filters:['office=cleaning','shop=dry_cleaning','craft=cleaning'] },
+    label:"Reinigung", en:"Cleaning", ovt:['cleaning_service','home_cleaning','office_cleaning','janitorial_service','dry_cleaning','laundry_service','carpet_cleaning'], filters:['office=cleaning','shop=dry_cleaning','craft=cleaning'] },
   { names:["umzugsunternehmen","umzug","umzugsfirma","moving","moving company","movers","mover","moving service","relocation","relocation service"],
-    label:"Umzug", ovt:['mover'], filters:['office=moving_company','shop=moving','craft=moving'] },
-  { names:["notar","notary","notaries","notary public","beglaubigung"], label:"Notar", ovt:['notary_public'], filters:['office=notary'] },
-  { names:["bank","banken","sparkasse","bankfiliale","bank branch","credit union","savings bank"], label:"Bank", ovt:['bank_or_credit_union','bank','credit_union'], filters:['amenity=bank'] },
+    label:"Umzug", en:"Movers", ovt:['mover'], filters:['office=moving_company','shop=moving','craft=moving'] },
+  { names:["notar","notary","notaries","notary public","beglaubigung"], label:"Notar", en:"Notary", ovt:['notary_public'], filters:['office=notary'] },
+  { names:["bank","banken","sparkasse","bankfiliale","bank branch","credit union","savings bank"], label:"Bank", en:"Bank", ovt:['bank_or_credit_union','bank','credit_union'], filters:['amenity=bank'] },
   { names:["druckerei","druckereien","copy shop","copyshop","print shop","printing","printer","printer shop","print services","drucken","sign shop"],
-    label:"Druckerei", ovt:['printing_service','commercial_printer','screen_printing_service'], filters:['shop=copyshop','craft=printer','industrial=printing'] },
+    label:"Druckerei", en:"Print shop", ovt:['printing_service','commercial_printer','screen_printing_service'], filters:['shop=copyshop','craft=printer','industrial=printing'] },
   { names:["fotograf","fotografin","fotostudio","photo studio","photographer","photographers","photography","photography studio","portrait studio"],
-    label:"Fotograf", ovt:['photography_service','event_photography_service','session_photography_service'], filters:['shop=photo','craft=photographer','office=photographer'] },
+    label:"Fotograf", en:"Photographer", ovt:['photography_service','event_photography_service','session_photography_service'], filters:['shop=photo','craft=photographer','office=photographer'] },
   { names:["reisebüro","reisebuero","reisebüros","travel agency","travel agencies","travel agent","tour operator","tourismus"],
-    label:"Reisebüro", ovt:['travel_agent'], filters:['shop=travel_agency','office=travel_agent'] },
+    label:"Reisebüro", en:"Travel agency", ovt:['travel_agent'], filters:['shop=travel_agency','office=travel_agent'] },
   { names:["fahrschule","fahrschulen","driving school","driving schools","driving instructor"],
-    label:"Fahrschule", ovt:['driving_school'], filters:['amenity=driving_school','office=educational_institution'] },
+    label:"Fahrschule", en:"Driving school", ovt:['driving_school'], filters:['amenity=driving_school','office=educational_institution'] },
   { names:["kindergarten","kindergärten","kita","kitas","daycare","day care","childcare","child care","preschool","pre-school","nursery school","kindertagesstätte"],
-    label:"Kindergarten", ovt:['child_care_and_day_care','day_care_preschool','preschool'], filters:['amenity=kindergarten','amenity=childcare'] },
+    label:"Kindergarten", en:"Daycare", ovt:['child_care_and_day_care','day_care_preschool','preschool'], filters:['amenity=kindergarten','amenity=childcare'] },
   { names:["schule","schulen","school","schools","grundschule","gymnasium","realschule","high school","middle school","elementary school","private school"],
-    label:"Schule", ovt:['school'], filters:['amenity=school','amenity=college'] },
+    label:"Schule", en:"School", ovt:['school'], filters:['amenity=school','amenity=college'] },
   { names:["universität","universitäten","university","universities","hochschule","fachhochschule","college","colleges"],
-    label:"Universität", ovt:['college_university'], filters:['amenity=university','amenity=college'] },
+    label:"Universität", en:"University", ovt:['college_university'], filters:['amenity=university','amenity=college'] },
   { names:["coworking","co-working","coworking space","shared office","shared workspace","flex office","business center","business centre"],
-    label:"Coworking", ovt:['coworking_space'], filters:['office=coworking','amenity=coworking_space'] },
+    label:"Coworking", en:"Coworking", ovt:['coworking_space'], filters:['office=coworking','amenity=coworking_space'] },
   { names:["kirche","kirchen","church","churches","moschee","mosque","mosques","synagoge","synagogue","synagogues","tempel","temple","temples","gotteshaus","place of worship"],
-    label:"Religion", ovt:['place_of_worship'], filters:['amenity=place_of_worship','building=church','building=mosque'] },
-  { names:["museum","museums","museen"], label:"Museum", ovt:['museum'], filters:['tourism=museum'] },
+    label:"Religion", en:"Place of worship", ovt:['place_of_worship'], filters:['amenity=place_of_worship','building=church','building=mosque'] },
+  { names:["museum","museums","museen"], label:"Museum", en:"Museum", ovt:['museum'], filters:['tourism=museum'] },
   { names:["galerie","galerien","gallery","galleries","kunstgalerie","art gallery","art galleries","kunsthandel","art dealer"],
-    label:"Galerie", ovt:['art_gallery'], filters:['tourism=gallery','shop=art'] },
-  { names:["bibliothek","bibliotheken","library","libraries","stadtbibliothek","public library"], label:"Bibliothek", ovt:['library'], filters:['amenity=library'] },
+    label:"Galerie", en:"Art gallery", ovt:['art_gallery'], filters:['tourism=gallery','shop=art'] },
+  { names:["bibliothek","bibliotheken","library","libraries","stadtbibliothek","public library"], label:"Bibliothek", en:"Library", ovt:['library'], filters:['amenity=library'] },
   { names:["catering","caterer","caterers","catering service","party service","event catering","food service","mobile küche"],
-    label:"Catering", ovt:['caterer'], filters:['shop=caterer','amenity=catering','office=catering'] },
+    label:"Catering", en:"Catering", ovt:['caterer'], filters:['shop=caterer','amenity=catering','office=catering'] },
   { names:["event","eventagentur","event planner","event planning","event management","veranstalter","veranstaltungstechnik","wedding planner","hochzeitsplaner"],
-    label:"Event-Agentur", ovt:['party_and_event_planning','event_technology_service','wedding_planning','dj_service'], filters:['office=event_management','office=events','shop=event'] },
+    label:"Event-Agentur", en:"Event planning", ovt:['party_and_event_planning','event_technology_service','wedding_planning','dj_service'], filters:['office=event_management','office=events','shop=event'] },
   { names:["coach","coaching","life coach","business coach","executive coach","mental coach","mindset coach","career coach","mentor","leadership coach"],
-    label:"Coaching", ovt:['life_coach','career_counseling','health_coaching'], filters:['office=coaching','office=consulting','office=educational_institution'] },
+    label:"Coaching", en:"Coaching", ovt:['life_coach','career_counseling','health_coaching'], filters:['office=coaching','office=consulting','office=educational_institution'] },
   { names:["personal trainer","personaltrainer","personal training","fitness trainer","gym trainer","strength training"],
-    label:"Personal Trainer", ovt:['fitness_trainer'], filters:['leisure=fitness_centre','office=personal_trainer','sport=fitness'] },
+    label:"Personal Trainer", en:"Personal trainer", ovt:['fitness_trainer'], filters:['leisure=fitness_centre','office=personal_trainer','sport=fitness'] },
   { names:["übersetzer","übersetzerin","übersetzungen","übersetzungsbüro","translator","translators","translation","translation service","translation agency","dolmetscher","interpreter","localization"],
-    label:"Übersetzer", ovt:['translation_service','translating_and_interpreting_service'], filters:['office=translator','office=translation','craft=translator'] },
+    label:"Übersetzer", en:"Translator", ovt:['translation_service','translating_and_interpreting_service'], filters:['office=translator','office=translation','craft=translator'] },
   { names:["abschleppdienst","abschlepper","towing","towing service","tow truck","tow service","road service","pannenhilfe","roadside assistance"],
-    label:"Abschleppdienst", ovt:['towing_service'], filters:['shop=car_repair','craft=towing','amenity=towing'] },
+    label:"Abschleppdienst", en:"Towing", ovt:['towing_service'], filters:['shop=car_repair','craft=towing','amenity=towing'] },
   { names:["taxi","taxiunternehmen","taxis","cab","cab company","cab service","taxistand","ride share","limousine","limousine service","limo","chauffeur","fahrdienst"],
-    label:"Taxi / Fahrdienst", ovt:['taxi_service','taxi_or_ride_share_service','limo_service'], filters:['amenity=taxi','office=taxi'] },
+    label:"Taxi / Fahrdienst", en:"Taxi / Chauffeur", ovt:['taxi_service','taxi_or_ride_share_service','limo_service'], filters:['amenity=taxi','office=taxi'] },
   { names:["bestattung","bestatter","bestattungsinstitut","beerdigung","funeral home","funeral parlor","funeral parlour","funeral director","mortician","mortuary","cemetery","friedhof"],
-    label:"Bestattung", ovt:['funeral_service'], filters:['shop=funeral_directors','office=funeral_directors','amenity=funeral_hall','landuse=cemetery'] },
+    label:"Bestattung", en:"Funeral home", ovt:['funeral_service'], filters:['shop=funeral_directors','office=funeral_directors','amenity=funeral_hall','landuse=cemetery'] },
   { names:["lager","selfstorage","self storage","self-storage","storage","storage facility","storage unit","mietlager","umzugslager"],
-    label:"Selfstorage", ovt:['self_storage_facility','storage_facility'], filters:['shop=storage_rental','amenity=storage_rental','building=storage'] },
+    label:"Selfstorage", en:"Self storage", ovt:['self_storage_facility','storage_facility'], filters:['shop=storage_rental','amenity=storage_rental','building=storage'] },
   { names:["vermietung","mietservice","rental","rental service","equipment rental","tool rental","car rental","autovermietung","fahrradverleih","ski rental","skiverleih","boat rental"],
-    label:"Vermietung", ovt:['rental_service','car_rental_service','vehicle_rental_service','machine_and_tool_rental','party_equipment_rental'], filters:['shop=rental','amenity=car_rental','amenity=bicycle_rental','amenity=boat_rental'] },
+    label:"Vermietung", en:"Rentals", ovt:['rental_service','car_rental_service','vehicle_rental_service','machine_and_tool_rental','party_equipment_rental'], filters:['shop=rental','amenity=car_rental','amenity=bicycle_rental','amenity=boat_rental'] },
   { names:["pfandhaus","pfandleihe","pawn","pawn shop","pawnshop","pawnbroker"],
-    label:"Pfandhaus", ovt:['pawn_shop'], filters:['shop=pawnbroker'] },
+    label:"Pfandhaus", en:"Pawn shop", ovt:['pawn_shop'], filters:['shop=pawnbroker'] },
   { names:["vape","vape shop","e zigarette","e-zigarette","vaping","liquids","tabakwaren","tobacconist","tobacco shop","smoke shop","cbd shop","headshop","head shop"],
-    label:"Vape / Tobacco", ovt:['smoke_and_vape_store','tobacco_shop'], filters:['shop=tobacco','shop=e-cigarette','shop=cbd'] },
+    label:"Vape / Tobacco", en:"Vape / Tobacco", ovt:['smoke_and_vape_store','tobacco_shop'], filters:['shop=tobacco','shop=e-cigarette','shop=cbd'] },
   { names:["bäckerei café","cafe restaurant","food hall","markthalle","market hall","wochenmarkt","farmers market"],
-    label:"Markt / Markthalle", ovt:['market','farmers_market'], filters:['amenity=marketplace','shop=marketplace'] },
+    label:"Markt / Markthalle", en:"Market", ovt:['market','farmers_market'], filters:['amenity=marketplace','shop=marketplace'] },
   { names:["schreibwaren","schreibwarengeschäft","stationery","stationery store","papeterie","schulbedarf","office supplies"],
-    label:"Schreibwaren", ovt:['office_supply_store','business_office_supplies_and_stationery'], filters:['shop=stationery'] },
+    label:"Schreibwaren", en:"Stationery", ovt:['office_supply_store','business_office_supplies_and_stationery'], filters:['shop=stationery'] },
   { names:["geschenke","geschenkartikel","gift shop","gifts","souvenir","souvenir shop","souvenirs"],
-    label:"Geschenke", ovt:['gift_shop','souvenir_store'], filters:['shop=gift'] },
+    label:"Geschenke", en:"Gift shop", ovt:['gift_shop','souvenir_store'], filters:['shop=gift'] },
   { names:["banket","verein","vereine","association","club","clubhouse","gemeindehaus","community center","community centre"],
-    label:"Verein", ovt:['social_club','civic_organization','community_center','sport_or_recreation_club'], filters:['amenity=community_centre','office=association','office=non_profit'] },
+    label:"Verein", en:"Club / Association", ovt:['social_club','civic_organization','community_center','sport_or_recreation_club'], filters:['amenity=community_centre','office=association','office=non_profit'] },
   { names:["tanzschule","tanzstudio","dance school","dance studio","ballet school","ballettschule"],
-    label:"Tanzschule", ovt:['dance_studio'], filters:['amenity=dance_school','leisure=dance'] },
+    label:"Tanzschule", en:"Dance school", ovt:['dance_studio'], filters:['amenity=dance_school','leisure=dance'] },
   { names:["musikschule","music school","music academy","gesangsschule","klavierunterricht","music lessons"],
-    label:"Musikschule", ovt:['music_school'], filters:['amenity=music_school','leisure=music'] },
+    label:"Musikschule", en:"Music school", ovt:['music_school'], filters:['amenity=music_school','leisure=music'] },
   { names:["sprachschule","sprachkurs","language school","language academy","english school"],
-    label:"Sprachschule", ovt:['language_school'], filters:['amenity=language_school','office=educational_institution'] },
+    label:"Sprachschule", en:"Language school", ovt:['language_school'], filters:['amenity=language_school','office=educational_institution'] },
   { names:["bauunternehmen","bauunternehmer","baufirma","construction","construction company","construction contractor","general contractor","building contractor","contractor"],
-    label:"Bauunternehmen", ovt:['building_contractor','builder','contractor','building_or_construction_service','masonry_contractor','home_developer'], filters:['office=construction_company','craft=builder','craft=stonemason','craft=plasterer','craft=scaffolder'] },
+    label:"Bauunternehmen", en:"Construction company", ovt:['building_contractor','builder','contractor','building_or_construction_service','masonry_contractor','home_developer'], filters:['office=construction_company','craft=builder','craft=stonemason','craft=plasterer','craft=scaffolder'] },
   { names:["schreiben","copywriter","copywriting","texter","content writer","blog writer","ghostwriter"],
-    label:"Texter / Copywriter", ovt:['writing_service'], filters:['office=copywriter','craft=writer','office=writer'] },
+    label:"Texter / Copywriter", en:"Copywriter", ovt:['writing_service'], filters:['office=copywriter','craft=writer','office=writer'] },
   { names:["videoproduktion","video production","video producer","film production","filmproduktion","videografer","videographer","filmstudio"],
-    label:"Videoproduktion", ovt:['video_film_production','videographer','broadcasting_media_production'], filters:['craft=videographer','office=video_production','craft=photographer'] },
+    label:"Videoproduktion", en:"Video production", ovt:['video_film_production','videographer','broadcasting_media_production'], filters:['craft=videographer','office=video_production','craft=photographer'] },
   { names:["yoga","yoga studio","meditation","meditation center","mindfulness","retreat","retreat center"],
-    label:"Yoga / Meditation", ovt:['yoga_studio','meditation_center','pilates_studio'], filters:['leisure=fitness_centre','sport=yoga','amenity=yoga'] },
+    label:"Yoga / Meditation", en:"Yoga / Meditation", ovt:['yoga_studio','meditation_center','pilates_studio'], filters:['leisure=fitness_centre','sport=yoga','amenity=yoga'] },
   { names:["barber","barbershop","barber shop","barbier","herrenfriseur","männerfriseur"],
-    label:"Barber", ovt:['barber'], filters:['shop=hairdresser','craft=hairdresser'] }
+    label:"Barber", en:"Barber", parent:"Friseur", ovt:['barber'], filters:['shop=hairdresser','craft=hairdresser'] },
+  { names:["beauty & pflege","beauty und pflege","beauty branche","alle beauty","beauty & personal care","personal care","beauty industry"],
+    label:"Beauty & Pflege", en:"Beauty & personal care", ovt:[], filters:[] }
 ];
 
 // US states with their major cities (for the dropdown + city autocomplete).
@@ -2529,7 +2606,19 @@ function stemDE(w){
 function stems(w){ return [stemEN(w), stemDE(w)]; }
 
 // Precomputed folded names, so matching does not refold the catalog every search.
-const CAT_INDEX = CATEGORIES.map(c => ({ cat: c, names: c.names.map(fnorm) }));
+const CAT_INDEX = CATEGORIES.map(c => ({ cat: c, names: [...c.names, c.label, c.en].filter(Boolean).map(fnorm) }));
+const CAT_BY_LABEL = new Map(CATEGORIES.map(c => [c.label, c]));
+const CAT_KIDS = new Map();
+for (const c of CATEGORIES) if (c.parent){ if (!CAT_KIDS.has(c.parent)) CAT_KIDS.set(c.parent, []); CAT_KIDS.get(c.parent).push(c); }
+function catName(c){ return lang === 'en' && c.en ? c.en : c.label; }
+function catKids(c){ return (CAT_KIDS.get(c.label) || []).slice().sort((a, b) => catName(a).localeCompare(catName(b), lang)); }
+function catDescendants(c){ return catKids(c).flatMap(k => [k, ...catDescendants(k)]); }
+// A broad niche searches itself plus everything filed under it.
+function expandCategory(c){
+  if (!c) return null;
+  const all = [c, ...catDescendants(c)];
+  return { ...c, ovt: [...new Set(all.flatMap(x => x.ovt || []))], filters: [...new Set(all.flatMap(x => x.filters || []))] };
+}
 
 function resolveCategory(input){
   const q = fnorm(input);
@@ -3212,14 +3301,14 @@ async function enrichAddresses(gen){
 // --- Status + persistence -------------------------------------------------
 // A broad niche with many hits offers its sub-niches as one-click searches.
 const SUB_HINT_MIN = 80;
-function subNiches(cat){ return cat ? CATEGORIES.filter(c => c.parent === cat.label) : []; }
+function subNiches(cat){ return cat ? catKids(cat) : []; }
 function showSubHint(cat){
   const el = document.getElementById('f-subhint');
   const subs = subNiches(cat);
   if (!subs.length){ el.style.display = 'none'; el.innerHTML = ''; return; }
   el.style.display = 'flex';
   el.innerHTML = `<span class="hint-label">${escapeHtml(t('sub_hint'))}</span>` +
-    subs.map(c => `<button class="chip" data-n="${escapeHtml(c.label)}" onclick="searchSubNiche(this.dataset.n)">${escapeHtml(c.label)}</button>`).join('');
+    subs.map(c => `<button class="chip" data-n="${escapeHtml(catName(c))}" onclick="searchSubNiche(this.dataset.n)">${escapeHtml(catName(c))}</button>`).join('');
 }
 function searchSubNiche(label){
   document.getElementById('f-niche').value = label;
@@ -3255,9 +3344,9 @@ async function runFinderSearch(){
   showSubHint(null);
   renderStaging();
   try {
-    const cat = niche ? resolveCategory(niche) : null;
+    const cat = niche ? expandCategory(resolveCategory(niche)) : null;
     const filters = cat ? cat.filters.slice() : ['office=*','shop=*','craft=*','amenity=restaurant','amenity=cafe'];
-    const label = cat ? cat.label : (niche || 'All');
+    const label = cat ? catName(cat) : (niche || 'All');
     fStatus(t('f_looking_up', city, state || COUNTRIES[country].geoSuffix), '', true);
 
     const place = await findLocation(state, city);
@@ -3269,7 +3358,7 @@ async function runFinderSearch(){
     const radiusM = isCity ? useRadius : 0;
     const fallbackCity = place.address?.city || place.display_name.split(',')[0];
 
-    fStatus(t('f_searching', (cat ? cat.label : niche) || t('f_businesses'), city), '', true);
+    fStatus(t('f_searching', (cat ? catName(cat) : niche) || t('f_businesses'), city), '', true);
     const dsPromise = cat?.dataset ? loadDataset(cat.dataset) : Promise.resolve(null);
     // Tiles cover the city outline plus the radius. Outline points beyond 30 km are
     // ignored, so a far exclave (Bremen owns a port strip in Bremerhaven, 55 km
@@ -3844,7 +3933,7 @@ function rollDice(kind){
   const cityIn = document.getElementById('f-city');
   if (kind === 'niche'){
     const cur = document.getElementById('f-niche').value;
-    const opts = NICHE_SUGGEST[lang].filter(n => n !== cur);
+    const opts = CATEGORIES.map(catName).filter(n => n !== cur);
     document.getElementById('f-niche').value = pick(opts);
   }
   if (kind === 'state' || (kind === 'city' && !states[stateSel.value])){
@@ -3899,8 +3988,6 @@ function applyCountryChrome(){
   document.getElementById('lbl-state').textContent = t('lbl_state_' + conf.stateKey);
   document.getElementById('f-city').placeholder = t('ph_city', conf.example);
   renderCountryOptions();
-  document.getElementById('niche-suggest').innerHTML =
-    NICHE_SUGGEST[lang].map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
   updateCitySuggest();
 }
 // Country names come from the browser in the UI language, sorted the way that language sorts.
@@ -3927,9 +4014,115 @@ function onCountryChange(){
   applyCountryChrome();
 }
 
+// --- Niche picker: broad niches A to Z, sub-niches indented under them ----
+const nm = { open: false, expanded: new Set(), rows: [], hi: -1 };
+function nmTop(){ return CATEGORIES.filter(c => !c.parent).sort((a, b) => catName(a).localeCompare(catName(b), lang)); }
+function nmMatches(c, q){ return !q || [catName(c), ...c.names].some(n => fnorm(n).includes(q)); }
+function nmBuildRows(){
+  const input = document.getElementById('f-niche');
+  const q = fnorm(input.value);
+  // Reopening on a picked niche shows the whole list; typing filters it.
+  const exact = q && CATEGORIES.some(c => fnorm(catName(c)) === q);
+  const query = exact && !nm.typed ? '' : q;
+  const rows = [];
+  // Without a query: the tree as expanded. With one: matching entries plus the path to them.
+  const collect = (c, lvl, into, filtered) => {
+    const kids = catKids(c);
+    if (!filtered){
+      into.push({ c, lvl, kids: kids.length, open: nm.expanded.has(c.label) });
+      if (nm.expanded.has(c.label)) for (const k of kids) collect(k, lvl + 1, into, false);
+      return;
+    }
+    const sub = [];
+    for (const k of kids) collect(k, lvl + 1, sub, true);
+    if (!sub.length && !nmMatches(c, query)) return;
+    const open = sub.length > 0 || nm.expanded.has(c.label);
+    into.push({ c, lvl, kids: kids.length, open });
+    if (sub.length) into.push(...sub);
+    else if (open) for (const k of kids) collect(k, lvl + 1, into, false);
+  };
+  for (const c of nmTop()) collect(c, 0, rows, !!query);
+  nm.rows = rows;
+  nm.query = query;
+}
+function nmHighlight(name){
+  if (!nm.query) return escapeHtml(name);
+  const i = fnorm(name).indexOf(nm.query);
+  if (i < 0 || fnorm(name).length !== name.length) return escapeHtml(name);
+  return escapeHtml(name.slice(0, i)) + '<mark class="nm">' + escapeHtml(name.slice(i, i + nm.query.length)) + '</mark>' + escapeHtml(name.slice(i + nm.query.length));
+}
+function renderNicheMenu(){
+  const el = document.getElementById('niche-menu');
+  if (!nm.open){ el.style.display = 'none'; document.getElementById('f-niche').setAttribute('aria-expanded', 'false'); return; }
+  nmBuildRows();
+  if (nm.hi >= nm.rows.length) nm.hi = nm.rows.length - 1;
+  el.style.display = 'block';
+  document.getElementById('f-niche').setAttribute('aria-expanded', 'true');
+  el.innerHTML = nm.rows.length ? nm.rows.map((r, i) => {
+    const desc = r.kids ? catDescendants(r.c).length : 0;
+    return `<div class="nm-row lvl${Math.min(r.lvl, 2)}${i === nm.hi ? ' hi' : ''}" role="option" data-i="${i}" onmousedown="event.preventDefault()" onclick="nmPick(${i})">` +
+      `<button type="button" class="nm-tog${r.kids ? '' : ' none'}${r.open ? ' open' : ''}" tabindex="-1" onclick="event.stopPropagation(); nmToggle(${i})" title="${escapeHtml(t('nm_subs'))}"><span class="arrow"></span></button>` +
+      `<span class="nm-name">${nmHighlight(catName(r.c))}</span>` +
+      (desc ? `<span class="nm-count">${escapeHtml(t('nm_count', desc))}</span>` : '') + `</div>`;
+  }).join('') : `<div class="nm-empty">${escapeHtml(t('nm_none'))}</div>`;
+  const hi = el.querySelector('.nm-row.hi');
+  if (hi) hi.scrollIntoView({ block: 'nearest' });
+}
+function openNicheMenu(){
+  if (nm.open) return;
+  nm.open = true; nm.hi = -1; nm.typed = false;
+  // Reopening on a picked niche unfolds its branch and marks it.
+  const q = fnorm(document.getElementById('f-niche').value);
+  const cur = q && CATEGORIES.find(c => fnorm(catName(c)) === q);
+  if (cur){
+    for (let p = CAT_BY_LABEL.get(cur.parent); p; p = CAT_BY_LABEL.get(p.parent)) nm.expanded.add(p.label);
+    nmBuildRows();
+    nm.hi = nm.rows.findIndex(r => r.c === cur);
+  }
+  renderNicheMenu();
+}
+function closeNicheMenu(){ nm.open = false; renderNicheMenu(); }
+function toggleNicheMenu(){
+  const input = document.getElementById('f-niche');
+  if (nm.open) closeNicheMenu(); else { input.focus(); openNicheMenu(); }
+}
+function nmToggle(i){
+  const r = nm.rows[i]; if (!r || !r.kids) return;
+  const key = r.c.label;
+  if (r.open){ nm.expanded.delete(key); for (const d of catDescendants(r.c)) nm.expanded.delete(d.label); }
+  else nm.expanded.add(key);
+  nm.hi = i;
+  renderNicheMenu();
+}
+function nmPick(i){
+  const r = nm.rows[i]; if (!r) return;
+  document.getElementById('f-niche').value = catName(r.c);
+  closeNicheMenu();
+}
+function initNicheMenu(){
+  const input = document.getElementById('f-niche');
+  input.addEventListener('focus', openNicheMenu);
+  input.addEventListener('click', openNicheMenu);
+  input.addEventListener('input', () => { nm.open = true; nm.typed = true; nm.expanded.clear(); nm.hi = fnorm(input.value) ? 0 : -1; renderNicheMenu(); });
+  input.addEventListener('blur', () => setTimeout(closeNicheMenu, 120));
+  input.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown'){ e.preventDefault(); if (!nm.open) openNicheMenu(); nm.hi = Math.min(nm.rows.length - 1, nm.hi + 1); renderNicheMenu(); }
+    else if (e.key === 'ArrowUp'){ e.preventDefault(); nm.hi = Math.max(0, nm.hi - 1); renderNicheMenu(); }
+    else if (e.key === 'ArrowRight' && nm.open && nm.hi >= 0 && nm.rows[nm.hi]?.kids && !nm.rows[nm.hi].open && input.selectionStart === input.value.length){ e.preventDefault(); nmToggle(nm.hi); }
+    else if (e.key === 'ArrowLeft' && nm.open && nm.hi >= 0 && nm.rows[nm.hi]?.open){ e.preventDefault(); nmToggle(nm.hi); }
+    else if (e.key === 'Escape' && nm.open){ e.preventDefault(); closeNicheMenu(); }
+    else if (e.key === 'Enter'){
+      e.preventDefault();
+      if (nm.open && nm.hi >= 0 && nm.rows[nm.hi]){ nmPick(nm.hi); return; }
+      closeNicheMenu();
+      runFinderSearch();
+    }
+  });
+}
+
 (function initFinder(){
   document.getElementById('f-state').addEventListener('change', updateCitySuggest);
-  document.getElementById('f-niche').addEventListener('keydown', e => { if (e.key === 'Enter') runFinderSearch(); });
+  initNicheMenu();
   document.getElementById('f-city').addEventListener('keydown', e => { if (e.key === 'Enter') runFinderSearch(); });
   loadStaging();
 })();
