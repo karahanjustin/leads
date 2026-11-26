@@ -287,6 +287,9 @@
     animation: ct-spin 0.8s linear infinite; display: inline-block; flex: none;
   }
   @keyframes ct-spin { to { transform: rotate(360deg); } }
+  .finder-status .stop-btn, .wc-status .stop-btn { font-size: 12px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--danger-line); color: var(--danger); background: var(--surface); font-weight: 600; flex: none; }
+  .finder-status .stop-btn:hover, .wc-status .stop-btn:hover { background: var(--danger-bg); border-color: var(--danger); }
+  .wc-status .link-btn { font-size: 12px; padding: 0; border: 0; background: none; color: var(--blue); text-decoration: underline; margin-left: 6px; }
   .finder-status.err { color: var(--danger); }
   .finder-status.ok { color: var(--success); }
 
@@ -839,6 +842,7 @@ const I18N = {
     f_tiles:'Large area, scanning in tiles ...',
     f_overture:(i,n,mb)=>`Loading Overture Maps data, block ${i} of ${n} (${mb} MB) ...`,
     sub_hint:'Too many? Narrow it down:', nm_subs:'Show sub-niches', nm_count:(n)=>String(n), nm_none:'No matching niche, the search will still try it as free text.',
+    btn_stop:'Stop', f_stopped:(n)=>`Stopped. ${n} businesses kept.`, wc_stopped:(d,n)=>`Website check stopped at ${d} of ${n}.`, wc_resume:'Continue', wc_stopping:'Stopping website check ...',
     f_found:(n)=>`Found ${n} businesses. Edit or remove rows, then add them to your call list.`,
     f_found_enriching:(n,i,k)=>`Found ${n} businesses. Completing missing addresses in the background, ${i} of ${k} ...`,
     f_none:'No results. Try a bigger city, a different niche, or a larger radius.',
@@ -942,6 +946,7 @@ const I18N = {
     f_tiles:'Großes Gebiet, wird in Kacheln durchsucht ...',
     f_overture:(i,n,mb)=>`Lade Overture-Maps-Daten, Paket ${i} von ${n} (${mb} MB) ...`,
     sub_hint:'Zu viele? Eingrenzen:', nm_subs:'Unterbranchen zeigen', nm_count:(n)=>String(n), nm_none:'Keine passende Branche, die Suche versucht es trotzdem als freien Text.',
+    btn_stop:'Stopp', f_stopped:(n)=>`Gestoppt. ${n} Betriebe bleiben in der Liste.`, wc_stopped:(d,n)=>`Website-Check bei ${d} von ${n} gestoppt.`, wc_resume:'Fortsetzen', wc_stopping:'Website-Check wird angehalten ...',
     f_found:(n)=>`${n} Betriebe gefunden. Zeilen bearbeiten oder entfernen, dann in die Liste übernehmen.`,
     f_found_enriching:(n,i,k)=>`${n} Betriebe gefunden. Fehlende Adressen werden im Hintergrund ergänzt, ${i} von ${k} ...`,
     f_none:'Keine Treffer. Größere Stadt, andere Branche oder größeren Umkreis probieren.',
@@ -2718,18 +2723,23 @@ function areaId(place){
 let overpassDownUntil = 0;
 async function overpass(query){
   if (Date.now() < overpassDownUntil) throw new Error('Overpass unavailable');
+  const stop = finderAbort.signal;
   let lastErr;
   for (const step of OVERPASS_ATTEMPTS){
+    if (stop.aborted) throw new Error('stopped');
     if (step.pause){ await sleep(step.pause); continue; }
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), step.ms);
+    const onStop = () => ctrl.abort();
+    stop.addEventListener('abort', onStop);
     try {
       const r = await fetch(step.url, { method:'POST', body:'data=' + encodeURIComponent(query), signal: ctrl.signal });
       if (!r.ok){ lastErr = new Error(step.url + ' ' + r.status); continue; }
       return await r.json();
     } catch(e){ lastErr = e; }
-    finally { clearTimeout(timer); }
+    finally { clearTimeout(timer); stop.removeEventListener('abort', onStop); }
   }
+  if (stop.aborted) throw new Error('stopped');
   overpassDownUntil = Date.now() + 10 * 60000;
   throw lastErr || new Error('All Overpass endpoints failed');
 }
@@ -2962,8 +2972,8 @@ async function inflate(bytes, compression){
   const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
   return new Uint8Array(await new Response(stream).arrayBuffer());
 }
-async function fetchBytes(url, offset, length){
-  const r = await fetch(url, { headers:{ Range:`bytes=${offset}-${offset + length - 1}` } });
+async function fetchBytes(url, offset, length, signal){
+  const r = await fetch(url, { headers:{ Range:`bytes=${offset}-${offset + length - 1}` }, signal });
   if (r.status !== 206){ r.body?.cancel(); throw new Error('Overture ' + r.status); }
   return new Uint8Array(await r.arrayBuffer());
 }
@@ -3236,10 +3246,13 @@ async function overturePlaces(lat, lon, radiusM, inArea, cat, nicheText, onProgr
   allTiles.forEach((t, k) => { if (cachedBytes[k]) t.cached = new Uint8Array(cachedBytes[k]); });
   for (const t of cachedTiles){ await collect(t, t.cached); }
   const work = blocks.slice(), puts = [];
+  const stop = finderAbort.signal;
   const worker = async () => {
-    while (work.length){
+    while (work.length && !stop.aborted){
       const b = work.shift();
-      const data = await fetchBytes(ar.url, ar.h.dataOff + b.start, b.end - b.start);
+      let data;
+      try { data = await fetchBytes(ar.url, ar.h.dataOff + b.start, b.end - b.start, stop); }
+      catch(e){ if (stop.aborted) return; throw e; }
       bytes += data.length;
       for (const t of b.tiles){
         const compressed = data.slice(t.e.off - b.start, t.e.off - b.start + t.e.len);
@@ -3271,12 +3284,12 @@ async function enrichAddresses(gen){
       let a = null;
       if (!nominatimDown){
         try {
-          const resp = await fetch(`${base}?format=json&addressdetails=1&zoom=18&lat=${r.lat}&lon=${r.lon}`, { headers:{'Accept':'application/json'} });
+          const resp = await fetch(`${base}?format=json&addressdetails=1&zoom=18&lat=${r.lat}&lon=${r.lon}`, { headers:{'Accept':'application/json'}, signal: finderAbort.signal });
           if (resp.ok) a = (await resp.json()).address || {};
-        } catch(e){ nominatimDown = true; }
+        } catch(e){ if (gen !== searchGen) return; nominatimDown = true; }
       }
       if (!a && nominatimDown){
-        const resp = await fetch(`https://photon.komoot.io/reverse?lat=${r.lat}&lon=${r.lon}&limit=1`);
+        const resp = await fetch(`https://photon.komoot.io/reverse?lat=${r.lat}&lon=${r.lon}&limit=1`, { signal: finderAbort.signal });
         const p = resp.ok ? ((await resp.json()).features || [])[0]?.properties : null;
         if (p) a = { road: p.street, house_number: p.housenumber, city: p.city || p.locality || p.district, postcode: p.postcode };
       }
@@ -3292,7 +3305,7 @@ async function enrichAddresses(gen){
           if (cell && cell !== document.activeElement) cell.value = full;
         }
       }
-    } catch(e){ /* keep going */ }
+    } catch(e){ if (gen !== searchGen) return; }
     await sleep(1100);
   }
   if (gen === searchGen){ persistStaging(); fStatus(t('f_found', finderResults.length), 'ok'); }
@@ -3317,7 +3330,19 @@ function searchSubNiche(label){
 function fStatus(msg, kind, busy){
   const el = document.getElementById('f-status');
   el.className = 'finder-status' + (kind ? ' ' + kind : '');
-  el.innerHTML = (busy ? '<span class="spin"></span>' : '') + escapeHtml(msg);
+  el.innerHTML = (busy ? '<span class="spin"></span>' : '') + escapeHtml(msg) +
+    (busy ? `<button type="button" class="stop-btn" onclick="stopFinder()">${escapeHtml(t('btn_stop'))}</button>` : '');
+}
+// Stops whatever the finder is doing: loading, address completion and website checks.
+// Rows found so far stay in the table.
+let finderAbort = new AbortController();
+function stopFinder(){
+  searchGen++;
+  finderAbort.abort();
+  stopWebChecks();
+  persistStaging();
+  renderStaging();
+  fStatus(t('f_stopped', finderResults.length), finderResults.length ? 'ok' : '');
 }
 function persistStaging(){ try { localStorage.setItem(STAGING_KEY, JSON.stringify(finderResults)); } catch(e){} }
 function loadStaging(){
@@ -3340,6 +3365,9 @@ async function runFinderSearch(){
   const go = document.getElementById('f-go');
   go.disabled = true;
   const gen = ++searchGen;
+  finderAbort = new AbortController();
+  wcStopped = false;
+  const stopped = () => gen !== searchGen;
   finderResults = []; finderSeen.clear();
   showSubHint(null);
   renderStaging();
@@ -3350,6 +3378,7 @@ async function runFinderSearch(){
     fStatus(t('f_looking_up', city, state || COUNTRIES[country].geoSuffix), '', true);
 
     const place = await findLocation(state, city);
+    if (stopped()) return;
     if (!place){ fStatus(t('f_no_place'), 'err'); go.disabled = false; return; }
     const aid = areaId(place);
     const lat = Number(place.lat), lon = Number(place.lon);
@@ -3382,7 +3411,7 @@ async function runFinderSearch(){
     if (data?.elements) for (const el of data.elements) addElement(el, label, fallbackCity);
     renderStaging();
 
-    if (place.boundingbox && initial >= cap * 0.8){
+    if (place.boundingbox && initial >= cap * 0.8 && !stopped()){
       fStatus(t('f_tiles'), '', true);
       const [s, n, w, e] = place.boundingbox.map(Number);
       await tileSearch(s, w, n, e, filters, label, fallbackCity);
@@ -3395,8 +3424,9 @@ async function runFinderSearch(){
       mergeRecord(rec, !!street);
     }
     renderStaging();
-    if (radiusM && filters.length && finderResults.length < 25){
+    if (radiusM && filters.length && finderResults.length < 25 && !stopped()){
       for (const rad of [50000, 100000]){
+        if (stopped()) break;
         try {
           const more = await overpass(buildCombinedQuery(null, lat, lon, rad, filters));
           if (more?.elements) for (const el of more.elements) addElement(el, label, fallbackCity);
@@ -3410,7 +3440,10 @@ async function runFinderSearch(){
     finderResults.sort((a, b) => away(a) - away(b) || 0);
     renderStaging();
 
-    if (finderResults.length){
+    if (stopped()){
+      fStatus(t('f_stopped', finderResults.length), finderResults.length ? 'ok' : '');
+      showSubHint(finderResults.length >= SUB_HINT_MIN ? cat : null);
+    } else if (finderResults.length){
       fStatus(t('f_found', finderResults.length), 'ok');
       showSubHint(finderResults.length >= SUB_HINT_MIN ? cat : null);
       enrichAddresses(gen);
@@ -3419,7 +3452,8 @@ async function runFinderSearch(){
       fStatus(t('f_none'), 'err');
     }
   } catch(e){
-    fStatus(t('f_error', e.message), 'err');
+    if (stopped()) fStatus(t('f_stopped', finderResults.length), finderResults.length ? 'ok' : '');
+    else fStatus(t('f_error', e.message), 'err');
   } finally {
     go.disabled = false;
     persistStaging();
@@ -3651,7 +3685,11 @@ function wcStagingTargets(){ return finderResults.filter(r => wcNeeds(r) && !wcB
 function wcLeadTargets(){ return wcLeadsOn ? leads.filter(l => wcNeeds(l) && !wcBusy.has('l' + l.id)) : []; }
 
 // Works through the results (then, after a click, the saved list) at a pace the reader allows.
+let wcStopped = false;
+function stopWebChecks(){ wcStopped = true; wcLeadsOn = false; wcRenderStatus(); }
+function resumeWebChecks(){ wcStopped = false; startWebChecks(); }
 function startWebChecks(){
+  if (wcStopped){ wcRenderStatus(); return; }
   // A site already checked elsewhere (result row or saved lead) needs no new request.
   const known = new Map();
   for (const x of [...finderResults, ...leads]) if (x.wc && !isMissing(x.website)) known.set(siteHost(x.website), x.wc);
@@ -3681,6 +3719,7 @@ async function wcRunOne(url){
     const wait = Math.max(wcPauseUntil, wcLastStart + WC_GAP_MS) - Date.now();
     wcLastStart = Math.max(Date.now(), wcLastStart + WC_GAP_MS, wcPauseUntil);
     if (wait > 0) await sleep(wait);
+    if (wcStopped) return null;
     let wc;
     try { wc = await checkWebsite(url); } catch(e){ wc = null; }
     if (wc && !wc.retry) return wc;
@@ -3721,9 +3760,10 @@ function wcRenderStatus(){
     const withSite = finderResults.filter(r => siteKind(r.website) === 'site');
     const done = withSite.filter(r => r.wc).length, hard = withSite.filter(r => r.wc && r.wc.hard).length;
     const paused = wcPauseUntil > Date.now();
-    el.innerHTML = !withSite.length ? '' : done < withSite.length
-      ? `<span class="spin"></span>${escapeHtml(paused ? t('wc_paused', done, withSite.length) : t('wc_progress', done, withSite.length))}`
-      : escapeHtml(t('wc_done', done, hard));
+    el.innerHTML = !withSite.length ? '' : done >= withSite.length ? escapeHtml(t('wc_done', done, hard))
+      : wcStopped && !wcRunning ? escapeHtml(t('wc_stopped', done, withSite.length)) + `<button type="button" class="link-btn" onclick="resumeWebChecks()">${escapeHtml(t('wc_resume'))}</button>`
+      : `<span class="spin"></span>${escapeHtml(wcStopped ? t('wc_stopping') : paused ? t('wc_paused', done, withSite.length) : t('wc_progress', done, withSite.length))}` +
+        (wcStopped ? '' : `<button type="button" class="stop-btn" onclick="stopWebChecks()">${escapeHtml(t('btn_stop'))}</button>`);
   }
   const btn = document.getElementById('wc-leads');
   if (btn){
@@ -3733,7 +3773,7 @@ function wcRenderStatus(){
     btn.disabled = wcLeadsOn;
   }
 }
-function checkLeadWebsites(){ wcLeadsOn = true; startWebChecks(); }
+function checkLeadWebsites(){ wcLeadsOn = true; wcStopped = false; startWebChecks(); }
 
 // Keys that identify a business already in the list (same rule as addAllStaged).
 function listKeys(){
