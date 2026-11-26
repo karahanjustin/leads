@@ -344,6 +344,16 @@
   .chip-toggle.open .arrow { transform: translateY(1px) rotate(225deg); }
   .chips.defect-pills { margin-top: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2, #f6f7f9); }
   .chips.defect-pills .chip .n { opacity: .6; margin-left: 4px; font-variant-numeric: tabular-nums; }
+  .chip.off { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); text-decoration: line-through; }
+  .seg { display: inline-flex; border: 1px solid var(--border-strong); border-radius: 999px; overflow: hidden; margin-right: 6px; }
+  .seg button { font-size: 12px; padding: 4px 10px; border: 0; border-radius: 0; background: var(--surface); color: var(--text-2); font-weight: 500; }
+  .seg button + button { border-left: 1px solid var(--border-strong); }
+  .seg button.on { background: var(--ink); color: #fff; }
+  .chips.defect-pills { flex-direction: column; align-items: stretch; gap: 8px; }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .pill-row + .pill-row { padding-top: 8px; border-top: 1px solid var(--border); }
+  .pill-head { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text-3); width: 84px; flex: none; }
+  .chip.chip-all { font-weight: 600; }
   .chip.link { border-color: transparent; background: none; text-decoration: underline; color: var(--text-3); }
   .chip-sep { width: 1px; height: 18px; background: var(--border-strong); margin: 0 4px; }
   table.staging tr.dup td { opacity: 0.45; }
@@ -747,10 +757,10 @@ const I18N = {
     wc_unreach:'Not reachable', wc_unreach_tip:'The domain exists but the site does not answer',
     wc_parked:'Parked domain', wc_parked_tip:'Only a placeholder page, no real website',
     wc_forsale:'Domain for sale', wc_forsale_tip:'The domain is offered for sale (parking service, marketplace or sales page), the website is gone',
-    flt_defect_all:'Clear selection', flt_defects:'Defects', flt_defects_n:(n)=>`Defects (${n} selected)`, flt_defect_tip:'Show only results with this defect',
+    flt_defect_all:'Clear selection', flt_defects:'Defects', flt_defects_n:(n)=>`Defects (${n} selected)`, flt_defects_hide_n:(n)=>`Defects (${n} hidden)`, flt_builders:'Builders', flt_builders_all:'All builders', flt_mode_only:'Show only', flt_mode_hide:'Hide', flt_defect_tip:'Show only results with this defect',
     def_forsale:'Domain for sale', def_down:'Domain dead', def_unreach:'Not reachable', def_parked:'Parked domain', def_err:'Error page',
     def_nohttps:'No HTTPS', def_nomobile:'Not mobile', def_year:'Old copyright (3+ years)', def_wp:'Outdated WordPress',
-    def_noredirect:'No HTTPS redirect', def_noform:'No contact form', def_nocheck:'Not checkable', def_fine:'No defects', def_builder:(b)=>`Builder: ${b}`,
+    def_nosite:'Website missing', def_noredirect:'No HTTPS redirect', def_noform:'No contact form', def_nocheck:'Not checkable', def_fine:'No defects', def_builder:(b)=>`Builder: ${b}`,
     wc_err:(c)=>`Error ${c}`, wc_err_tip:'The start page returns an error code',
     wc_nohttps:'No HTTPS', wc_nohttps_tip:'No working HTTPS, browsers show the site as not secure',
     wc_nomobile:'Not mobile', wc_nomobile_tip:'No viewport tag, the site is not set up for phones',
@@ -849,10 +859,10 @@ const I18N = {
     wc_unreach:'Nicht erreichbar', wc_unreach_tip:'Die Domain existiert, aber die Seite antwortet nicht',
     wc_parked:'Domain geparkt', wc_parked_tip:'Nur eine Platzhalterseite, keine echte Website',
     wc_forsale:'Domain zu verkaufen', wc_forsale_tip:'Die Domain wird zum Verkauf angeboten (Parkdienst, Domainbörse oder Verkaufsseite), die Website ist weg',
-    flt_defect_all:'Auswahl aufheben', flt_defects:'Mängel', flt_defects_n:(n)=>`Mängel (${n} gewählt)`, flt_defect_tip:'Nur Treffer mit diesem Mangel zeigen',
+    flt_defect_all:'Auswahl aufheben', flt_defects:'Mängel', flt_defects_n:(n)=>`Mängel (${n} gewählt)`, flt_defects_hide_n:(n)=>`Mängel (${n} ausgeblendet)`, flt_builders:'Baukästen', flt_builders_all:'Alle Baukästen', flt_mode_only:'Nur diese zeigen', flt_mode_hide:'Diese ausblenden', flt_defect_tip:'Nur Treffer mit diesem Mangel zeigen',
     def_forsale:'Domain zu verkaufen', def_down:'Domain tot', def_unreach:'Nicht erreichbar', def_parked:'Domain geparkt', def_err:'Fehlerseite',
     def_nohttps:'Kein HTTPS', def_nomobile:'Nicht mobil', def_year:'Altes Copyright (3+ Jahre)', def_wp:'Veraltetes WordPress',
-    def_noredirect:'Keine HTTPS-Umleitung', def_noform:'Kein Kontaktformular', def_nocheck:'Nicht prüfbar', def_fine:'Keine Mängel', def_builder:(b)=>`Baukasten: ${b}`,
+    def_nosite:'Website fehlt', def_noredirect:'Keine HTTPS-Umleitung', def_noform:'Kein Kontaktformular', def_nocheck:'Nicht prüfbar', def_fine:'Keine Mängel', def_builder:(b)=>`Baukasten: ${b}`,
     wc_err:(c)=>`Fehler ${c}`, wc_err_tip:'Die Startseite liefert einen Fehlercode',
     wc_nohttps:'Kein HTTPS', wc_nohttps_tip:'Kein funktionierendes HTTPS, Browser zeigen die Seite als nicht sicher',
     wc_nomobile:'Nicht mobil', wc_nomobile_tip:'Kein Viewport-Tag, die Seite ist nicht für Handys eingerichtet',
@@ -3283,7 +3293,7 @@ function wcFlags(wc){
   return f;
 }
 // Defect filter options in a fixed order; builders are listed one by one.
-const WC_DEFECT_ORDER = ['forsale', 'down', 'unreach', 'parked', 'err', 'nohttps', 'nomobile', 'year', 'wp', 'noredirect', 'noform', 'nocheck', 'fine'];
+const WC_DEFECT_ORDER = ['nosite', 'forsale', 'down', 'unreach', 'parked', 'err', 'nohttps', 'nomobile', 'year', 'wp', 'noredirect', 'noform', 'nocheck', 'fine'];
 function wcDefectLabel(id){ return id.startsWith('b:') ? t('def_builder', id.slice(2)) : t('def_' + id); }
 let defectOpen = false;
 function toggleDefect(id){
@@ -3291,6 +3301,13 @@ function toggleDefect(id){
   renderStaging();
 }
 function clearDefects(){ stagingFilter.defects.clear(); renderStaging(); }
+function setDefectMode(m){ stagingFilter.defectMode = m; renderStaging(); }
+// Defect ids of one result row; a missing own website counts as a defect too.
+function rowDefects(r){
+  const ids = r.wc ? wcFlags(r.wc).map(x => x.id) : [];
+  if (siteKind(r.website) !== 'site') ids.unshift('nosite');
+  return ids;
+}
 function toggleDefectPanel(){ defectOpen = !defectOpen; renderStagingFilters(); }
 function wcDate(d){
   try { return new Date(d + 'T12:00:00').toLocaleDateString(lang === 'de' ? 'de-DE' : 'en-GB'); } catch(e){ return d; }
@@ -3402,7 +3419,7 @@ function listKeys(){
 }
 
 // --- Staging filters -------------------------------------------------------
-let stagingFilter = { site:'all', phone:false, fresh:false, nomobile:false, hard:false, defects:new Set() };
+let stagingFilter = { site:'all', phone:false, fresh:false, nomobile:false, hard:false, defects:new Set(), defectMode:'only' };
 function setStagingFilter(k, v){
   if (k === 'site') stagingFilter.site = v; else stagingFilter[k] = !stagingFilter[k];
   renderStaging();
@@ -3413,20 +3430,22 @@ function visibleStaging(){
     const kind = siteKind(r.website);
     if (stagingFilter.site === 'none' && kind !== 'none') return false;
     if (stagingFilter.site === 'social' && kind !== 'social') return false;
-    if (stagingFilter.site === 'nosite' && kind === 'site') return false;
     if (stagingFilter.site === 'hassite' && kind !== 'site') return false;
     if (stagingFilter.phone && !r.phone) return false;
     if (stagingFilter.nomobile && phoneKind(r.phone) === 'mobile') return false;
     if (stagingFilter.fresh && keys.isIn(r)) return false;
     if (stagingFilter.hard && !(r.wc && r.wc.hard)) return false;
-    if (stagingFilter.defects.size && !(r.wc && wcFlags(r.wc).some(x => stagingFilter.defects.has(x.id)))) return false;
+    if (stagingFilter.defects.size){
+      const hit = rowDefects(r).some(id => stagingFilter.defects.has(id));
+      if (stagingFilter.defectMode === 'hide' ? hit : !hit) return false;
+    }
     return true;
   });
 }
-// Defect options as single pills; several can be on at once (a row shows if it has any of them).
+// Defect options as single pills; several can be on at once. Mode 'only' shows rows with any of them, 'hide' drops those rows.
 function defectIds(){
   const counts = new Map();
-  for (const r of finderResults) if (r.wc) for (const x of wcFlags(r.wc)) counts.set(x.id, (counts.get(x.id) || 0) + 1);
+  for (const r of finderResults) for (const id of rowDefects(r)) counts.set(id, (counts.get(id) || 0) + 1);
   const builders = [...counts.keys()].filter(id => id.startsWith('b:')).sort();
   const ids = [...WC_DEFECT_ORDER.slice(0, -2), ...builders, ...WC_DEFECT_ORDER.slice(-2)]
     .filter(id => counts.get(id) || stagingFilter.defects.has(id));
@@ -3435,16 +3454,36 @@ function defectIds(){
 function defectToggle(ids){
   if (!ids.length && !stagingFilter.defects.size) return '';
   const n = stagingFilter.defects.size;
-  const label = n ? t('flt_defects_n', n) : t('flt_defects');
+  const label = n ? t(stagingFilter.defectMode === 'hide' ? 'flt_defects_hide_n' : 'flt_defects_n', n) : t('flt_defects');
   return `<button class="chip chip-toggle${n ? ' on' : ''}${defectOpen ? ' open' : ''}" onclick="toggleDefectPanel()" title="${escapeHtml(t('flt_defect_tip'))}" aria-expanded="${defectOpen}">${escapeHtml(label)}<span class="arrow"></span></button>`;
+}
+function toggleAllBuilders(){
+  const all = defectIds().ids.filter(id => id.startsWith('b:'));
+  const allOn = all.length && all.every(id => stagingFilter.defects.has(id));
+  for (const id of all) allOn ? stagingFilter.defects.delete(id) : stagingFilter.defects.add(id);
+  renderStaging();
 }
 function renderDefectPills(ids, counts){
   const el = document.getElementById('defect-pills');
   if (!el) return;
   if (!defectOpen || !ids.length){ el.style.display = 'none'; el.innerHTML = ''; return; }
   el.style.display = 'flex';
-  el.innerHTML = ids.map(id => `<button class="chip${stagingFilter.defects.has(id) ? ' on' : ''}" data-id="${escapeHtml(id)}" onclick="toggleDefect(this.dataset.id)">${escapeHtml(wcDefectLabel(id))}<span class="n">${counts.get(id) || 0}</span></button>`).join('') +
-    (stagingFilter.defects.size ? `<button class="chip link" onclick="clearDefects()">${escapeHtml(t('flt_defect_all'))}</button>` : '');
+  const mode = stagingFilter.defectMode;
+  const sel = on => on ? (mode === 'hide' ? ' off' : ' on') : '';
+  const pill = id => `<button class="chip${sel(stagingFilter.defects.has(id))}" data-id="${escapeHtml(id)}" onclick="toggleDefect(this.dataset.id)">${escapeHtml(id.startsWith('b:') ? id.slice(2) : wcDefectLabel(id))}<span class="n">${counts.get(id) || 0}</span></button>`;
+  const defects = ids.filter(id => !id.startsWith('b:'));
+  const builders = ids.filter(id => id.startsWith('b:'));
+  const bTotal = builders.reduce((n, id) => n + (counts.get(id) || 0), 0);
+  const bAll = builders.length && builders.every(id => stagingFilter.defects.has(id));
+  let html = `<div class="pill-row"><span class="seg">` +
+    `<button class="${mode === 'only' ? 'on' : ''}" onclick="setDefectMode('only')">${escapeHtml(t('flt_mode_only'))}</button>` +
+    `<button class="${mode === 'hide' ? 'on' : ''}" onclick="setDefectMode('hide')">${escapeHtml(t('flt_mode_hide'))}</button></span>` +
+    (stagingFilter.defects.size ? `<button class="chip link" onclick="clearDefects()">${escapeHtml(t('flt_defect_all'))}</button>` : '') + `</div>`;
+  if (defects.length) html += `<div class="pill-row"><span class="pill-head">${escapeHtml(t('flt_defects'))}</span>${defects.map(pill).join('')}</div>`;
+  if (builders.length) html += `<div class="pill-row"><span class="pill-head">${escapeHtml(t('flt_builders'))}</span>` +
+    `<button class="chip chip-all${sel(bAll)}" onclick="toggleAllBuilders()">${escapeHtml(t('flt_builders_all'))}<span class="n">${bTotal}</span></button>` +
+    `<span class="chip-sep"></span>${builders.map(pill).join('')}</div>`;
+  el.innerHTML = html;
 }
 function renderStagingFilters(){
   const el = document.getElementById('staging-filters');
@@ -3453,7 +3492,6 @@ function renderStagingFilters(){
   const { ids: dIds, counts: dCounts } = defectIds();
   el.innerHTML =
     chip(t('flt_all'), stagingFilter.site === 'all', "setStagingFilter('site','all')") +
-    chip(t('flt_nosite'), stagingFilter.site === 'nosite', "setStagingFilter('site','nosite')") +
     chip(t('flt_hassite'), stagingFilter.site === 'hassite', "setStagingFilter('site','hassite')") +
     chip(t('flt_social'), stagingFilter.site === 'social', "setStagingFilter('site','social')") +
     '<span class="chip-sep"></span>' +
