@@ -875,7 +875,7 @@ const I18N = {
     add_one:(target)=>`Add to ${target}`, undo:'Undo', undo_done:'Undone.', undo_more:(n)=>`${n} more step${n===1?'':'s'} can be undone.`, undo_removed:(name)=>`Removed "${name}" from the results.`, undo_added:(n,target)=>`Added ${n} to ${target}.`, undo_added_one:(name,target)=>`"${name}" added to ${target}.`,
     f_added:(n,target,skipped)=>`Added ${n} to ${target}${skipped?`, skipped ${skipped} already in your list`:''}.`,
     f_added_mails:(n)=>` ${n} email address${n===1?'':'es'} guessed from the website.`,
-    flt_all:'All', flt_nosite:'No website', flt_hassite:'Has website', flt_social:'Social media only', flt_phone:'With phone', flt_nomobile:'No mobile numbers', flt_new:'New only',
+    flt_all:'All', flt_nosite:'No website', flt_hassite:'Has website', flt_social:'Social media / portal only', portal_only:'Portal page only', portal_tip:'The link goes to an ordering or directory portal, not to a website of their own.', flt_phone:'With phone', flt_nomobile:'No mobile numbers', flt_new:'New only',
     count_shown:(n,total)=>`${n} of ${total} businesses`,
     in_list:'in your list',
     email_guess:'Guessed from the website, not verified',
@@ -982,7 +982,7 @@ const I18N = {
     add_one:(target)=>`Zu ${target} hinzufügen`, undo:'Rückgängig', undo_done:'Rückgängig gemacht.', undo_more:(n)=>`Noch ${n} Schritt${n===1?'':'e'} rückgängig machbar.`, undo_removed:(name)=>`"${name}" aus den Ergebnissen entfernt.`, undo_added:(n,target)=>`${n} zu ${target} hinzugefügt.`, undo_added_one:(name,target)=>`"${name}" zu ${target} hinzugefügt.`,
     f_added:(n,target,skipped)=>`${n} zu ${target} hinzugefügt${skipped?`, ${skipped} bereits in der Liste übersprungen`:''}.`,
     f_added_mails:(n)=>` ${n} E-Mail-Adresse${n===1?'':'n'} aus der Website vermutet.`,
-    flt_all:'Alle', flt_nosite:'Ohne Website', flt_hassite:'Website vorhanden', flt_social:'Nur Social Media', flt_phone:'Mit Telefon', flt_nomobile:'Ohne Mobilnummern', flt_new:'Nur neue',
+    flt_all:'Alle', flt_nosite:'Ohne Website', flt_hassite:'Website vorhanden', flt_social:'Nur Social Media / Portal', portal_only:'Nur Portalseite', portal_tip:'Der Link führt zu einem Bestell- oder Verzeichnisportal, nicht zu einer eigenen Website.', flt_phone:'Mit Telefon', flt_nomobile:'Ohne Mobilnummern', flt_new:'Nur neue',
     count_shown:(n,total)=>`${n} von ${total} Betrieben`,
     in_list:'schon in der Liste',
     email_guess:'Aus der Website vermutet, nicht geprüft',
@@ -1078,6 +1078,7 @@ function loadLeads() {
     const raw = localStorage.getItem(storageKey());
     leads = raw ? JSON.parse(raw) : [];
     leads = leads.map(l => ({ website: '', email: '', address: '', callback: '', touched: '', emailGuess: false, ...l }));
+    if (fixPortalRows(leads)) localStorage.setItem(storageKey(), JSON.stringify(leads));
   } catch (e) { leads = []; }
   render();
 }
@@ -1454,7 +1455,7 @@ function render() {
         <div class="meta-row">
           ${renderField(l, 'address', 'address', t('th_address').toLowerCase(), t('meta_addr'))}
         </div>
-        ${l.wc || (wcLeadsOn && wcNeeds(l)) ? `<div class="wc-line wc-lead"><span class="meta-label">${t('wc_label')}</span>${wcTags(l.wc, true)}</div>` : ''}
+        ${l.wc || (wcLeadsOn && wcNeeds(l)) || isPortal(l.website) ? `<div class="wc-line wc-lead"><span class="meta-label">${t('wc_label')}</span>${portalTag(l.website)}${wcTags(l.wc, !isPortal(l.website))}</div>` : ''}
         <textarea class="notes-input" placeholder="${escapeHtml(t('notes_ph'))}" rows="1" oninput="updateNote(${l.id}, this.value)" onkeydown="if((event.metaKey||event.ctrlKey)&&event.key==='Enter'){event.preventDefault();this.blur();}">${escapeHtml(l.note)}</textarea>
         <div class="callback-row">
           <span class="meta-label">${terms().dateLabel}</span>
@@ -1525,7 +1526,7 @@ function renderCallMode() {
       <h2 class="cm-name">${escapeHtml(l.name)}</h2>
       <div class="cm-sub">${escapeHtml(l.address || '')}${cb === 'overdue' ? ` <span class="due-flag overdue">${t('overdue')}</span>` : cb === 'today' ? ` <span class="due-flag today">${t('today')}</span>` : ''}</div>
       ${contact}
-      ${l.wc ? `<div class="cm-reason"><span class="k">${t('wc_label')}</span><span class="wc-line">${wcTags(l.wc)}</span></div>` : ''}
+      ${l.wc || isPortal(l.website) ? `<div class="cm-reason"><span class="k">${t('wc_label')}</span><span class="wc-line">${portalTag(l.website)}${wcTags(l.wc)}</span></div>` : ''}
       <div class="cm-meta">
         <span class="k">${t('meta_link')}</span><span>${site}</span>
         ${mode === 'email' ? `<span class="k">${t('meta_phone')}</span><span>${escapeHtml(isMissing(l.phone) ? MISSING : l.phone)}</span>` : `<span class="k">${t('meta_email')}</span><span>${escapeHtml(isMissing(l.email) ? MISSING : l.email)}${l.emailGuess && !isMissing(l.email) ? ' <span class="guess-tag">?</span>' : ''}</span>`}
@@ -3383,6 +3384,7 @@ function loadStaging(){
     const raw = localStorage.getItem(STAGING_KEY);
     finderResults = raw ? JSON.parse(raw) : [];
   } catch(e){ finderResults = []; }
+  if (fixPortalRows(finderResults)) persistStaging();
   finderResults.forEach(r => { if (r._sid > sidCounter) sidCounter = r._sid; });
   if (finderResults.length){ renderStaging(); startWebChecks(); }
 }
@@ -3516,11 +3518,28 @@ function siteHost(url){
   try { return new URL(normalizeUrl((url || '').trim())).hostname.replace(/^www\./i, '').toLowerCase(); }
   catch(e){ return ''; }
 }
+// Ordering, booking and directory portals: a page there is not a website of their own.
+const PORTAL_HOSTS = /(^|\.)(doener-curator\.com|xregional\.de|snack-online\.com|9gg\.de|eatbu\.com|lieferando\.(de|at|nl|com)|just-eat\.(de|ch|co\.uk)|eat\.ch|wolt\.com|ubereats\.com|pizza\.de|foodbooking\.com|orderyoyo\.com|order-smart\.de|app-smart\.de|ola\.menu|speisekarte\.(de|menu)|restaurantguru\.com|opentable\.(de|com)|quandoo\.(de|com)|thefork\.(de|com)|pointoo\.de|placeweb\.site|placestars\.com|beepworld\.de|gelbeseiten\.de|dasoertliche\.de|das-oertliche\.de|11880\.com|golocal\.de|meinestadt\.de|cylex\.de|cylex-branchenbuch\.de|stadtbranchenbuch\.com|kennstdueinen\.de|werkenntdenbesten\.de|yably\.de|myhammer\.de|treatwell\.de|planity\.com|booksy\.com|doctolib\.de|jameda\.de)$/i;
+function isPortal(url){ const h = siteHost(url); return !!h && PORTAL_HOSTS.test(h); }
 function siteKind(url){
   if (isMissing(url)) return 'none';
   const h = siteHost(url);
   if (!h) return 'none';
-  return SOCIAL_HOSTS.test(h) ? 'social' : 'site';
+  return SOCIAL_HOSTS.test(h) || PORTAL_HOSTS.test(h) ? 'social' : 'site';
+}
+function portalTag(url){
+  return isPortal(url) ? `<span class="wc-tag wc-hard" title="${escapeHtml(t('portal_tip'))}">${escapeHtml(t('portal_only'))}</span>` : '';
+}
+// Older data: rows whose "website" is only a portal page lose the check result and a guessed info@ there.
+function fixPortalRows(list){
+  let changed = false;
+  for (const x of list){
+    if (!isPortal(x.website)) continue;
+    if (x.wc){ delete x.wc; changed = true; }
+    if (x.emailGuess){ x.email = x.status !== undefined ? MISSING : ''; x.emailGuess = false; changed = true; }
+    if (x.site === 'unknown'){ x.site = 'bad'; changed = true; }
+  }
+  return changed;
 }
 // "info@" at the business's own domain; skipped for social links and site builders.
 function guessEmail(url){
@@ -3945,7 +3964,7 @@ function renderStaging(){
     return `<tr${dup ? ' class="dup"' : ''} data-sid="${r._sid}">
       <td class="c-name">${f('name', t('th_name').toLowerCase())}${dup ? `<span class="dup-tag">${t('in_list')}</span>` : ''}</td>
       <td class="c-phone" data-label="${escapeHtml(t('th_phone'))}"><div class="web-cell">${f('phone', t('th_phone').toLowerCase())}${phoneTag(r.phone)}</div></td>
-      <td class="c-web" data-label="${escapeHtml(t('th_website'))}"><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">${ICON.open}</a>` : ''}</div>${siteKind(r.website) === 'site' ? `<div class="wc-line" id="wc-s${r._sid}">${wcTags(r.wc, true)}</div>` : ''}</td>
+      <td class="c-web" data-label="${escapeHtml(t('th_website'))}"><div class="web-cell">${f('website', t('th_website').toLowerCase())}${r.website ? `<a class="web-link" href="${escapeHtml(normalizeUrl(r.website))}" target="_blank" rel="noopener" title="${escapeHtml(t('th_website'))}">${ICON.open}</a>` : ''}</div>${siteKind(r.website) === 'site' ? `<div class="wc-line" id="wc-s${r._sid}">${wcTags(r.wc, true)}</div>` : isPortal(r.website) ? `<div class="wc-line">${portalTag(r.website)}</div>` : ''}</td>
       <td class="c-addr" data-label="${escapeHtml(t('th_address'))}">${f('address', t('th_address').toLowerCase())}</td>
       <td class="c-mail" data-label="${escapeHtml(t('th_email'))}">${f('email', t('th_email').toLowerCase())}</td>
       <td class="col-x"><div class="row-acts"><button class="row-add" title="${escapeHtml(t('add_one', terms().uncontacted))}" onclick="addOneStaged(${r._sid})"${dup ? ' disabled' : ''}>${ICON.add}</button><button class="row-remove" title="${escapeHtml(t('remove'))}" onclick="stagingRemove(${r._sid})">${ICON.remove}</button></div></td>
