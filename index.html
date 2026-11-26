@@ -841,6 +841,8 @@ const I18N = {
     f_businesses:'businesses',
     f_tiles:'Large area, scanning in tiles ...',
     f_overture:(i,n,mb)=>`Loading Overture Maps data, block ${i} of ${n} (${mb} MB) ...`,
+    f_overture_cached:(n)=>`Overture Maps data already saved on this device (${n} tiles), nothing to download ...`,
+    f_wait_osm:(n)=>`Overture done (${n} hits). Waiting for OpenStreetMap, this can take up to a minute ...`,
     sub_hint:'Too many? Narrow it down:', nm_subs:'Show sub-niches', nm_count:(n)=>String(n), nm_none:'No matching niche, the search will still try it as free text.',
     btn_stop:'Stop', f_stopped:(n)=>`Stopped. ${n} businesses kept.`, wc_stopped:(d,n)=>`Website check stopped at ${d} of ${n}.`, wc_resume:'Continue', wc_stopping:'Stopping website check ...',
     f_found:(n)=>`Found ${n} businesses. Edit or remove rows, then add them to your call list.`,
@@ -945,6 +947,8 @@ const I18N = {
     f_businesses:'Betriebe',
     f_tiles:'Großes Gebiet, wird in Kacheln durchsucht ...',
     f_overture:(i,n,mb)=>`Lade Overture-Maps-Daten, Paket ${i} von ${n} (${mb} MB) ...`,
+    f_overture_cached:(n)=>`Overture-Kartendaten liegen schon auf diesem Gerät (${n} Kacheln), kein Download nötig ...`,
+    f_wait_osm:(n)=>`Overture fertig (${n} Treffer). Warte noch auf OpenStreetMap, das kann bis zu einer Minute dauern ...`,
     sub_hint:'Zu viele? Eingrenzen:', nm_subs:'Unterbranchen zeigen', nm_count:(n)=>String(n), nm_none:'Keine passende Branche, die Suche versucht es trotzdem als freien Text.',
     btn_stop:'Stopp', f_stopped:(n)=>`Gestoppt. ${n} Betriebe bleiben in der Liste.`, wc_stopped:(d,n)=>`Website-Check bei ${d} von ${n} gestoppt.`, wc_resume:'Fortsetzen', wc_stopping:'Website-Check wird angehalten ...',
     f_found:(n)=>`${n} Betriebe gefunden. Zeilen bearbeiten oder entfernen, dann in die Liste übernehmen.`,
@@ -3264,7 +3268,7 @@ async function overturePlaces(lat, lon, radiusM, inArea, cat, nicheText, onProgr
     }
   };
   await Promise.all([worker(), worker(), worker(), worker()]);
-  if (blocks.length === 0) onProgress?.(0, 0, 0);
+  if (blocks.length === 0) onProgress?.(0, 0, 0, cachedTiles.length);
   Promise.allSettled(puts).then(renderCacheInfo);
   return out;
 }
@@ -3400,12 +3404,15 @@ async function runFinderSearch(){
       : bb ? Math.min(30000, Math.max(3000, distM(bb[0], bb[2], bb[1], bb[3]) / 2)) : 5000;
     const ovtPromise = niche
       ? overturePlaces(lat, lon, Math.max(radiusM, cityRadius), areaTest(place, radiusM), cat, niche,
-          (done, total, bytes) => fStatus(t('f_overture', done, total, (bytes / 1e6).toFixed(1)), '', true))
+          (done, total, bytes, cached) => fStatus(total ? t('f_overture', done, total, (bytes / 1e6).toFixed(1)) : t('f_overture_cached', cached), '', true))
           .catch(e => { console.warn('Overture unavailable:', e); return []; })
       : Promise.resolve([]);
-    let data = null;
+    let data = null, osmDone = false;
+    // Overture is often done first; say what is still running instead of a stale progress line.
+    ovtPromise.then(rows => { if (!osmDone && !stopped() && filters.length) fStatus(t('f_wait_osm', rows.length), '', true); });
     if (filters.length) try { data = await overpass(buildCombinedQuery(aid, lat, lon, radiusM, filters)); }
     catch(e){ /* try tiling below */ }
+    osmDone = true;
     const cap = 1500;
     const initial = data?.elements?.length || 0;
     if (data?.elements) for (const el of data.elements) addElement(el, label, fallbackCity);
