@@ -127,6 +127,9 @@
   .menu summary::after { content: ''; display: inline-block; margin-left: 7px; vertical-align: 2px;
     border: 4px solid transparent; border-top-color: currentColor; border-bottom: 0; }
   .menu summary:hover, .menu[open] summary { border-color: var(--ink); }
+  .hq-link { font-size: 13px; font-weight: 500; padding: 5px 10px; color: var(--text); text-decoration: none;
+    border: 1px solid var(--border-strong); border-radius: var(--r); background: var(--surface); white-space: nowrap; }
+  .hq-link:hover { border-color: var(--ink); color: var(--blue); }
   .menu-list {
     position: absolute; right: 0; top: calc(100% + 4px); z-index: 20; min-width: 190px;
     background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--r-panel);
@@ -520,6 +523,7 @@
     .topbar-actions { margin-left: 0; width: 100%; padding: 4px 0 10px; }
     .topbar-actions .primary { flex: 1; }
     .topbar-actions button, .menu summary { min-height: 38px; }
+    .hq-link { min-height: 38px; display: inline-flex; align-items: center; }
     .lang-switch button { min-width: 40px; }
     .menu-list { right: auto; left: 0; }
     .menu-list button { padding: 11px 16px; font-size: 15px; }
@@ -611,6 +615,7 @@
     </nav>
     <div class="topbar-actions">
       <button class="small primary" onclick="openFinder()" id="finder-toggle" data-i18n="btn_find">Find businesses</button>
+      <a class="hq-link" href="https://westfalen-media.de/todo/" title="Morgenliste, alle Leads und Prüfberichte aus dem Nachtlauf">Akquise-HQ</a>
       <details class="menu" id="data-menu">
         <summary data-i18n="btn_data">Import / Export</summary>
         <div class="menu-list" onclick="if (event.target.closest('button')) this.parentElement.open = false">
