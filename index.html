@@ -1204,7 +1204,7 @@ function exportData() {
 
 function exportCSV() {
   if (!leads.length) return alert(t('a_nothing_export'));
-  const headers = ['name', 'phone', 'website', 'email', 'address', 'quality', 'status', 'note', 'callback'];
+  const headers = ['name', 'phone', 'website', 'email', 'address', 'quality', 'status', 'note', 'callback', 'touched', 'email_guess', 'website_check'];
   const esc = (v) => {
     v = (v === undefined || v === null) ? '' : String(v);
     if (v === MISSING) v = '';
@@ -1212,7 +1212,8 @@ function exportCSV() {
   };
   const lines = [headers.join(',')];
   for (const l of leads) {
-    lines.push([l.name, l.phone, l.website, l.email, l.address, l.site, l.status, l.note, l.callback].map(esc).join(','));
+    lines.push([l.name, l.phone, l.website, l.email, l.address, l.site, l.status, l.note, l.callback,
+      l.touched, l.emailGuess ? '1' : '', l.wc ? JSON.stringify(l.wc) : ''].map(esc).join(','));
   }
   const blob = new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -1221,6 +1222,7 @@ function exportCSV() {
   a.download = `${mode === 'email' ? 'email' : 'call'}-tracker-${new Date().toISOString().slice(0,10)}.csv`;
   a.click();
   URL.revokeObjectURL(url);
+  markExported();
 }
 
 function importData(event) {
@@ -1280,6 +1282,11 @@ function mapHeader(h) {
   if (['address','adress','addr','street','location','anschrift','adresse'].includes(h)) return 'address';
   if (['quality','site_quality','site quality','site','rating'].includes(h)) return 'site';
   if (['note','notes','notiz','comment','comments'].includes(h)) return 'note';
+  if (['status'].includes(h)) return 'status';
+  if (['callback','follow_up','rueckruf','rückruf'].includes(h)) return 'callback';
+  if (['touched'].includes(h)) return 'touched';
+  if (['email_guess'].includes(h)) return 'emailGuess';
+  if (['website_check'].includes(h)) return 'wc';
   return null;
 }
 
@@ -1303,27 +1310,45 @@ function importCSV(event) {
       const hasHeader = headerKeys.some(k => k !== null);
       const dataRows = hasHeader ? rows.slice(1) : rows;
       const cols = hasHeader ? headerKeys : ['name','phone','website','email','site','note'];
+      // A file from our own CSV export carries the status column: then it is a
+      // full copy of a list (e.g. sent over WhatsApp) and replaces it like JSON.
+      const fullCopy = cols.includes('status');
+      const STATUS_OK = ['pending', 'no_answer', 'not_int', 'interested', 'closed'];
       const newLeads = [];
       let added = 0;
       for (const r of dataRows) {
-        const lead = { name: '', phone: '', website: '', email: '', address: '', site: '', note: '' };
+        const lead = { name: '', phone: '', website: '', email: '', address: '', site: '', note: '',
+                       status: '', callback: '', touched: '', emailGuess: '', wc: '' };
         cols.forEach((col, i) => { if (col && r[i] !== undefined) lead[col] = r[i].trim(); });
         if (!lead.name) continue;
+        let wc = null;
+        if (lead.wc) { try { wc = JSON.parse(lead.wc); } catch (_) { wc = null; } }
+        const site = String(lead.site || '').trim().toLowerCase();
         newLeads.push({
           id: newId(added),
           name: lead.name,
           phone: lead.phone || MISSING,
           website: lead.website || MISSING,
           email: lead.email || MISSING,
+          emailGuess: lead.emailGuess === '1',
           address: lead.address || '',
-          site: lead.site ? normalizeSite(lead.site) : 'unknown',
-          status: 'pending',
+          site: ['none', 'bad', 'ok', 'unknown'].includes(site) ? site : (site ? normalizeSite(site) : 'unknown'),
+          ...(wc ? { wc } : {}),
+          status: STATUS_OK.includes(lead.status) ? lead.status : 'pending',
           note: lead.note || '',
-          callback: '',
+          callback: /^\d{4}-\d{2}-\d{2}/.test(lead.callback) ? lead.callback : '',
+          touched: /^\d{4}-\d{2}-\d{2}/.test(lead.touched) ? lead.touched : '',
         });
         added++;
       }
       if (!added) throw new Error(t('e_no_rows'));
+      if (fullCopy && leads.length) {
+        if (!confirm(t('a_confirm_import', leads.length, added))) return;
+        leads = newLeads;
+        persist();
+        render();
+        return;
+      }
       leads = leads.concat(newLeads);
       persist();
       render();
@@ -1630,7 +1655,7 @@ function renderBackupBar(failed) {
   bar.classList.toggle('active', warn);
   if (!warn) return;
   bar.innerHTML = `<span>${escapeHtml(days === null ? t('bk_never') : t('bk_old', days))}</span><span class="spacer"></span>
-    <button class="small" onclick="exportData()">${t('bk_export')}</button>
+    <button class="small" onclick="exportCSV()">${t('bk_export')}</button>
     ${canAuto ? `<button class="small primary" onclick="setupAutoBackup()">${t('bk_auto')}</button>` : ''}
     <button class="link" onclick="localStorage.setItem('${BK_SNOOZE}', Date.now() + 7 * 86400000); renderBackupBar()">${t('bk_later')}</button>`;
 }
